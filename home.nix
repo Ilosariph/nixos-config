@@ -1,12 +1,14 @@
 { lib, pkgs, ... }:
-{
+let
+  username = "simon";
+in {
   home = {
     packages = with pkgs; [
-      hello
+      cowsay lolcat
     ];
 
-    username = "simon";
-    homeDirectory = "/home/simon";
+    inherit username;
+    homeDirectory = "/home/${username}";
 
     stateVersion = "23.11";
   };

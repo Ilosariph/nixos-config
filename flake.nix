@@ -8,9 +8,11 @@
       url = "github:nix-community/home-manager/release-23.11";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    hyprland.url = "github:hyprwm/Hyprland";
   };
 
-  outputs = {nixpkgs, home-manager, ... }:
+  outputs = {nixpkgs, home-manager, hyprland, ... }:
     let
       lib = nixpkgs.lib;
       system = "x86_64-linux";
@@ -19,7 +21,7 @@
       homeConfigurations = {
         simon = home-manager.lib.homeManagerConfiguration {
           inherit pkgs;
-          modules = [ ./home.nix];
+          modules = [ ./home.nix ./hyprland.nix];
         };
       };
     };
