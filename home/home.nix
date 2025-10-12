@@ -7,12 +7,39 @@ in {
     ./hypr/hyprlock.nix
   ];
 
+  programs.ssh = {
+    enable = true;
+	extraConfig = ''
+      Host *
+          IdentityAgent "~/.1password/agent.sock";
+    '';
+  };
+
+  programs.git = {
+    enable = true;
+    extraConfig = {
+      gpg = {
+        format = "ssh";
+      };
+      "gpg \"ssh\"" = {
+        program = "${lib.getExe' pkgs._1password-gui "op-ssh-sign"}";
+      };
+      commit = {
+        gpgsign = true;
+      };
+
+      user = {
+        signingKey = "...";
+      };
+    };
+  };
+
+  programs.neovim.enable = true;
+  xdg.configFile."nvim".source = ./nvim;
+
   home = {
     inherit username;
     homeDirectory = "/home/${username}";
-
-    programs.neovim.enable = true;
-    xdg.configFile."nvim".source = ./nvim;
 
     packages = with pkgs; [
       kdePackages.dolphin
