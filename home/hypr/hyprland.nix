@@ -4,8 +4,10 @@
 
   # Optional, hint Electron apps to use Wayland:
   # home.sessionVariables.NIXOS_OZONE_WL = "1";
-  home.sessionVariables.XCURSOR_SIZE = 24;
-  home.sessionVariables.HYPRCURSOR_SIZE = 24;
+  home.sessionVariables = {
+    XCURSOR_SIZE = 24;
+    HYPRCURSOR_SIZE = 24;
+  };
 
   wayland.windowManager.hyprland.settings = {
     general = {

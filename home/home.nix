@@ -3,19 +3,27 @@ let
   username = "simon";
 in {
   imports = [
-    ./hyprland.nix
-    ./hyprlock.nix
+    ./hypr/hyprland.nix
+    ./hypr/hyprlock.nix
   ];
 
   home = {
     inherit username;
     homeDirectory = "/home/${username}";
+
+    programs.neovim.enable = true;
+    xdg.configFile."nvim".source = ./nvim;
+
     packages = with pkgs; [
-    # packages for user
       kdePackages.dolphin
       hyprshot
       discord
+      grayjay
     ];
+
+    sessionVariables = {
+      XDG_THEME_MODE = "dark";
+    };
 
     stateVersion = "23.11";
   };
