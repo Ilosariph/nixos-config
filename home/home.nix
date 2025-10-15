@@ -55,6 +55,7 @@ in {
   };
 
   services.swaync.enable = true;
+  services.hyprpolkitagent.enable = true;
 
   xdg.mimeApps = {
 	enable = true;
@@ -92,6 +93,7 @@ in {
       grayjay
 	  material-cursors
 	  protonmail-desktop
+	  github-desktop
     ];
 
 	sessionVariables = {
