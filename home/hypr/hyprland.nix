@@ -1,15 +1,32 @@
-{
+{ config, pkgs, ... }:
+let
+  wallpaperPath = config.home.sessionVariables.WALLPAPER_DIR;
+  randomWallpaperScript = pkgs.writeShellScriptBin "random-wallpaper" (builtins.readFile ./hyprpaper/random_background.sh);
+in {
   programs.kitty.enable = true;
   wayland.windowManager.hyprland.enable = true;
+  services.swaync.enable = true;
+
+  imports = [ ./hyprpaper/hyprpaper.nix ];
+  home.packages = [ randomWallpaperScript ];
 
   # Optional, hint Electron apps to use Wayland:
   # home.sessionVariables.NIXOS_OZONE_WL = "1";
-  home.sessionVariables = {
-    XCURSOR_SIZE = 24;
-    HYPRCURSOR_SIZE = 24;
-  };
 
   wayland.windowManager.hyprland.settings = {
+	monitor = [
+		"DP-1, 3440x1440@120, 0x0, 1"
+		"HDMI-A-1, 1920x1200@59.95, 3440x0, 1"
+		"DP-3, 1920x1080@144, -1920x0, 1"
+	];
+
+	exec-once = [
+	  "hyprpaper"
+	  "${randomWallpaperScript}/bin/random-wallpaper"
+	  "gsettings set org.gnome.desktop.interface cursor-theme '${config.home.pointerCursor.name}'"
+      "gsettings set org.gnome.desktop.interface cursor-size ${toString config.home.pointerCursor.size}"
+	];
+
     general = {
       "gaps_in" = 3;
       "gaps_out" = 10;
@@ -96,7 +113,7 @@
 
     "$mainMod" = "SUPER";
     "$terminal" = "kitty";
-    "$fileManager" = "dolphin";
+    "$fileManager" = "nautilus";
     "$menu" = "wofi --show drun";
     bind =
       [

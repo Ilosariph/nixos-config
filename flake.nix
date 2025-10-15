@@ -20,7 +20,6 @@
     let
       lib = nixpkgs.lib;
       system = "x86_64-linux";
-      #pkgs = import nixpkgs { inherit system; };
       pkgs = import nixpkgs {
         system = "x86_64-linux";
         config = {

@@ -97,6 +97,12 @@
     package = hyprland.packages.${pkgs.stdenv.hostPlatform.system}.hyprland;
     portalPackage = hyprland.packages.${pkgs.stdenv.hostPlatform.system}.xdg-desktop-portal-hyprland;
   };
+  programs.steam = {
+    enable = true;
+    remotePlay.openFirewall = true; # Open ports in the firewall for Steam Remote Play
+    dedicatedServer.openFirewall = true; # Open ports in the firewall for Source Dedicated Server
+    localNetworkGameTransfers.openFirewall = true; # Open ports in the firewall for Steam Local Network Game Transfers
+  };
 
   # List packages installed in system profile. To search, run:
   # $ nix search wget
@@ -104,15 +110,63 @@
     vim
     kitty
     hyprland
-    wofi
     hyprlock
+    wofi
+	gcc
     git
     home-manager
     tree
     wget
+	lm_sensors
+	# pkgsUnstable.fancontrol-gui
     # pulsemeeter
   ];
 
+  boot.kernelModules = [ "coretemp" "nct6775" ];
+
+  # services.udev.extraRules = ''
+  #   ACTION=="add", SUBSYSTEM=="hwmon", ATTR{name}=="coretemp", ATTRS{temp1_label}=="Package id 0", RUN+="/bin/sh -c 'ln -s /sys$devpath/temp1_input /dev/cpu_temp'"
+  #   ACTION=="add", SUBSYSTEM=="hwmon", KERNELS=="nct6775.656", DRIVERS=="nct6775", RUN+="/bin/sh -c 'ln -s /sys$devpath/pwm2 /dev/cpu_fan'"
+  #   ACTION=="add", SUBSYSTEM=="hwmon", KERNELS=="nct6775.656", DRIVERS=="nct6775", RUN+="/bin/sh -c 'ln -s /sys$devpath/pwm2_input /dev/cpu_fan_input'"
+  #   ACTION=="add", SUBSYSTEM=="hwmon", KERNELS=="nct6774.656", DRIVERS=="nct6775", RUN+="/bin/sh -c 'ln -s /sys$devpath/pwm6 /dev/case_fan'"
+  #   ACTION=="add", SUBSYSTEM=="hwmon", KERNELS=="nct6774.656", DRIVERS=="nct6775", RUN+="/bin/sh -c 'ln -s /sys$devpath/pwm6_input /dev/case_fan_input'"
+  # '';
+
+	#  hardware.fancontrol = {
+	# enable = true;
+	# config = ''
+	# INTERVAL=10
+	# DEVPATH=hwmon4=devices/platform/nct6775.656
+	# DEVNAME=hwmon4=nct6798
+	# FCTEMPS=devices/platform/nct6775.656/hwmon/hwmon*/pwm6=devices/platform/nct6775.656/hwmon/hwmon*/temp1_input devices/platform/nct6775.656/hwmon/hwmon*/pwm2=devices/platform/nct6775.656/hwmon/hwmon*/temp1_input
+	# FCFANS=devices/platform/nct6775.656/hwmon/hwmon*/pwm6=devices/platform/nct6775.656/hwmon/hwmon*/pwm6_input devices/platform/nct6775.656/hwmon/hwmon*/pwm2=devices/platform/nct6775.656/hwmon/hwmon*/pwm2_input
+	# MINTEMP=devices/platform/nct6775.656/hwmon/hwmon*/pwm6=50 devices/platform/nct6775.656/hwmon/hwmon*/pwm2=2s5
+	# MAXTEMP=devices/platform/nct6775.656/hwmon/hwmon*/pwm6=95 devices/platform/nct6775.656/hwmon/hwmon*/pwm2=70
+	# MINSTART=devices/platform/nct6775.656/hwmon/hwmon*/pwm6=34 devices/platform/nct6775.656/hwmon/hwmon*/pwm2=66
+	# MINSTOP=devices/platform/nct6775.656/hwmon/hwmon*/pwm6=4 devices/platform/nct6775.656/hwmon/hwmon*/pwm2=26
+	# MINPWM=devices/platform/nct6775.656/hwmon/hwmon*/pwm6=4 devices/platform/nct6775.656/hwmon/hwmon*/pwm2=20
+	# MAXPWM=devices/platform/nct6775.656/hwmon/hwmon*/pwm6=150 devices/platform/nct6775.656/hwmon/hwmon*/pwm2=255
+	# '';
+	#  };
+
+	#  hardware.fancontrol = {
+	# enable = true;
+	# config = ''
+	#   INTERVAL=10
+	#   DEVPATH=hwmon*=devices/platform/nct6775.656
+	#   DEVNAME=hwmon*=nct6798
+	#   FCTEMPS=/dev/case_fan=/dev/cpu_temp /dev/cpu_fan=/dev/cpu_temp
+	#   FCFANS=/dev/case_fan=/dev/case_fan_input /dev/cpu_fan=/dev/cpu_fan_input
+	#   MINTEMP=/dev/case_fan=50 /dev/cpu_fan=2s5
+	#   MAXTEMP=/dev/case_fan=95 /dev/cpu_fan=70
+	#   MINSTART=/dev/case_fan=34 /dev/cpu_fan=66
+	#   MINSTOP=/dev/case_fan=4 /dev/cpu_fan=26
+	#   MINPWM=/dev/case_fan=4 /dev/cpu_fan=20
+	#   MAXPWM=/dev/case_fan=150 /dev/cpu_fan=255
+	# '';
+	#  };
+
+  systemd.services.fancontrol.enable = true;
 
   fonts.packages = with pkgs; [
     jetbrains-mono
@@ -132,6 +186,17 @@
     # Certain features, including CLI integration and system authentication support,
     # require enabling PolKit integration on some desktop environments (e.g. Plasma).
     polkitPolicyOwners = [ "simon" ];
+  };
+
+  hardware.graphics = {
+    enable = true;
+  };
+
+  services.xserver.videoDrivers = ["nvidia"];
+  hardware.nvidia = {
+	modesetting.enable = true;
+	open = false;
+    package = config.boot.kernelPackages.nvidiaPackages.stable;
   };
 
   # Some programs need SUID wrappers, can be configured further or are

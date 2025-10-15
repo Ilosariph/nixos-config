@@ -26,9 +26,9 @@
 
     label = [
       {
-        "monitor" = "";
+        "monitor" = "DP-1";
         "text" = "cmd[update:30000] echo \"$(date +\"%R\")\"";
-        "color" = "$base";
+        "color" = "$text";
         "font_size" = 90;
         "font_family" = "$font";
         "position" = "-30, 0";
@@ -36,9 +36,9 @@
         "valign" = "top";
       }
       {
-        "monitor" = "";
+        "monitor" = "DP-1";
         "text" = "cmd[update:43200000] echo \"$(date +\"%A, %d %B %Y\")\"";
-        "color" = "$base";
+        "color" = "$text";
         "font_size" = 25;
         "font_family" = "$font";
         "position" = "-30, -150";
@@ -48,7 +48,7 @@
     ];
 
     input-field = {
-      "monitor" = "";
+      "monitor" = "DP-1";
       "size" = "300, 60";
       "outline_thickness" = 4;
       "dots_size" = 0.2;
