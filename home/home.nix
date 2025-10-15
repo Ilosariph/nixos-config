@@ -23,18 +23,17 @@ in {
           IdentityAgent ${onePassPath}
     '';
   };
-	# test
+
   programs.git = {
 	enable = true;
 	extraConfig = {
-	  gpg.ssh.alowedSignersFile = "${config.home.homeDirectory}/.conf/git/allowed_ssh_signers";
-	
 	  gpg = {
         format = "ssh";
       };
-      "gpg \"ssh\"" = {
-        program = "${lib.getExe' pkgs._1password-gui "op-ssh-sign"}";
-      };
+	     "gpg \"ssh\"" = {
+	       program = "${lib.getExe' pkgs._1password-gui "op-ssh-sign"}";
+	     };
+	  # gpg."ssh".program = "${pkgs._1password-gui}/bin/op-ssh-sign";
       commit = {
         gpgsign = true;
       };
@@ -45,11 +44,6 @@ in {
         signingKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDk/LW0RX25BW64tJrsU7VFMqlSPR6zto9lAYghBLvie";
       };
     };
-  };
-  home.file.".config/git/allowed_ssh_signers" = {
-    text = "71074737+Ilosariph@users.noreply.github.com namespaces=\"git\" ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDk/LW0RX25BW64tJrsU7VFMqlSPR6zto9lAYghBLvie";
-    # Ensure this file is owned by your user and not executable
-    # mode = "0644"; 
   };
   # programs.git = {
   #   enable = true;

@@ -113,7 +113,7 @@
     hyprlock
     wofi
 	gcc
-    git
+    # git
     home-manager
     tree
     wget
