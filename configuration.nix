@@ -182,6 +182,7 @@
 
   services.gnome.gnome-keyring.enable = true;
   security.pam.services.hyprland.enableGnomeKeyring = true;
+  security.pam.services.login.enableGnomeKeyring = true;
 
   programs._1password.enable = true;
   programs._1password-gui = {

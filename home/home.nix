@@ -94,6 +94,8 @@ in {
 	  material-cursors
 	  protonmail-desktop
 	  github-desktop
+	  obsidian
+	  seahorse
     ];
 
 	sessionVariables = {
