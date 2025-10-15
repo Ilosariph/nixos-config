@@ -180,6 +180,9 @@
 
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
+  services.gnome.gnome-keyring.enable = true;
+  security.pam.services.hyprland.enableGnomeKeyring = true;
+
   programs._1password.enable = true;
   programs._1password-gui = {
     enable = true;
