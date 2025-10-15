@@ -23,6 +23,7 @@ in {
 	exec-once = [
 	  "hyprpaper"
 	  "${randomWallpaperScript}/bin/random-wallpaper"
+	  "waybar"
 	  "gsettings set org.gnome.desktop.interface cursor-theme '${config.home.pointerCursor.name}'"
       "gsettings set org.gnome.desktop.interface cursor-size ${toString config.home.pointerCursor.size}"
 	];

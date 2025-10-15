@@ -14,6 +14,7 @@ in {
   imports = [
     ./hypr/hyprland.nix
     ./hypr/hyprlock.nix
+    ./hypr/waybar.nix
   ];
 
   programs.ssh = {
@@ -52,6 +53,8 @@ in {
 	enable = true;
   };
 
+  programs.waybar.enable = true;
+
   services.swaync.enable = true;
   services.hyprpolkitagent.enable = true;
 
@@ -84,6 +87,7 @@ in {
       nautilus
       hyprshot
 	  hyprpaper
+	  waybar-mpris
 	  libnotify
 	  chromium
 	  spotify
@@ -94,6 +98,7 @@ in {
 	  github-desktop
 	  obsidian
 	  seahorse
+	  pavucontrol
     ];
 
 	sessionVariables = {
