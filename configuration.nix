@@ -118,6 +118,7 @@
     tree
     wget
 	lm_sensors
+	libsecret
 	# pkgsUnstable.fancontrol-gui
     # pulsemeeter
   ];
@@ -183,6 +184,7 @@
 
   services.gnome.gnome-keyring.enable = true;
   security.pam.services.hyprland.enableGnomeKeyring = true;
+  security.pam.services.lightdm.enableGnomeKeyring = true;
   security.pam.services.login.enableGnomeKeyring = true;
 
   programs._1password.enable = true;
