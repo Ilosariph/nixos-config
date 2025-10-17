@@ -8,6 +8,7 @@
   imports =
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
+	  ./shares.nix
     ];
 
   # Bootloader.
@@ -90,6 +91,11 @@
     ];
   };
 
+  hardware.openrazer = {
+	enable = true;
+	users = [ "simon?" ];
+  };
+
   # Install firefox.
   programs.firefox.enable = true;
   programs.hyprland = {
@@ -97,11 +103,78 @@
     package = hyprland.packages.${pkgs.stdenv.hostPlatform.system}.hyprland;
     portalPackage = hyprland.packages.${pkgs.stdenv.hostPlatform.system}.xdg-desktop-portal-hyprland;
   };
-  programs.steam = {
-    enable = true;
+
+  hardware.enableAllFirmware = true;
+
+  # boot.kernelPatches = [
+  #   {
+  #     name = "amdgpu-ignore-ctx-privileges";
+  #     patch = pkgs.fetchpatch {
+  #       name = "cap_sys_nice_begone.patch";
+  #       url = "https://github.com/Frogging-Family/community-patches/raw/master/linux61-tkg/cap_sys_nice_begone.mypatch";
+  #       hash = "sha256-Y3a0+x2xvHsfLax/uwycdJf3xLxvVfkfDVqjkxNaYEo=";
+  #     };
+  #   }
+  # ];
+programs.steam = let
+  patchedBwrap = pkgs.bubblewrap.overrideAttrs (o: {
+    patches = (o.patches or []) ++ [
+      ./bwrap.patch
+    ];
+  });
+in {
+  enable = true;
+  # package = pkgs.steam.override {
+  #   buildFHSEnv = (args: ((pkgs.buildFHSEnv.override {
+  #     bubblewrap = patchedBwrap;
+  #   }) (args // {
+  #     extraBwrapArgs = (args.extraBwrapArgs or []) ++ [ "--cap-add ALL" ];
+  #   })));
+  # };
     remotePlay.openFirewall = true; # Open ports in the firewall for Steam Remote Play
     dedicatedServer.openFirewall = true; # Open ports in the firewall for Source Dedicated Server
     localNetworkGameTransfers.openFirewall = true; # Open ports in the firewall for Steam Local Network Game Transfers
+};
+
+  # programs.steam = {
+  #   enable = true;
+  #   remotePlay.openFirewall = true; # Open ports in the firewall for Steam Remote Play
+  #   dedicatedServer.openFirewall = true; # Open ports in the firewall for Source Dedicated Server
+  #   localNetworkGameTransfers.openFirewall = true; # Open ports in the firewall for Steam Local Network Game Transfers
+  # };
+  services.wivrn = {
+    enable = true;
+    openFirewall = true;
+
+    # Write information to /etc/xdg/openxr/1/active_runtime.json, VR applications
+    # will automatically read this and work with WiVRn (Note: This does not currently
+    # apply for games run in Valve's Proton)
+    defaultRuntime = true;
+
+    # Run WiVRn as a systemd service on startup
+    autoStart = true;
+
+    # Config for WiVRn (https://github.com/WiVRn/WiVRn/blob/master/docs/configuration.md)
+    config = {
+      enable = true;
+      json = {
+        # 1.0x foveation scaling
+        scale = 1.0;
+        # 100 Mb/s
+        bitrate = 100000000;
+        encoders = [
+          {
+            encoder = "vaapi";
+            codec = "h265";
+            # 1.0 x 1.0 scaling
+            width = 1.0;
+            height = 1.0;
+            offset_x = 0.0;
+            offset_y = 0.0;
+          }
+        ];
+      };
+    };
   };
 
   # List packages installed in system profile. To search, run:

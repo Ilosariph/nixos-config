@@ -112,6 +112,7 @@ in {
 	  obsidian
 	  seahorse
 	  pavucontrol
+	  razergenie
     ];
 
 	sessionVariables = {
