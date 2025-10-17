@@ -1,4 +1,4 @@
-{ lib, pkgs, config, ... }: 
+{ lib, pkgs, pkgsUnstable, config, ... }: 
 let
   username = "simon";
   wallpaperDir = pkgs.stdenv.mkDerivation {
@@ -105,7 +105,7 @@ in {
 	  chromium
 	  spotify
       discord
-      grayjay
+			#       grayjay
 	  material-cursors
 	  protonmail-desktop
 	  github-desktop
@@ -113,6 +113,7 @@ in {
 	  seahorse
 	  pavucontrol
 	  razergenie
+	  pkgsUnstable.grayjay
     ];
 
 	sessionVariables = {

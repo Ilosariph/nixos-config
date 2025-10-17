@@ -21,12 +21,17 @@
       lib = nixpkgs.lib;
       system = "x86_64-linux";
       pkgs = import nixpkgs {
-        system = "x86_64-linux";
+		inherit system;
         config = {
           allowUnfree = true;
         };
       };
-      pkgsUnstable = import nixpkgs { inherit system; };
+      pkgsUnstable = import nixpkgsUnstable {
+		inherit system;
+        config = {
+          allowUnfree = true;
+        };
+	  };
     in {
       nixosConfigurations = {
         simon = lib.nixosSystem {
@@ -42,6 +47,9 @@
       homeConfigurations = {
         simon = home-manager.lib.homeManagerConfiguration {
           inherit pkgs;
+		  extraSpecialArgs = {
+			inherit pkgsUnstable;
+		  };
           modules = [ ./home/home.nix ];
         };
       };
