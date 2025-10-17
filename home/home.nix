@@ -1,4 +1,4 @@
-{ lib, pkgs, pkgsUnstable, config, ... }: 
+{ lib, pkgs, pkgs-unstable, config, ... }: 
 let
   username = "simon";
   wallpaperDir = pkgs.stdenv.mkDerivation {
@@ -113,7 +113,7 @@ in {
 	  seahorse
 	  pavucontrol
 	  razergenie
-	  pkgsUnstable.grayjay
+	  pkgs-unstable.grayjay
     ];
 
 	sessionVariables = {

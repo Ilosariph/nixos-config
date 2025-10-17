@@ -2,7 +2,7 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
-{ config, pkgs, pkgsUnstable, hyprland, ... }:
+{ config, pkgs, pkgs-unstable, hyprland, ... }:
 
 {
   imports =
@@ -192,8 +192,8 @@ in {
     wget
 	lm_sensors
 	libsecret
-	# pkgsUnstable.fancontrol-gui
-    # pulsemeeter
+	# pkgs-unstable.fancontrol-gui
+    pkgs-unstable.pulsemeeter
   ];
 
   virtualisation.docker = {
