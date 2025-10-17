@@ -196,6 +196,14 @@ in {
     # pulsemeeter
   ];
 
+  virtualisation.docker = {
+	rootless = {
+	  enable = true;
+	  setSocketVariable = true;
+	};
+	daemon.settings.data-root = "/home/simon/docker";
+  };
+
   boot.kernelModules = [ "coretemp" "nct6775" ];
 
   services.udev.extraRules = ''
