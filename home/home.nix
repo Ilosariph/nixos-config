@@ -97,7 +97,8 @@ in {
     homeDirectory = "/home/${username}";
 
     packages = with pkgs; [
-      nautilus
+      kdePackages.dolphin
+	  yazi
       hyprshot
 	  hyprpaper
 	  waybar-mpris
@@ -105,7 +106,7 @@ in {
 	  chromium
 	  spotify
       discord
-			#       grayjay
+	  unzip
 	  material-cursors
 	  protonmail-desktop
 	  github-desktop
@@ -114,6 +115,7 @@ in {
 	  pavucontrol
 	  razergenie
 	  pkgs-unstable.grayjay
+	  qview
     ];
 
 	sessionVariables = {

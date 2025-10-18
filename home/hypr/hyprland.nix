@@ -114,7 +114,7 @@ in {
 
     "$mainMod" = "SUPER";
     "$terminal" = "kitty";
-    "$fileManager" = "nautilus";
+    "$fileManager" = "dolphin";
     "$menu" = "wofi --show drun";
     bind =
       [

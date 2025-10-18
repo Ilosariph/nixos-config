@@ -3,10 +3,10 @@
 
   inputs = {
     nixpkgs = {
-      url = "nixpkgs/nixos-25.05";
+      url = "github:nixos/nixpkgs/nixos-25.05";
     };
 
-    nixpkgs-unstable.url = "nixpkgs/nixos-unstable";
+    nixpkgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
 
     home-manager = {
       url = "github:nix-community/home-manager/release-25.05";
@@ -16,23 +16,31 @@
     hyprland.url = "github:hyprwm/Hyprland";
   };
 
-  outputs = {nixpkgs, nixpkgs-unstable, home-manager, hyprland, ... }:
+  outputs =
+	{
+		nixpkgs,
+		nixpkgs-unstable,
+		home-manager,
+		hyprland,
+		...
+	}:
     let
       lib = nixpkgs.lib;
       system = "x86_64-linux";
       pkgs = import nixpkgs {
-		inherit system;
+        inherit system;
         config = {
           allowUnfree = true;
         };
       };
       pkgs-unstable = import nixpkgs-unstable {
-		inherit system;
+        inherit system;
         config = {
           allowUnfree = true;
         };
 	  };
-    in {
+    in
+	{
       nixosConfigurations = {
         simon = lib.nixosSystem {
           specialArgs = {
@@ -47,9 +55,7 @@
       homeConfigurations = {
         simon = home-manager.lib.homeManagerConfiguration {
           inherit pkgs;
-		  extraSpecialArgs = {
-			inherit pkgs-unstable;
-		  };
+		  extraSpecialArgs = { inherit pkgs-unstable; };
           modules = [ ./home/home.nix ];
         };
       };

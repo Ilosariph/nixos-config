@@ -194,6 +194,7 @@ in {
 	libsecret
 	# pkgs-unstable.fancontrol-gui
     pkgs-unstable.pulsemeeter
+	htop
   ];
 
   virtualisation.docker = {
