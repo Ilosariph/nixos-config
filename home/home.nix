@@ -14,7 +14,7 @@ in {
   imports = [
     ./hypr/hyprland.nix
     ./hypr/hyprlock.nix
-    ./hypr/waybar.nix
+    ./hypr/hyprpanel.nix
   ];
 
   programs.ssh = {
@@ -68,7 +68,6 @@ in {
 
   programs.waybar.enable = true;
 
-  services.swaync.enable = true;
   services.hyprpolkitagent.enable = true;
 
   xdg.mimeApps = {

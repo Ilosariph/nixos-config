@@ -5,7 +5,6 @@ let
 in {
   programs.kitty.enable = true;
   wayland.windowManager.hyprland.enable = true;
-  services.swaync.enable = true;
 
   imports = [ ./hyprpaper/hyprpaper.nix ];
   home.packages = [ randomWallpaperScript ];
