@@ -195,7 +195,6 @@ in {
 	# pkgs-unstable.fancontrol-gui
     pkgs-unstable.pulsemeeter
 	htop
-	python312
   ];
 
   virtualisation.docker = {
