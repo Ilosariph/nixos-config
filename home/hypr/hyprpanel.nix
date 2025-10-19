@@ -32,6 +32,7 @@
 	  bar.media.format = "{artist: - }{title}";
 	  bar.notifications.show_total = true;
 	  bar.media.show_active_only = true;
+	  bar.launcher.autoDetectIcon = true;
 	  menus.transition = "crossfade";
 	  theme.bar.menus.enableShadow = false;
 	  menus.media.hideAuthor = false;
@@ -44,6 +45,8 @@
 	  notifications.showActionsOnHover = false;
 	  theme.osd.duration = 2500;
 	  theme.osd.enable = false;
+	  theme.bar.transparent = true;
+	  theme.font.size = "16px";
 	  menus.volume.raiseMaximumVolume = true;
 	  menus.clock.time.military = true;
 	  menus.clock.weather.unit = "metric";
