@@ -21,10 +21,11 @@ in {
 
 	exec-once = [
 	  "hyprpaper"
-	  "${randomWallpaperScript}/bin/random-wallpaper"
-	  "waybar"
+	  "hyprpanel"
+	  "systemctl --user start hyprpolkitagent"
 	  "gsettings set org.gnome.desktop.interface cursor-theme '${config.home.pointerCursor.name}'"
       "gsettings set org.gnome.desktop.interface cursor-size ${toString config.home.pointerCursor.size}"
+	  "${randomWallpaperScript}/bin/random-wallpaper ${wallpaperPath} > /home/simon/random-wallpaper-script.txt 2>&1"
 	];
 
     general = {
