@@ -96,6 +96,7 @@ in {
     packages = with pkgs; [
       kdePackages.dolphin
 	  yazi
+	  wl-clipboard
       hyprshot
 	  hyprpaper
 	  waybar-mpris
