@@ -66,8 +66,6 @@ in {
 	};
   };
 
-  programs.waybar.enable = true;
-
   services.hyprpolkitagent.enable = true;
 
   xdg.mimeApps = {
