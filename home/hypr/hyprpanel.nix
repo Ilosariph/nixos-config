@@ -3,13 +3,21 @@
   programs.hyprpanel = {
 	enable = true;
 	settings = {
-	  layout = {
-        bar.layouts = {
-          "0" = {
-            left = [ "dashboard" "workspaces" ];
-            middle = [ "media" ];
-            right = [ "volume" "systray" "notifications" ];
-          };
+      bar.layouts = {
+        "DP-1" = {
+          left = [ "dashboard" "workspaces" ];
+          middle = [ "media" ];
+          right = [ "volume" "network" "bluetooth" "clock" "notifications" ];
+        };
+		"DP-3" = {
+          left = [ "dashboard" "workspaces" ];
+          middle = [ "media" ];
+          right = [ "clock" "notifications" ];
+        };
+		"HDMI-A-1" = {
+          left = [ "dashboard" "workspaces" ];
+          middle = [ "media" ];
+          right = [ "clock" "notifications" ];
         };
       };
 
@@ -23,6 +31,8 @@
         };
         weather.unit = "metric";
       };
+	
+	  menus.systray.ignoreList = [ "battery" ];
 
       menus.dashboard.directories.enabled = false;
       menus.dashboard.stats.enable_gpu = true;
