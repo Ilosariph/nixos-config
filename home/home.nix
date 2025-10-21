@@ -15,6 +15,7 @@ in {
     ./hypr/hyprland.nix
     ./hypr/hyprlock.nix
     ./hypr/hyprpanel.nix
+	./hypr/hypridle.nix
   ];
 
   programs.ssh = {
@@ -103,6 +104,7 @@ in {
 	  razergenie
 	  pkgs-unstable.grayjay
 	  qview
+	  filezilla
     ];
 
 	sessionVariables = {
