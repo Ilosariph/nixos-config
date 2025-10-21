@@ -51,7 +51,7 @@
 	      time.military = true;
 		  weather = {
 	        unit = "metric";
-	        location = "47.436424,9.130866";
+	        location = "47.436424,9.130866";# This is not where my house lives, btw
 	        key = "/etc/nixos/weather.json";
 	        interval = 120000;
 		  };
