@@ -177,6 +177,42 @@ in {
     };
   };
 
+  xdg.portal = {
+    enable = true;
+    extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
+  };
+
+  xdg.mime = {
+	defaultApplications =
+	let
+	  browser = "firefox.desktop";
+	  imgViewer = "com.interversehq.qView.desktop";
+	  vidViewer = "mpv.desktop";
+	  fileManager = "org.kde.dolphin.desktop";
+	in
+	{
+	  "image/png" = imgViewer;
+	  "image/webp" = imgViewer;
+	  "image/jpeg" = imgViewer;
+
+	  "inode/directory" = fileManager;
+      "video/avi" = vidViewer;
+      "video/flv" = vidViewer;
+      "video/mp4" = vidViewer;
+      "video/mpeg" = vidViewer;
+      "video/webm" = vidViewer;
+      "video/vnd.avi" = vidViewer;
+
+	  "application/pdf" = browser;
+
+      "text/html" = browser;
+      "x-scheme-handler/http" = browser;
+      "x-scheme-handler/https" = browser;
+      "x-scheme-handler/about" = browser;
+      "x-scheme-handler/unknown" = browser;
+    };
+  };
+
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
@@ -195,6 +231,7 @@ in {
 	# pkgs-unstable.fancontrol-gui
     pkgs-unstable.pulsemeeter
 	htop
+	protonvpn-gui
   ];
 
   virtualisation.docker = {
