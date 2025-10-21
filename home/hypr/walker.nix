@@ -1,2 +1,3 @@
 {
+  programs.walker.enable = true;
 }

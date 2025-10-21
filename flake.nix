@@ -14,6 +14,12 @@
     };
 
     hyprland.url = "github:hyprwm/Hyprland";
+
+	elephant.url = "github:abenz1267/elephant";
+    walker = {
+      url = "github:abenz1267/walker";
+      inputs.elephant.follows = "elephant";
+    };
   };
 
   outputs =
@@ -22,6 +28,7 @@
 		nixpkgs-unstable,
 		home-manager,
 		hyprland,
+		walker,
 		...
 	}:
     let
@@ -52,10 +59,14 @@
           modules = [ ./configuration.nix ];
         };
       };
+
       homeConfigurations = {
         simon = home-manager.lib.homeManagerConfiguration {
           inherit pkgs;
-		  extraSpecialArgs = { inherit pkgs-unstable; };
+		  extraSpecialArgs = {
+			inherit pkgs-unstable;
+			inherit walker;
+		  };
           modules = [ ./home/home.nix ];
         };
       };
