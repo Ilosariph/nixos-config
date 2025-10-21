@@ -89,7 +89,6 @@ in {
     packages = with pkgs; [
       kdePackages.dolphin
 	  yazi
-	  walker
 	  wl-clipboard
       hyprshot
 	  hyprpaper
