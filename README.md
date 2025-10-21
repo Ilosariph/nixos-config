@@ -19,6 +19,7 @@ password=password
 ```
 
 ## Hyprpanel weather api
+Key from [weatherapi](https://www.weatherapi.com)
 `/etc/nixos/weather.json`
 ```
 {
