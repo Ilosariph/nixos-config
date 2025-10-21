@@ -16,6 +16,7 @@ in {
     ./hypr/hyprlock.nix
     ./hypr/hyprpanel.nix
 	./hypr/hypridle.nix
+	./hypr/walker.nix
 	./programs/kitty.nix
   ];
 
