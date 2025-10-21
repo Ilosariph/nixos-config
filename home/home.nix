@@ -16,6 +16,7 @@ in {
     ./hypr/hyprlock.nix
     ./hypr/hyprpanel.nix
 	./hypr/hypridle.nix
+	./programs/kitty.nix
   ];
 
   programs.ssh = {
