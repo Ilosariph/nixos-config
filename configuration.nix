@@ -232,6 +232,7 @@ in {
     pkgs-unstable.pulsemeeter
 	htop
 	protonvpn-gui
+	pulseaudio
   ];
 
   virtualisation.docker.enable = true;
