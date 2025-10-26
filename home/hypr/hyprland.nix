@@ -109,7 +109,7 @@ in {
       sensitivity = -0.9;
 
 	  # https://chatgpt.com/share/68f39352-71ec-8002-88cb-6c1040cd3b77
-	  accel_profile = "custom 2 0.0 0.5 1.2 2.6 4.4 6 8 10";
+	  accel_profile = "custom 1.5 0.0 0.5 1.2 2.6 4.4 6 8 10";
     };
 
     cursor = {
