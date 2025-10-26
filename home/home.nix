@@ -107,6 +107,7 @@ in {
 	  pkgs-unstable.grayjay
 	  qview
 	  filezilla
+	  python312
     ];
 
 	sessionVariables = {
