@@ -72,6 +72,20 @@ in {
 
   services.hyprpolkitagent.enable = true;
 
+
+  gtk = {
+	enable = true;
+	theme = {
+	  name = "Tokyonight-Dark";
+	  package = pkgs.tokyo-night-gtk;
+	};
+  };
+
+  qt = {
+	enable = true;
+	platformTheme.name = "gtk";
+  };
+
   home.pointerCursor = {
 	gtk.enable = true;
 	hyprcursor.enable = true;
