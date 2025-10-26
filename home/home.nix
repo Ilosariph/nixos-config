@@ -25,7 +25,22 @@ in {
   programs.ssh = {
 	enable = true;
 	enableDefaultConfig = false;
-	matchBlocks."*".identityAgent = [ "IdentityAgent ${onePassPath}" ];
+	matchBlocks."*" = {
+	  forwardAgent = false;
+	  serverAliveInterval = 0;
+	  serverAliveCountMax = 3;
+	  compression = false;
+	  addKeysToAgent = "no";
+	  hashKnownHosts = false;
+	  controlMaster = "no";
+	  controlPersist = "no";
+	  extraOptions = {
+		"Host" = ''
+*
+    IdentityAgent ${onePassPath}
+		'';
+	  };
+	};
   };
 
   programs.git = {
