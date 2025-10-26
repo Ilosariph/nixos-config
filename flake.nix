@@ -9,8 +9,8 @@
     nixpkgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
 
     home-manager = {
-      url = "github:nix-community/home-manager/release-25.05";
-      inputs.nixpkgs.follows = "nixpkgs";
+      url = "github:nix-community/home-manager";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
     hyprland.url = "github:hyprwm/Hyprland";
@@ -62,9 +62,9 @@
 
       homeConfigurations = {
         simon = home-manager.lib.homeManagerConfiguration {
-          inherit pkgs;
+          pkgs = pkgs-unstable;
 		  extraSpecialArgs = {
-			inherit pkgs-unstable;
+			pkgs-stable = pkgs;
 			inherit walker;
 		  };
           modules = [ ./home/home.nix ];

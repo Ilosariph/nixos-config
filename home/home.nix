@@ -1,4 +1,4 @@
-{ lib, pkgs, pkgs-unstable, config, walker, ... }: 
+{ lib, pkgs, pkgs-stable, config, walker, ... }: 
 let
   username = "simon";
   wallpaperDir = pkgs.stdenv.mkDerivation {
@@ -23,16 +23,14 @@ in {
   ];
 
   programs.ssh = {
-    enable = true;
-    extraConfig = ''
-      Host *
-          IdentityAgent ${onePassPath}
-    '';
+	enable = true;
+	enableDefaultConfig = false;
+	matchBlocks."*".identityAgent = [ "IdentityAgent ${onePassPath}" ];
   };
 
   programs.git = {
 	enable = true;
-	extraConfig = {
+	settings = {
 	  gpg = {
         format = "ssh";
       };
@@ -119,7 +117,7 @@ in {
 	  seahorse
 	  pavucontrol
 	  razergenie
-	  pkgs-unstable.grayjay
+	  grayjay
 	  qview
 	  filezilla
 	  python312
