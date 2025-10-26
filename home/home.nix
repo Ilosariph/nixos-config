@@ -12,13 +12,14 @@ in {
     WALLPAPER_DIR = "${wallpaperDir}";
   };
   imports = [
-	walker.homeManagerModules.default
     ./hypr/hyprland.nix
     ./hypr/hyprlock.nix
     ./hypr/hyprpanel.nix
 	./hypr/hypridle.nix
+	walker.homeManagerModules.default
 	./hypr/walker.nix
 	./programs/kitty.nix
+	./programs/swappy.nix
   ];
 
   programs.ssh = {
@@ -104,7 +105,6 @@ in {
       kdePackages.dolphin
 	  yazi
 	  wl-clipboard
-      hyprshot
 	  hyprpaper
 	  waybar-mpris
 	  libnotify
@@ -123,6 +123,8 @@ in {
 	  qview
 	  filezilla
 	  python312
+	  zip
+	  streamcontroller
     ];
 
 	sessionVariables = {
