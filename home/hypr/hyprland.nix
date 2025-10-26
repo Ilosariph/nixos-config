@@ -121,7 +121,7 @@ in {
 
     "$mainMod" = "SUPER";
     "$terminal" = "kitty";
-    "$fileManager" = "dolphin";
+    "$fileManager" = "kitty yazi";
     "$menu" = "walker";
     bind =
       [
