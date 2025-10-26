@@ -234,13 +234,7 @@ in {
 	protonvpn-gui
   ];
 
-  virtualisation.docker = {
-	rootless = {
-	  enable = true;
-	  setSocketVariable = true;
-	};
-	daemon.settings.data-root = "/home/simon/docker";
-  };
+  virtualisation.docker.enable = true;
 
   boot.kernelModules = [ "coretemp" "nct6775" ];
 
