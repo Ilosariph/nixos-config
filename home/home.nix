@@ -1,4 +1,4 @@
-{ lib, pkgs, pkgs-unstable, config, ... }: 
+{ lib, pkgs, pkgs-unstable, config, walker, ... }: 
 let
   username = "simon";
   wallpaperDir = pkgs.stdenv.mkDerivation {
@@ -12,6 +12,7 @@ in {
     WALLPAPER_DIR = "${wallpaperDir}";
   };
   imports = [
+	walker.homeManagerModules.default
     ./hypr/hyprland.nix
     ./hypr/hyprlock.nix
     ./hypr/hyprpanel.nix

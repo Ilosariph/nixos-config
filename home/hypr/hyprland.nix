@@ -119,7 +119,7 @@ in {
     "$mainMod" = "SUPER";
     "$terminal" = "kitty";
     "$fileManager" = "dolphin";
-    "$menu" = "wofi --show drun";
+    "$menu" = "walker";
     bind =
       [
         "$mainMod, Q, exec, $terminal"
