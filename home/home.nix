@@ -136,6 +136,7 @@ in {
 	  qview
 	  filezilla
 	  python312
+	  grimblast
 	  zip
 	  streamcontroller
     ];

@@ -123,6 +123,8 @@ in {
     "$terminal" = "kitty";
     "$fileManager" = "kitty yazi";
     "$menu" = "walker";
+	"$screenshotUtil" = "grimblast -f save area - | swappy -f -";
+
     bind =
       [
         "$mainMod, Q, exec, $terminal"
@@ -133,8 +135,7 @@ in {
         "$mainMod, P, pseudo"
         "$mainMod, T, togglesplit"
         "$mainMod, L, exec, hyprlock"
-        ", Print, exec, hyprshot -m region"
-        "SHIFT, Print, exec, hyprshot -m region --clipboard-only"
+        ", Print, exec, $screenshotUtil"
 
         "$mainMod, H, movefocus, l"
         "$mainMod, I, movefocus, r"
