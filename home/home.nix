@@ -20,6 +20,7 @@ in {
 	./hypr/walker.nix
 	./programs/kitty.nix
 	./programs/swappy.nix
+	./programs/easyeffects.nix
   ];
 
   programs.ssh = {
@@ -132,7 +133,6 @@ in {
 	  seahorse
 	  pavucontrol
 	  razergenie
-	  grayjay
 	  qview
 	  filezilla
 	  python312
