@@ -20,7 +20,7 @@ in {
 	./hypr/walker.nix
 	./programs/kitty.nix
 	./programs/swappy.nix
-	./programs/easyeffects.nix
+	./programs/easyeffects/easyeffects.nix
   ];
 
   programs.ssh = {
