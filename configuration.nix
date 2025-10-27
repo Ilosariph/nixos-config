@@ -85,11 +85,13 @@
   users.users.simon = {
     isNormalUser = true;
     description = "simon";
-    extraGroups = [ "networkmanager" "wheel" ];
+    extraGroups = [ "networkmanager" "wheel" "libvirtd" ];
     packages = with pkgs; [
     #  thunderbird
     ];
   };
+
+  virtualisation.libvirtd.enable = true;
 
   hardware.openrazer = {
 	enable = true;
@@ -233,6 +235,9 @@ in {
 	htop
 	protonvpn-gui
 	pulseaudio
+	virt-manager
+	virt-viewer
+	spice-gtk
   ];
 
   virtualisation.docker.enable = true;
