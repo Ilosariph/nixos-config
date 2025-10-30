@@ -139,6 +139,7 @@ in {
 	  grimblast
 	  zip
 	  streamcontroller
+	  qpwgraph
     ];
 
 	sessionVariables = {
