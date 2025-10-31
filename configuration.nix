@@ -9,6 +9,7 @@
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
 	  ./shares.nix
+	  ./virtualisation.nix
     ];
 
   # Bootloader.
@@ -90,8 +91,6 @@
     #  thunderbird
     ];
   };
-
-  virtualisation.libvirtd.enable = true;
 
   hardware.openrazer = {
 	enable = true;
