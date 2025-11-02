@@ -124,6 +124,7 @@ in {
 	  zip
 	  streamcontroller
 	  qpwgraph
+	  jetbrains.pycharm-professional
     ];
 
 	sessionVariables = {
