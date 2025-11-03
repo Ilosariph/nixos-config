@@ -12,6 +12,7 @@
 	  ./shares.nix
 	  ./virtualisation.nix
 	  ./network.nix
+	  ./gaming/gaming.nix
     ];
 
   # Bootloader.
@@ -98,55 +99,6 @@
   };
 
   hardware.enableAllFirmware = true;
-
-  # boot.kernelPatches = [
-  #   {
-  #     name = "amdgpu-ignore-ctx-privileges";
-  #     patch = pkgs.fetchpatch {
-  #       name = "cap_sys_nice_begone.patch";
-  #       url = "https://github.com/Frogging-Family/community-patches/raw/master/linux61-tkg/cap_sys_nice_begone.mypatch";
-  #       hash = "sha256-Y3a0+x2xvHsfLax/uwycdJf3xLxvVfkfDVqjkxNaYEo=";
-  #     };
-  #   }
-  # ];
-programs.steam = let
-  patchedBwrap = pkgs.bubblewrap.overrideAttrs (o: {
-    patches = (o.patches or []) ++ [
-      ./bwrap.patch
-    ];
-  });
-in {
-  enable = true;
-  # package = pkgs.steam.override {
-  #   buildFHSEnv = (args: ((pkgs.buildFHSEnv.override {
-  #     bubblewrap = patchedBwrap;
-  #   }) (args // {
-  #     extraBwrapArgs = (args.extraBwrapArgs or []) ++ [ "--cap-add ALL" ];
-  #   })));
-  # };
-    remotePlay.openFirewall = true; # Open ports in the firewall for Steam Remote Play
-    dedicatedServer.openFirewall = true; # Open ports in the firewall for Source Dedicated Server
-    localNetworkGameTransfers.openFirewall = true; # Open ports in the firewall for Steam Local Network Game Transfers
-};
-
-  # programs.steam = {
-  #   enable = true;
-  #   remotePlay.openFirewall = true; # Open ports in the firewall for Steam Remote Play
-  #   dedicatedServer.openFirewall = true; # Open ports in the firewall for Source Dedicated Server
-  #   localNetworkGameTransfers.openFirewall = true; # Open ports in the firewall for Steam Local Network Game Transfers
-  # };
-  services.wivrn = {
-    enable = true;
-    openFirewall = true;
-
-    # Write information to /etc/xdg/openxr/1/active_runtime.json, VR applications
-    # will automatically read this and work with WiVRn (Note: This does not currently
-    # apply for games run in Valve's Proton)
-    defaultRuntime = true;
-
-    # Run WiVRn as a systemd service on startup
-    autoStart = true;
-  };
 
   xdg.portal = {
     enable = true;
