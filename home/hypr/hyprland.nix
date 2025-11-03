@@ -31,6 +31,7 @@ in {
       "gsettings set org.gnome.desktop.interface cursor-size ${toString config.home.pointerCursor.size}"
 	  "streamcontroller"
 	  "easyeffects"
+	  "pulsemeeter"
 	  "${randomWallpaperScript}/bin/random-wallpaper ${wallpaperPath} > /home/simon/random-wallpaper-script.txt 2>&1"
 	];
 
