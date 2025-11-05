@@ -156,8 +156,6 @@
 	htop
 	protonvpn-gui
 	pulseaudio
-	virt-manager
-	virt-viewer
 	spice-gtk
 	dig
   ];
