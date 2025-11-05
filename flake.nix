@@ -56,7 +56,7 @@
           };
           inherit system;
           inherit pkgs;
-          modules = [ ./configuration.nix ];
+          modules = [ ./config/configuration.nix ];
         };
       };
 
