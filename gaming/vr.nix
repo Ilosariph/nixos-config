@@ -1,4 +1,6 @@
+{ pkgs, ... }:
 {
+  programs.adb.enable = true;
   services.wivrn = {
     enable = true;
     openFirewall = true;
@@ -11,4 +13,7 @@
     # Run WiVRn as a systemd service on startup
     autoStart = true;
   };
+  environment.systemPackages = with pkgs; [
+	wlx-overlay-s
+  ];
 }
