@@ -18,6 +18,7 @@ in {
 	./hypr/hypridle.nix
 	walker.homeManagerModules.default
 	./hypr/walker.nix
+	./programs/yazi.nix
 	./programs/kitty.nix
 	./programs/swappy.nix
 	./programs/easyeffects/easyeffects.nix
@@ -101,7 +102,6 @@ in {
 
     packages = with pkgs; [
       kdePackages.dolphin
-	  yazi
 	  wl-clipboard
 	  hyprpaper
 	  waybar-mpris
