@@ -20,6 +20,7 @@
       url = "github:abenz1267/walker";
       inputs.elephant.follows = "elephant";
     };
+    nixpkgs-xr.url = "github:nix-community/nixpkgs-xr";
   };
 
   outputs =
@@ -29,6 +30,7 @@
 		home-manager,
 		hyprland,
 		walker,
+		nixpkgs-xr,
 		...
 	}:
     let
@@ -56,7 +58,10 @@
           };
           inherit system;
           inherit pkgs;
-          modules = [ ./config/configuration.nix ];
+          modules = [
+					  ./config/configuration.nix
+					  nixpkgs-xr.nixosModules.nixpkgs-xr
+					];
         };
       };
 

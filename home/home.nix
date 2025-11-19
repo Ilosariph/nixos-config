@@ -23,6 +23,7 @@ in {
 	./programs/swappy.nix
 	./programs/easyeffects/easyeffects.nix
 	./programs/mpv.nix
+	./programs/vr/wlx-overlay-s.nix
   ];
 
   programs.ssh = {
@@ -77,7 +78,7 @@ in {
 	enable = true;
 	theme = {
 	  name = "Tokyonight-Dark";
-	  package = pkgs.tokyo-night-gtk;
+	  package = pkgs.tokyonight-gtk-theme;
 	};
   };
 
