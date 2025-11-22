@@ -126,6 +126,7 @@ in {
 	  streamcontroller
 	  qpwgraph
 	  jetbrains.pycharm-professional
+	  orca-slicer
     ];
 
 	sessionVariables = {
