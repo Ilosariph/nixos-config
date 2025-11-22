@@ -85,6 +85,7 @@ in {
 	  qpwgraph
 	  jetbrains.pycharm-professional
 	  orca-slicer
+	  udisks
     ];
 
 	sessionVariables = {

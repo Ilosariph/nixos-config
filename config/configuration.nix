@@ -85,6 +85,9 @@
     ];
   };
 
+  services.udisks2.enable = true;
+  services.gvfs.enable = true;
+
   hardware.openrazer = {
 	enable = true;
 	users = [ "simon?" ];
