@@ -86,6 +86,7 @@ in {
 	  jetbrains.pycharm-professional
 	  orca-slicer
 	  udisks
+	  vlc
     ];
 
 	sessionVariables = {
