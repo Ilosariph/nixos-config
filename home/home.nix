@@ -56,6 +56,11 @@ in {
 	package = pkgs.material-cursors;
   };
 
+  home.file.data = {
+    source = config.lib.file.mkOutOfStoreSymlink "/data";
+	target = "data";
+  };
+
   home = {
     inherit username;
     homeDirectory = "/home/${username}";
