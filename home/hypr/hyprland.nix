@@ -43,7 +43,12 @@ in {
       "col.inactive_border" = "rgba(595959aa)";
       "layout" = "dwindle";
     };
-    
+
+	windowrulev2 = [
+	  "opacity 1.0 override 1.0 override, class:^(com.interversehq.qView)$"
+	  "opacity 1.0 override 1.0 override, class:^(mpv)$"
+    ];
+
     decoration = {
       "rounding" = 5;
       "active_opacity" = 1.0;
