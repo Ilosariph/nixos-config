@@ -25,6 +25,7 @@ in {
 	./programs/vr/wlx-overlay-s.nix
 	./programs/git.nix
 	./programs/orca-slicer.nix
+	./programs/udiskie.nix
   ];
 
   programs.neovim.enable = true;
