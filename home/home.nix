@@ -93,6 +93,7 @@ in {
 	  orca-slicer
 	  udisks
 	  vlc
+	  qmk
     ];
 
 	sessionVariables = {
