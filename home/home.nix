@@ -26,6 +26,7 @@ in {
 	./programs/git.nix
 	./programs/orca-slicer.nix
 	./programs/udiskie.nix
+	./general/links.nix
   ];
 
   programs.neovim.enable = true;
@@ -55,11 +56,6 @@ in {
 	size = 20;
 	name = "material_light_cursors";
 	package = pkgs.material-cursors;
-  };
-
-  home.file.data = {
-    source = config.lib.file.mkOutOfStoreSymlink "/data";
-	target = "data";
   };
 
   home = {
