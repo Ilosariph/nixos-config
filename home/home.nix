@@ -94,6 +94,7 @@ in {
 	  qmk_hid
 	  qmk-udev-rules
 	  vial
+	  losslesscut-bin
     ];
 
 	sessionVariables = {
