@@ -91,6 +91,9 @@ in {
 	  udisks
 	  vlc
 	  qmk
+	  qmk_hid
+	  qmk-udev-rules
+	  vial
     ];
 
 	sessionVariables = {
