@@ -58,6 +58,12 @@ in {
 	package = pkgs.material-cursors;
   };
 
+  services.flatpak = {
+	packages = [
+      "com.github.iwalton3.jellyfin-media-player"
+	];
+  };
+
   home = {
     inherit username;
     homeDirectory = "/home/${username}";
@@ -95,6 +101,7 @@ in {
 	  qmk-udev-rules
 	  vial
 	  losslesscut-bin
+	  jellyfin-mpv-shim
     ];
 
 	sessionVariables = {

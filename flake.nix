@@ -20,7 +20,10 @@
       url = "github:abenz1267/walker";
       inputs.elephant.follows = "elephant";
     };
-    nixpkgs-xr.url = "github:nix-community/nixpkgs-xr";
+
+	nixpkgs-xr.url = "github:nix-community/nixpkgs-xr";
+
+	nix-flatpak.url = "github:gmodena/nix-flatpak";
   };
 
   outputs =
@@ -31,6 +34,7 @@
 		hyprland,
 		walker,
 		nixpkgs-xr,
+		nix-flatpak,
 		...
 	}:
     let
@@ -72,7 +76,10 @@
 			pkgs-stable = pkgs;
 			inherit walker;
 		  };
-          modules = [ ./home/home.nix ];
+          modules = [
+			nix-flatpak.homeManagerModules.nix-flatpak
+			./home/home.nix
+		  ];
         };
       };
     };

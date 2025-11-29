@@ -169,6 +169,8 @@
 	killall
   ];
 
+  services.flatpak.enable = true;
+
   virtualisation.docker.enable = true;
 
   boot.kernelModules = [ "coretemp" "nct6775" ];
