@@ -61,6 +61,7 @@ in {
   services.flatpak = {
 	packages = [
       "com.github.iwalton3.jellyfin-media-player"
+	  "app.grayjay.Grayjay"
 	];
   };
 
