@@ -102,16 +102,25 @@
   programs.firefox.enable = true;
   programs.hyprland = {
     enable = true;
-    package = hyprland.packages.${pkgs.stdenv.hostPlatform.system}.hyprland;
-    portalPackage = hyprland.packages.${pkgs.stdenv.hostPlatform.system}.xdg-desktop-portal-hyprland;
   };
 
   hardware.enableAllFirmware = true;
 
   xdg.portal = {
     enable = true;
-    extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
+    extraPortals = [
+	  pkgs.xdg-desktop-portal-gtk
+	  pkgs.xdg-desktop-portal-hyprland
+	];
+	config.common.default = [
+	  "hyprland"
+	  "gtk"
+	];
   };
+
+  # environment.sessionVariables = {
+  #   XDG_DATA_DIRS = "${config.environment.pathsToLink}/share/flatpak/exports/share:${config.environment.pathsToLink}/share";
+  # };
 
   xdg.mime = {
 	defaultApplications =
