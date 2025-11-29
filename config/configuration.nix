@@ -166,6 +166,7 @@
 	pulseaudio
 	spice-gtk
 	dig
+	killall
   ];
 
   virtualisation.docker.enable = true;
