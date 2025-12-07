@@ -1,6 +1,5 @@
 {
   networking = {
-    hostName = "nixos";
 	networkmanager.enable = true;
 	networkmanager.dns = "none";
 

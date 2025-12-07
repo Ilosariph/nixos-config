@@ -17,15 +17,14 @@ in {
 	./hypr/hypridle.nix
 	walker.homeManagerModules.default
 	./hypr/walker.nix
-	./programs/yazi.nix
 	./programs/kitty.nix
 	./programs/swappy.nix
 	./programs/easyeffects/easyeffects.nix
 	./programs/mpv.nix
 	./programs/vr/wlx-overlay-s.nix
-	./programs/git.nix
 	./programs/orca-slicer.nix
 	./programs/udiskie.nix
+	./programs/yazi.nix
 	./general/links.nix
   ];
 
@@ -75,12 +74,10 @@ in {
       kdePackages.dolphin
 	  wl-clipboard
 	  hyprpaper
-	  waybar-mpris
 	  libnotify
 	  chromium
 	  spotify
       discord
-	  unzip
 	  material-cursors
 	  protonmail-desktop
 	  github-desktop
@@ -90,9 +87,7 @@ in {
 	  razergenie
 	  qview
 	  filezilla
-	  python312
 	  grimblast
-	  zip
 	  streamcontroller
 	  qpwgraph
 	  jetbrains.pycharm-professional

@@ -55,7 +55,7 @@
     in
 	{
       nixosConfigurations = {
-        simon = lib.nixosSystem {
+        simonDesktop = lib.nixosSystem {
           specialArgs = {
             inherit hyprland;
             inherit pkgs-unstable;
@@ -63,14 +63,15 @@
           inherit system;
           inherit pkgs;
           modules = [
-					  ./config/configuration.nix
-					  nixpkgs-xr.nixosModules.nixpkgs-xr
-					];
+			./general/config/configuration.nix
+			./with-desktop/config/configuration.nix
+			nixpkgs-xr.nixosModules.nixpkgs-xr
+		  ];
         };
       };
 
       homeConfigurations = {
-        simon = home-manager.lib.homeManagerConfiguration {
+        simonDesktop = home-manager.lib.homeManagerConfiguration {
           pkgs = pkgs-unstable;
 		  extraSpecialArgs = {
 			pkgs-stable = pkgs;
@@ -78,7 +79,8 @@
 		  };
           modules = [
 			nix-flatpak.homeManagerModules.nix-flatpak
-			./home/home.nix
+			./general/home/home.nix
+			./with-desktop/home/home.nix
 		  ];
         };
       };

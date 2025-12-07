@@ -15,48 +15,17 @@
 	  ./gaming/gaming.nix
     ];
 
-  # Bootloader.
-  boot.loader.systemd-boot.enable = true;
-  boot.loader.efi.canTouchEfiVariables = true;
-
-  # Set your time zone.
-  time.timeZone = "Europe/Zurich";
-
-  # Select internationalisation properties.
-  i18n.defaultLocale = "en_US.UTF-8";
-
-  i18n.extraLocaleSettings = {
-    LC_ADDRESS = "de_CH.UTF-8";
-    LC_IDENTIFICATION = "de_CH.UTF-8";
-    LC_MEASUREMENT = "de_CH.UTF-8";
-    LC_MONETARY = "de_CH.UTF-8";
-    LC_NAME = "de_CH.UTF-8";
-    LC_NUMERIC = "de_CH.UTF-8";
-    LC_PAPER = "de_CH.UTF-8";
-    LC_TELEPHONE = "de_CH.UTF-8";
-    LC_TIME = "de_CH.UTF-8";
-  };
-
-  # Enable the X11 windowing system.
   services.xserver.enable = true;
 
-  # Enable the GNOME Desktop Environment.
-  # services.xserver.displayManager.gdm.enable = true;
-  # services.xserver.desktopManager.gnome.enable = true;
-
-  # Configure keymap in X11
   services.xserver.xkb = {
     layout = "ch";
     variant = "";
   };
 
-  # Configure console keymap
   console.keyMap = "sg";
 
-  # Enable CUPS to print documents.
   services.printing.enable = true;
 
-  # Enable sound with pipewire.
   services.pulseaudio.enable = false;
   security.rtkit.enable = true;
   services.pipewire = {
@@ -64,12 +33,6 @@
     alsa.enable = true;
     alsa.support32Bit = true;
     pulse.enable = true;
-    # If you want to use JACK applications, uncomment this
-    #jack.enable = true;
-
-    # use the example session manager (no others are packaged yet so this is enabled by default,
-    # no need to redefine it in your config for now)
-    #media-session.enable = true;
   };
 
   services.udev.packages = [
@@ -77,17 +40,9 @@
 	pkgs.vial
   ];
 
-  # Enable touchpad support (enabled default in most desktopManager).
-  # services.xserver.libinput.enable = true;
-
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.simon = {
-    isNormalUser = true;
-    description = "simon";
     extraGroups = [ "networkmanager" "wheel" "libvirtd" ];
-    packages = with pkgs; [
-    #  thunderbird
-    ];
   };
 
   services.udisks2.enable = true;
@@ -98,13 +53,10 @@
 	users = [ "simon?" ];
   };
 
-  # Install firefox.
   programs.firefox.enable = true;
   programs.hyprland = {
     enable = true;
   };
-
-  hardware.enableAllFirmware = true;
 
   xdg.portal = {
     enable = true;
@@ -117,10 +69,6 @@
 	  "gtk"
 	];
   };
-
-  # environment.sessionVariables = {
-  #   XDG_DATA_DIRS = "${config.environment.pathsToLink}/share/flatpak/exports/share:${config.environment.pathsToLink}/share";
-  # };
 
   xdg.mime = {
 	defaultApplications =
@@ -156,7 +104,6 @@
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
-    vim
     kitty
     hyprland
     hyprlock
@@ -164,23 +111,16 @@
 	gcc
     # git
     home-manager
-    tree
-    wget
 	lm_sensors
 	libsecret
 	# pkgs-unstable.fancontrol-gui
     pkgs-unstable.pulsemeeter
-	htop
 	protonvpn-gui
 	pulseaudio
 	spice-gtk
-	dig
-	killall
   ];
 
   services.flatpak.enable = true;
-
-  virtualisation.docker.enable = true;
 
   boot.kernelModules = [ "coretemp" "nct6775" ];
 
@@ -239,14 +179,11 @@
     trusted-public-keys = ["hyprland.cachix.org-1:a7pgxzMz7+chwVL3/pzj6jIBMioiJM7ypFP8PwtkuGc="];
   };
 
-  nix.settings.experimental-features = [ "nix-command" "flakes" ];
-
   services.gnome.gnome-keyring.enable = true;
   security.pam.services.hyprland.enableGnomeKeyring = true;
   security.pam.services.lightdm.enableGnomeKeyring = true;
   security.pam.services.login.enableGnomeKeyring = true;
 
-  programs._1password.enable = true;
   programs._1password-gui = {
     enable = true;
     # Certain features, including CLI integration and system authentication support,
