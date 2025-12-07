@@ -59,9 +59,11 @@ in {
   };
 
   services.flatpak = {
+	enable = true;
 	packages = [
       "com.github.iwalton3.jellyfin-media-player"
 	  "app.grayjay.Grayjay"
+	  "page.codeberg.libre_menu_editor.LibreMenuEditor"
 	];
   };
 
@@ -103,6 +105,7 @@ in {
 	  vial
 	  losslesscut-bin
 	  jellyfin-mpv-shim
+	  gtk3-x11
     ];
 
 	sessionVariables = {
