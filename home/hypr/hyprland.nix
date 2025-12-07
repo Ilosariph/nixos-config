@@ -141,19 +141,25 @@ in {
         "$mainMod, Q, exec, $terminal"
         "$mainMod, C, killactive"
         "$mainMod, E, exec, $fileManager"
-        "$mainMod, v, togglefloating"
+        "$mainMod, V, togglefloating"
         "$mainMod, SPACE, exec, $menu"
         "$mainMod, P, pseudo"
         "$mainMod, T, togglesplit"
         "$mainMod, L, exec, hyprlock"
         ", Print, exec, $screenshotUtil"
 
-        "$mainMod, H, movefocus, l"
+        "$mainMod, N, movefocus, l"
         "$mainMod, I, movefocus, r"
-        "$mainMod, K, movefocus, u"
-        "$mainMod, J, movefocus, d"
+        "$mainMod, U, movefocus, u"
+        "$mainMod, comma, movefocus, d"
 
-        "$mainMod, S, togglespecialworkspace, magic"
+		# Move windows
+		"$mainMod SHIFT, N, movewindow, l"
+		"$mainMod SHIFT, I, movewindow, r"
+		"$mainMod SHIFT, U, movewindow, u"
+		"$mainMod SHIFT, comma, movewindow, d"
+
+		"$mainMod, S, togglespecialworkspace, magic"
         "$mainMod SHIFT, S, movetoworkspace, special:magic"
       ]
       ++ (
@@ -168,10 +174,25 @@ in {
           )
           9)
       );
+	# Mouse binds
     bindm =
       [
         "$mainMod, mouse:272, movewindow"
         "$mainMod, mouse:273, resizewindow"
       ];
+	# Repeating binds when held
+	binde = 
+	  [
+		# Resize windows
+		"$mainMod CTRL, N, resizeactive, -50 0" # Right side of the window left
+        "$mainMod CTRL, I, resizeactive, 50 0"  # Right side of the window right
+        "$mainMod CTRL, U, resizeactive, 0 -50" # Bottom of the window up
+        "$mainMod CTRL, comma, resizeactive, 0 50"  # Bottom of the window down
+		# Move floating windows
+		"$mainMod ALT, N, moveactive, -50 0"
+		"$mainMod ALT, I, moveactive, 50 0"
+		"$mainMod ALT, U, moveactive, 0 -50"
+		"$mainMod ALT, comma, moveactive, 0 50"
+	  ];
   };
 }
