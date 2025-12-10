@@ -101,6 +101,7 @@ in {
 	  losslesscut-bin
 	  jellyfin-mpv-shim
 	  gtk3-x11
+	  gimp
     ];
 
 	sessionVariables = {
