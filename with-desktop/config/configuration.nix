@@ -42,7 +42,7 @@
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.simon = {
-    extraGroups = [ "networkmanager" "wheel" "libvirtd" ];
+    extraGroups = [ "networkmanager" "wheel" "libvirtd" "openrazer" ];
   };
 
   services.udisks2.enable = true;
@@ -50,7 +50,6 @@
 
   hardware.openrazer = {
 	enable = true;
-	users = [ "simon?" ];
   };
 
   programs.firefox.enable = true;
@@ -110,6 +109,7 @@
     wofi
 	gcc
     # git
+	polychromatic
     home-manager
 	lm_sensors
 	libsecret
