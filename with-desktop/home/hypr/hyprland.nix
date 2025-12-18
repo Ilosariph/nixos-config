@@ -32,6 +32,7 @@ in {
 	  "pulsemeeter"
 	  "streamcontroller"
 	  "easyeffects"
+	  "qpwgraph"
 	  "${randomWallpaperScript}/bin/random-wallpaper ${wallpaperPath} > /home/simon/random-wallpaper-script.txt 2>&1"
 	  "systemctl --user import-environment PATH"
 	  "systemctl --user import-environment XDG_DATA_DIRS"

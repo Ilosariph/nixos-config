@@ -102,6 +102,7 @@ in {
 	  jellyfin-mpv-shim
 	  gtk3-x11
 	  gimp
+	  fsearch
     ];
 
 	sessionVariables = {
