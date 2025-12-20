@@ -15,15 +15,15 @@
 
     hyprland.url = "github:hyprwm/Hyprland";
 
-	elephant.url = "github:abenz1267/elephant";
-    walker = {
-      url = "github:abenz1267/walker";
-      inputs.elephant.follows = "elephant";
-    };
+		elephant.url = "github:abenz1267/elephant";
 
-	nixpkgs-xr.url = "github:nix-community/nixpkgs-xr";
+		nixpkgs-xr.url = "github:nix-community/nixpkgs-xr";
 
-	nix-flatpak.url = "github:gmodena/nix-flatpak";
+		nix-flatpak.url = "github:gmodena/nix-flatpak";
+		dms = {
+			url = "github:AvengeMedia/DankMaterialShell/stable";
+			inputs.nixpkgs.follows = "nixpkgs";
+		};
   };
 
   outputs =
@@ -32,9 +32,9 @@
 		nixpkgs-unstable,
 		home-manager,
 		hyprland,
-		walker,
 		nixpkgs-xr,
 		nix-flatpak,
+		dms,
 		...
 	}:
     let
@@ -63,25 +63,25 @@
           inherit system;
           inherit pkgs;
           modules = [
-			./general/config/configuration.nix
-			./with-desktop/config/configuration.nix
-			nixpkgs-xr.nixosModules.nixpkgs-xr
-		  ];
+						./general/config/configuration.nix
+						./with-desktop/config/configuration.nix
+						nixpkgs-xr.nixosModules.nixpkgs-xr
+					];
         };
       };
 
       homeConfigurations = {
         simonDesktop = home-manager.lib.homeManagerConfiguration {
           pkgs = pkgs-unstable;
-		  extraSpecialArgs = {
-			pkgs-stable = pkgs;
-			inherit walker;
-		  };
-          modules = [
-			nix-flatpak.homeManagerModules.nix-flatpak
-			./general/home/home.nix
-			./with-desktop/home/home.nix
-		  ];
+					extraSpecialArgs = {
+						pkgs-stable = pkgs;
+						inherit dms;
+					};
+					modules = [
+						nix-flatpak.homeManagerModules.nix-flatpak
+						./general/home/home.nix
+						./with-desktop/home/home.nix
+					];
         };
       };
     };

@@ -1,4 +1,4 @@
-{ lib, pkgs, pkgs-stable, config, walker, ... }: 
+{ lib, pkgs, pkgs-stable, config, dms, ... }: 
 let
   username = "simon";
   wallpaperDir = pkgs.stdenv.mkDerivation {
@@ -11,21 +11,19 @@ in {
     WALLPAPER_DIR = "${wallpaperDir}";
   };
   imports = [
-    ./hypr/hyprland.nix
-    ./hypr/hyprlock.nix
-    ./hypr/hyprpanel.nix
-	./hypr/hypridle.nix
-	walker.homeManagerModules.default
-	./hypr/walker.nix
-	./programs/kitty.nix
-	./programs/swappy.nix
-	./programs/easyeffects/easyeffects.nix
-	./programs/mpv.nix
-	./programs/vr/wlx-overlay-s.nix
-	./programs/orca-slicer.nix
-	./programs/udiskie.nix
-	./programs/yazi.nix
-	./general/links.nix
+		./hypr/hyprland.nix
+		./hypr/hypridle.nix
+		dms.homeModules.dankMaterialShell.default
+		./hypr/dms.nix
+		./programs/kitty.nix
+		./programs/swappy.nix
+		./programs/easyeffects/easyeffects.nix
+		./programs/mpv.nix
+		./programs/vr/wlx-overlay-s.nix
+		./programs/orca-slicer.nix
+		./programs/udiskie.nix
+		./programs/yazi.nix
+		./general/links.nix
   ];
 
   programs.neovim.enable = true;

@@ -13,31 +13,32 @@ in {
   # home.sessionVariables.NIXOS_OZONE_WL = "1";
 
   wayland.windowManager.hyprland.settings = {
-	monitor = [
-		"DP-1, 3440x1440@120, 0x0, 1"
-		"HDMI-A-1, 1920x1200@59.95, 3440x0, 1"
-		"DP-3, 1920x1080@144, -1920x0, 1"
-	];
+		monitor = [
+			"DP-1, 3440x1440@120, 0x0, 1"
+			"HDMI-A-1, 1920x1200@59.95, 3440x0, 1"
+			"DP-3, 1920x1080@144, -1920x0, 1"
+		];
 
-	exec-once = [
-	  "hyprpaper"
-	  "hyprpanel"
-	  "hypridle"
-	  "elephant service enable"
-	  "systemctl --user start elephant.service"
-	  "walker --gapplication-service"
-	  "systemctl --user start hyprpolkitagent"
-	  "gsettings set org.gnome.desktop.interface cursor-theme '${config.home.pointerCursor.name}'"
-      "gsettings set org.gnome.desktop.interface cursor-size ${toString config.home.pointerCursor.size}"
-	  "pulsemeeter"
-	  "streamcontroller"
-	  "easyeffects"
-	  "qpwgraph"
-	  "${randomWallpaperScript}/bin/random-wallpaper ${wallpaperPath} > /home/simon/random-wallpaper-script.txt 2>&1"
-	  "systemctl --user import-environment PATH"
-	  "systemctl --user import-environment XDG_DATA_DIRS"
-	  "systemctl --user restart xdg-desktop-portal.service"
-	];
+		exec-once = [
+			"hyprpaper"
+			"hypridle"
+			"dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP"
+			"systemctl --user start hyprpolkitagent"
+			"gsettings set org.gnome.desktop.interface cursor-theme '${config.home.pointerCursor.name}'"
+			"gsettings set org.gnome.desktop.interface cursor-size ${toString config.home.pointerCursor.size}"
+			"pulsemeeter"
+			"streamcontroller"
+			"easyeffects"
+			"qpwgraph"
+			"${randomWallpaperScript}/bin/random-wallpaper ${wallpaperPath} > /home/simon/random-wallpaper-script.txt 2>&1"
+			"systemctl --user import-environment PATH"
+			"systemctl --user import-environment XDG_DATA_DIRS"
+			"systemctl --user restart xdg-desktop-portal.service"
+			"systemctl --user start hyprland-session.target"
+			"systemctl --user add-wants hyprland-session.target dms"
+			"systemctl --user start dms"
+			"bash -c 'wl-paste --watch cliphist store &'"
+		];
 
     general = {
       "gaps_in" = 3;
@@ -48,9 +49,11 @@ in {
       "layout" = "dwindle";
     };
 
-	windowrulev2 = [
-	  "opacity 1.0 override 1.0 override, class:^(com.interversehq.qView)$"
-	  "opacity 1.0 override 1.0 override, class:^(mpv)$"
+		windowrulev2 = [
+			"opacity 1.0 override 1.0 override, class:^(com.interversehq.qView)$"
+			"opacity 1.0 override 1.0 override, class:^(mpv)$"
+			"noborder, class:^(kitty)$"
+			"float, class:^(org.quickshell)$"
     ];
 
     decoration = {
@@ -134,8 +137,9 @@ in {
     "$mainMod" = "SUPER";
     "$terminal" = "kitty";
     "$fileManager" = "kitty yazi";
-    "$menu" = "walker";
-	"$screenshotUtil" = "grimblast -f save area - | swappy -f -";
+    "$menu" = "dms ipc call spotlight toggle";
+		"$screenshotUtil" = "grimblast -f save area - | swappy -f -";
+		"$lock" = "dms ipc call lock lock";
 
     bind =
       [
@@ -146,8 +150,9 @@ in {
         "$mainMod, SPACE, exec, $menu"
         "$mainMod, P, pseudo"
         "$mainMod, T, togglesplit"
-        "$mainMod, L, exec, hyprlock"
+        "$mainMod, L, exec, $lock"
         ", Print, exec, $screenshotUtil"
+				"$mainMod, TAB, exec, dms ipc call hypr toggleOverview"
 
         "$mainMod, N, movefocus, l"
         "$mainMod, I, movefocus, r"
