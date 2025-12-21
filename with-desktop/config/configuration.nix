@@ -2,12 +2,12 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
-{ config, pkgs, pkgs-unstable, hyprland, ... }:
+{ config, pkgs, pkgs-unstable, ... }:
 
 {
   imports =
     [ # Include the results of the hardware scan.
-      ./hardware-configuration.nix
+    ./hardware-configuration.nix
 	  ./drives.nix
 	  ./shares.nix
 	  ./virtualisation.nix
@@ -53,21 +53,6 @@
   };
 
   programs.firefox.enable = true;
-  programs.hyprland = {
-    enable = true;
-  };
-
-  xdg.portal = {
-    enable = true;
-    extraPortals = [
-	  pkgs.xdg-desktop-portal-gtk
-	  pkgs.xdg-desktop-portal-hyprland
-	];
-	config.common.default = [
-	  "hyprland"
-	  "gtk"
-	];
-  };
 
   xdg.mime = {
 	defaultApplications =
@@ -104,20 +89,17 @@
   # $ nix search wget
   environment.systemPackages = with pkgs; [
     kitty
-    hyprland
-    hyprlock
-    wofi
-	gcc
+		gcc
     # git
-	polychromatic
+		polychromatic
     home-manager
-	lm_sensors
-	libsecret
+		lm_sensors
+		libsecret
 	# pkgs-unstable.fancontrol-gui
     pkgs-unstable.pulsemeeter
-	protonvpn-gui
-	pulseaudio
-	spice-gtk
+		protonvpn-gui
+		pulseaudio
+		spice-gtk
   ];
 
   services.flatpak.enable = true;
@@ -132,57 +114,12 @@
   #   ACTION=="add", SUBSYSTEM=="hwmon", KERNELS=="nct6774.656", DRIVERS=="nct6775", RUN+="/bin/sh -c 'ln -s /sys$devpath/pwm6_input /dev/case_fan_input'"
   '';
 
-	#  hardware.fancontrol = {
-	# enable = true;
-	# config = ''
-	# INTERVAL=10
-	# DEVPATH=hwmon4=devices/platform/nct6775.656
-	# DEVNAME=hwmon4=nct6798
-	# FCTEMPS=devices/platform/nct6775.656/hwmon/hwmon*/pwm6=devices/platform/nct6775.656/hwmon/hwmon*/temp1_input devices/platform/nct6775.656/hwmon/hwmon*/pwm2=devices/platform/nct6775.656/hwmon/hwmon*/temp1_input
-	# FCFANS=devices/platform/nct6775.656/hwmon/hwmon*/pwm6=devices/platform/nct6775.656/hwmon/hwmon*/pwm6_input devices/platform/nct6775.656/hwmon/hwmon*/pwm2=devices/platform/nct6775.656/hwmon/hwmon*/pwm2_input
-	# MINTEMP=devices/platform/nct6775.656/hwmon/hwmon*/pwm6=50 devices/platform/nct6775.656/hwmon/hwmon*/pwm2=2s5
-	# MAXTEMP=devices/platform/nct6775.656/hwmon/hwmon*/pwm6=95 devices/platform/nct6775.656/hwmon/hwmon*/pwm2=70
-	# MINSTART=devices/platform/nct6775.656/hwmon/hwmon*/pwm6=34 devices/platform/nct6775.656/hwmon/hwmon*/pwm2=66
-	# MINSTOP=devices/platform/nct6775.656/hwmon/hwmon*/pwm6=4 devices/platform/nct6775.656/hwmon/hwmon*/pwm2=26
-	# MINPWM=devices/platform/nct6775.656/hwmon/hwmon*/pwm6=4 devices/platform/nct6775.656/hwmon/hwmon*/pwm2=20
-	# MAXPWM=devices/platform/nct6775.656/hwmon/hwmon*/pwm6=150 devices/platform/nct6775.656/hwmon/hwmon*/pwm2=255
-	# '';
-	#  };
-
-	#  hardware.fancontrol = {
-	# enable = true;
-	# config = ''
-	#   INTERVAL=10
-	#   DEVPATH=hwmon*=devices/platform/nct6775.656
-	#   DEVNAME=hwmon*=nct6798
-	#   FCTEMPS=/dev/case_fan=/dev/cpu_temp /dev/cpu_fan=/dev/cpu_temp
-	#   FCFANS=/dev/case_fan=/dev/case_fan_input /dev/cpu_fan=/dev/cpu_fan_input
-	#   MINTEMP=/dev/case_fan=50 /dev/cpu_fan=2s5
-	#   MAXTEMP=/dev/case_fan=95 /dev/cpu_fan=70
-	#   MINSTART=/dev/case_fan=34 /dev/cpu_fan=66
-	#   MINSTOP=/dev/case_fan=4 /dev/cpu_fan=26
-	#   MINPWM=/dev/case_fan=4 /dev/cpu_fan=20
-	#   MAXPWM=/dev/case_fan=150 /dev/cpu_fan=255
-	# '';
-	#  };
-
   systemd.services.fancontrol.enable = true;
 
   fonts.packages = with pkgs; [
-	nerd-fonts.jetbrains-mono
-	nerd-fonts.fira-code
+		nerd-fonts.jetbrains-mono
+		nerd-fonts.fira-code
   ];
-
-  nix.settings = {
-    substituters = ["https://hyprland.cachix.org"];
-    trusted-substituters = ["https://hyprland.cachix.org"];
-    trusted-public-keys = ["hyprland.cachix.org-1:a7pgxzMz7+chwVL3/pzj6jIBMioiJM7ypFP8PwtkuGc="];
-  };
-
-  services.gnome.gnome-keyring.enable = true;
-  security.pam.services.hyprland.enableGnomeKeyring = true;
-  security.pam.services.lightdm.enableGnomeKeyring = true;
-  security.pam.services.login.enableGnomeKeyring = true;
 
   programs._1password-gui = {
     enable = true;
@@ -197,10 +134,10 @@
 
   services.xserver.videoDrivers = ["nvidia"];
   hardware.nvidia = {
-	modesetting.enable = true;
-	open = false;
-    package = config.boot.kernelPackages.nvidiaPackages.stable;
-  };
+		modesetting.enable = true;
+		open = false;
+		package = config.boot.kernelPackages.nvidiaPackages.stable;
+	};
 
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.

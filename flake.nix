@@ -1,33 +1,32 @@
 {
-  description = "Home manager config";
+	description = "Configs for hyprland, niri and server stuff";
 
-  inputs = {
-    nixpkgs = {
-      url = "github:nixos/nixpkgs/nixos-unstable";
-    };
+	inputs = {
+		nixpkgs = {
+			url = "github:nixos/nixpkgs/nixos-unstable";
+		};
 
-    nixpkgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
+		nixpkgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
 
-    home-manager = {
-      url = "github:nix-community/home-manager";
-      inputs.nixpkgs.follows = "nixpkgs-unstable";
-    };
+		home-manager = {
+			url = "github:nix-community/home-manager";
+			inputs.nixpkgs.follows = "nixpkgs-unstable";
+		};
 
-    hyprland.url = "github:hyprwm/Hyprland";
+		hyprland.url = "github:hyprwm/Hyprland";
 
-	elephant.url = "github:abenz1267/elephant";
-    walker = {
-      url = "github:abenz1267/walker";
-      inputs.elephant.follows = "elephant";
-    };
+		elephant.url = "github:abenz1267/elephant";
+		walker = {
+			url = "github:abenz1267/walker";
+			inputs.elephant.follows = "elephant";
+		};
 
-	nixpkgs-xr.url = "github:nix-community/nixpkgs-xr";
+		nixpkgs-xr.url = "github:nix-community/nixpkgs-xr";
 
-	nix-flatpak.url = "github:gmodena/nix-flatpak";
-  };
+		nix-flatpak.url = "github:gmodena/nix-flatpak";
+	};
 
-  outputs =
-	{
+  outputs = {
 		nixpkgs,
 		nixpkgs-unstable,
 		home-manager,
@@ -37,52 +36,80 @@
 		nix-flatpak,
 		...
 	}:
-    let
-      lib = nixpkgs.lib;
-      system = "x86_64-linux";
-      pkgs = import nixpkgs {
-        inherit system;
-        config = {
-          allowUnfree = true;
-        };
-      };
-      pkgs-unstable = import nixpkgs-unstable {
-        inherit system;
-        config = {
-          allowUnfree = true;
-        };
-	  };
-    in
-	{
-      nixosConfigurations = {
-        simonDesktop = lib.nixosSystem {
-          specialArgs = {
-            inherit hyprland;
-            inherit pkgs-unstable;
-          };
-          inherit system;
-          inherit pkgs;
-          modules = [
-			./general/config/configuration.nix
-			./with-desktop/config/configuration.nix
-			nixpkgs-xr.nixosModules.nixpkgs-xr
-		  ];
-        };
-      };
+	let
+		lib = nixpkgs.lib;
+		system = "x86_64-linux";
+		pkgs = import nixpkgs {
+			inherit system;
+			config = {
+				allowUnfree = true;
+			};
+		};
+		pkgs-unstable = import nixpkgs-unstable {
+			inherit system;
+			config = {
+				allowUnfree = true;
+			};
+		};
+	in {
+		nixosConfigurations = {
+			hyprland = lib.nixosSystem {
+				specialArgs = {
+					inherit hyprland;
+					inherit pkgs-unstable;
+				};
+				inherit system;
+				inherit pkgs;
+				modules = [
+					./general/config/configuration.nix
+					./with-desktop/config/configuration.nix
+					./with-desktop/hyprland/configuration.nix
+					nixpkgs-xr.nixosModules.nixpkgs-xr
+				];
+			};
+			niri = lib.nixosSystem {
+				specialArgs = {
+					inherit hyprland;
+					inherit pkgs-unstable;
+				};
+				inherit system;
+				inherit pkgs;
+				modules = [
+					./general/config/configuration.nix
+					./with-desktop/config/configuration.nix
+					./with-desktop/niri/configuration.nix#todo change
+					nixpkgs-xr.nixosModules.nixpkgs-xr
+				];
+			};
+		};
 
-      homeConfigurations = {
-        simonDesktop = home-manager.lib.homeManagerConfiguration {
-          pkgs = pkgs-unstable;
-		  extraSpecialArgs = {
-			pkgs-stable = pkgs;
-			inherit walker;
-		  };
-          modules = [
-			nix-flatpak.homeManagerModules.nix-flatpak
-			./general/home/home.nix
-			./with-desktop/home/home.nix
-		  ];
-        };
-      };
-    };
+		homeConfigurations = {
+			hyprland = home-manager.lib.homeManagerConfiguration {
+				pkgs = pkgs-unstable;
+				extraSpecialArgs = {
+					pkgs-stable = pkgs;
+					inherit walker;
+				};
+				modules = [
+					nix-flatpak.homeManagerModules.nix-flatpak
+					./general/home/home.nix
+					./with-desktop/home/home.nix
+					./with-desktop/hyprland/home.nix
+				];
+			};
+			niri = home-manager.lib.homeManagerConfiguration {
+				pkgs = pkgs-unstable;
+				extraSpecialArgs = {
+					pkgs-stable = pkgs;
+					inherit walker;
+				};
+				modules = [
+					nix-flatpak.homeManagerModules.nix-flatpak
+					./general/home/home.nix
+					./with-desktop/home/home.nix
+					./with-desktop/niri/home.nix
+				];
+			};
+		};
+	};
 }

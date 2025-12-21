@@ -1,9 +1,8 @@
 { config, pkgs, pkgs-unstable, hyprland, ... }:
 {
-  imports =
-    [
-	  ./network.nix
-    ];
+  imports = [
+		./network.nix
+  ];
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
@@ -22,7 +21,6 @@
     LC_TIME = "de_CH.UTF-8";
   };
 
-  # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.simon = {
     isNormalUser = true;
     description = "simon";
@@ -31,13 +29,14 @@
   hardware.enableAllFirmware = true;
 
   environment.systemPackages = with pkgs; [
-	vim
-	tree
-	wget
-	htop
-	dig
-	killall
+		vim
+		tree
+		wget
+		htop
+		dig
+		killall
   ];
+
   virtualisation.docker.enable = true;
   programs._1password.enable = true;
 
