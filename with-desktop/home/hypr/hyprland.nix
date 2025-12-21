@@ -33,10 +33,11 @@ in {
 			"${randomWallpaperScript}/bin/random-wallpaper ${wallpaperPath} > /home/simon/random-wallpaper-script.txt 2>&1"
 			"systemctl --user import-environment PATH"
 			"systemctl --user import-environment XDG_DATA_DIRS"
-			"systemctl --user restart xdg-desktop-portal.service"
-			"systemctl --user start hyprland-session.target"
-			"systemctl --user add-wants hyprland-session.target dms"
-			"systemctl --user start dms"
+			# "systemctl --user restart xdg-desktop-portal.service"
+			# "systemctl --user start hyprland-session.target"
+			# "systemctl --user add-wants hyprland-session.target dms"
+			# "systemctl --user start dms"
+			# "dms run"
 			"bash -c 'wl-paste --watch cliphist store &'"
 		];
 
