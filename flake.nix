@@ -15,15 +15,14 @@
 
 		hyprland.url = "github:hyprwm/Hyprland";
 
-		elephant.url = "github:abenz1267/elephant";
-		walker = {
-			url = "github:abenz1267/walker";
-			inputs.elephant.follows = "elephant";
-		};
-
 		nixpkgs-xr.url = "github:nix-community/nixpkgs-xr";
 
 		nix-flatpak.url = "github:gmodena/nix-flatpak";
+
+		dms = {
+			url = "github:AvengeMedia/DankMaterialShell/stable";
+			inputs.nixpkgs.follows = "nixpkgs";
+		};
 	};
 
   outputs = {
@@ -31,9 +30,9 @@
 		nixpkgs-unstable,
 		home-manager,
 		hyprland,
-		walker,
 		nixpkgs-xr,
 		nix-flatpak,
+		dms,
 		...
 	}:
 	let
@@ -88,7 +87,7 @@
 				pkgs = pkgs-unstable;
 				extraSpecialArgs = {
 					pkgs-stable = pkgs;
-					inherit walker;
+					inherit dms;
 				};
 				modules = [
 					nix-flatpak.homeManagerModules.nix-flatpak
@@ -101,7 +100,7 @@
 				pkgs = pkgs-unstable;
 				extraSpecialArgs = {
 					pkgs-stable = pkgs;
-					inherit walker;
+					inherit dms;
 				};
 				modules = [
 					nix-flatpak.homeManagerModules.nix-flatpak

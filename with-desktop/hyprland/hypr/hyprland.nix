@@ -21,22 +21,19 @@ in {
 
 		exec-once = [
 			"hyprpaper"
-			"hyprpanel"
 			"hypridle"
-			"elephant service enable"
-			"systemctl --user start elephant.service"
-			"walker --gapplication-service"
 			"systemctl --user start hyprpolkitagent"
 			"gsettings set org.gnome.desktop.interface cursor-theme '${config.home.pointerCursor.name}'"
 			"gsettings set org.gnome.desktop.interface cursor-size ${toString config.home.pointerCursor.size}"
 			"pulsemeeter"
 			"streamcontroller"
-			"easyeffects"
 			"qpwgraph"
 			"${randomWallpaperScript}/bin/random-wallpaper ${wallpaperPath} > /home/simon/random-wallpaper-script.txt 2>&1"
 			"systemctl --user import-environment PATH"
 			"systemctl --user import-environment XDG_DATA_DIRS"
 			"systemctl --user restart xdg-desktop-portal.service"
+			"bash -c 'wl-paste --watch cliphist store &'"
+			"easyeffects"
 		];
 
 		general = {
@@ -51,6 +48,8 @@ in {
 		windowrulev2 = [
 			"opacity 1.0 override 1.0 override, class:^(com.interversehq.qView)$"
 			"opacity 1.0 override 1.0 override, class:^(mpv)$"
+			"noborder, class:^(kitty)$"
+			"float, class:^(org.quickshell)$"
 		];
 
 		decoration = {
@@ -134,8 +133,10 @@ in {
 		"$mainMod" = "SUPER";
 		"$terminal" = "kitty";
 		"$fileManager" = "kitty yazi";
-		"$menu" = "walker";
+		"$menu" = "dms ipc call spotlight toggle";
 		"$screenshotUtil" = "grimblast -f save area - | swappy -f -";
+		"$lock" = "dms ipc call lock lock";
+		"$overview" = "dms ipc call hypr toggleOverview";
 
 		bind = [
 			"$mainMod, Q, exec, $terminal"
@@ -145,8 +146,9 @@ in {
 			"$mainMod, SPACE, exec, $menu"
 			"$mainMod, P, pseudo"
 			"$mainMod, T, togglesplit"
-			"$mainMod, L, exec, hyprlock"
+			"$mainMod, L, exec, $lock"
 			", Print, exec, $screenshotUtil"
+			"$mainMod, TAB, exec, $overview"
 
 			"$mainMod, N, movefocus, l"
 			"$mainMod, I, movefocus, r"
