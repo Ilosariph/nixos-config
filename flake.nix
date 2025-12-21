@@ -50,6 +50,7 @@
 				allowUnfree = true;
 			};
 		};
+
 	in {
 		nixosConfigurations = {
 			hyprland = lib.nixosSystem {
@@ -60,6 +61,7 @@
 				inherit system;
 				inherit pkgs;
 				modules = [
+					./with-desktop/machines/mainpc/hardware-configuration.nix
 					./general/config/configuration.nix
 					./with-desktop/config/configuration.nix
 					./with-desktop/hyprland/configuration.nix
@@ -68,12 +70,12 @@
 			};
 			niri = lib.nixosSystem {
 				specialArgs = {
-					inherit hyprland;
 					inherit pkgs-unstable;
 				};
 				inherit system;
 				inherit pkgs;
 				modules = [
+					./with-desktop/machines/mainpc/hardware-configuration.nix
 					./general/config/configuration.nix
 					./with-desktop/config/configuration.nix
 					./with-desktop/niri/configuration.nix#todo change
@@ -94,6 +96,7 @@
 					./general/home/home.nix
 					./with-desktop/home/home.nix
 					./with-desktop/hyprland/home.nix
+					./with-desktop/machines/mainpc/hypr.nix
 				];
 			};
 			niri = home-manager.lib.homeManagerConfiguration {

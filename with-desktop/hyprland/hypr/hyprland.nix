@@ -13,12 +13,6 @@ in {
   # home.sessionVariables.NIXOS_OZONE_WL = "1";
 
   wayland.windowManager.hyprland.settings = {
-		monitor = [
-			"DP-1, 3440x1440@120, 0x0, 1"
-			"HDMI-A-1, 1920x1200@59.95, 3440x0, 1"
-			"DP-3, 1920x1080@144, -1920x0, 1"
-		];
-
 		exec-once = [
 			"hyprpaper"
 			"hypridle"
@@ -120,16 +114,13 @@ in {
 			kb_options = "caps:escape";
 
 			follow_mouse = 1;
-			sensitivity = -0.9;
-
-		# https://chatgpt.com/share/68f39352-71ec-8002-88cb-6c1040cd3b77
-		accel_profile = "custom 0.9523809523809523 0 0.5291168903520684 1.058931616663856 1.5942371596409772 2.148539075146997 2.756044143650548 3.454963548379806 4.290190934408531 5.289652967848195 6.482052192086169 7.802170470071724 9.228838454560725 10.734108142960869 12.295753816678992 13.897450879591887 15.527650517041423 17.178296304138787 18.845091786856806 20.526739210194652 22.209624259911852 23.90364794704292 25.597671634173985 27.298819116504735 28.999966598835485 30.704982554773235 32.410428341111725 34.11803539582757 35.82618276763776 37.53556143833683 39.245467808559724 40.95608269702667 42.667169930989665 44.37866425720163 46.090565675662475 47.80282150069234 49.515608935575415 51.22839637045859 52.941183805341765 54.65408666802974 56.36745124193692 58.08081581584398 59.79418038975115 61.50754496365831 63.221236689110015 64.93492841456172 66.64862014001332 68.36231186546502 70.07616011137317 71.79004748739543 73.50393486341758 75.21782223943984 76.93178300084686 78.64579268584374 80.35980237084063 82.07381205583751 83.78785348607317 85.50194253416693 87.2160315822608 88.93012063035465 90.64422031024745 92.35836251733588 94.07250472442442 95.78664693151295 97.50078913860148";
 		};
 
 		cursor = {
 			inactive_timeout = 3;
 		};
 
+		# Variables for programs. Variables for left, right, up and down are defined in ../../machines/{machine}/home.nix
 		"$mainMod" = "SUPER";
 		"$terminal" = "kitty";
 		"$fileManager" = "kitty yazi";
@@ -144,25 +135,25 @@ in {
 			"$mainMod, E, exec, $fileManager"
 			"$mainMod, V, togglefloating"
 			"$mainMod, SPACE, exec, $menu"
-			"$mainMod, P, pseudo"
 			"$mainMod, T, togglesplit"
-			"$mainMod, L, exec, $lock"
+			"$mainMod ALT, L, exec, $lock"
 			", Print, exec, $screenshotUtil"
 			"$mainMod, TAB, exec, $overview"
 
-			"$mainMod, N, movefocus, l"
-			"$mainMod, I, movefocus, r"
-			"$mainMod, U, movefocus, u"
-			"$mainMod, comma, movefocus, d"
+			"$mainMod, S, togglespecialworkspace, magic"
+			"$mainMod SHIFT, S, movetoworkspace, special:magic"
+
+
+			"$mainMod, $left, movefocus, l"
+			"$mainMod, $right, movefocus, r"
+			"$mainMod, $up, movefocus, u"
+			"$mainMod, $down, movefocus, d"
 
 			# Move windows
 			"$mainMod SHIFT, N, movewindow, l"
 			"$mainMod SHIFT, I, movewindow, r"
 			"$mainMod SHIFT, U, movewindow, u"
 			"$mainMod SHIFT, comma, movewindow, d"
-
-			"$mainMod, S, togglespecialworkspace, magic"
-			"$mainMod SHIFT, S, movetoworkspace, special:magic"
 		]
 		++ (
 			# workspaces
@@ -185,15 +176,16 @@ in {
 		# Repeating binds when held
 		binde = [
 			# Resize windows
-			"$mainMod CTRL, N, resizeactive, -50 0" # Right side of the window left
-			"$mainMod CTRL, I, resizeactive, 50 0"  # Right side of the window right
-			"$mainMod CTRL, U, resizeactive, 0 -50" # Bottom of the window up
-			"$mainMod CTRL, comma, resizeactive, 0 50"  # Bottom of the window down
+			"$mainMod CTRL, $left, resizeactive, -50 0" # Right side of the window left
+			"$mainMod CTRL, $right, resizeactive, 50 0"  # Right side of the window right
+			"$mainMod CTRL, $up, resizeactive, 0 -50" # Bottom of the window up
+			"$mainMod CTRL, $down, resizeactive, 0 50"  # Bottom of the window down
 			# Move floating windows
-			"$mainMod ALT, N, moveactive, -50 0"
-			"$mainMod ALT, I, moveactive, 50 0"
-			"$mainMod ALT, U, moveactive, 0 -50"
-			"$mainMod ALT, comma, moveactive, 0 50"
+			"$mainMod ALT, $left, moveactive, -50 0"
+			"$mainMod ALT, $right, moveactive, 50 0"
+			"$mainMod ALT, $up, moveactive, 0 -50"
+			"$mainMod ALT, $down, moveactive, 0 50"
 		];
+
   };
 }
