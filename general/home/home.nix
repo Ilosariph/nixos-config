@@ -3,7 +3,7 @@ let
   username = "simon";
 in {
   imports = [
-	./programs/git.nix
+		./programs/git.nix
   ];
 
   home = {
@@ -11,10 +11,10 @@ in {
     homeDirectory = "/home/${username}";
 
     packages = with pkgs; [
-	  unzip
-	  python312
-	  zip
-	  udisks
+			unzip
+			python312
+			zip
+			udisks
     ];
 
     stateVersion = "23.11";

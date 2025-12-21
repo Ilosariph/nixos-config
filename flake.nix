@@ -1,88 +1,106 @@
 {
-  description = "Home manager config";
+	description = "Configs for hyprland, niri and server stuff";
 
-  inputs = {
-    nixpkgs = {
-      url = "github:nixos/nixpkgs/nixos-unstable";
-    };
+	inputs = {
+		nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
 
-    nixpkgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
+		home-manager = {
+			url = "github:nix-community/home-manager";
+			inputs.nixpkgs.follows = "nixpkgs";
+		};
 
-    home-manager = {
-      url = "github:nix-community/home-manager";
-      inputs.nixpkgs.follows = "nixpkgs-unstable";
-    };
+		hyprland.url = "github:hyprwm/Hyprland";
 
-    hyprland.url = "github:hyprwm/Hyprland";
+		nixpkgs-xr.url = "github:nix-community/nixpkgs-xr";
 
-	elephant.url = "github:abenz1267/elephant";
-    walker = {
-      url = "github:abenz1267/walker";
-      inputs.elephant.follows = "elephant";
-    };
+		nix-flatpak.url = "github:gmodena/nix-flatpak";
 
-	nixpkgs-xr.url = "github:nix-community/nixpkgs-xr";
+		dms = {
+			url = "github:AvengeMedia/DankMaterialShell/stable";
+			inputs.nixpkgs.follows = "nixpkgs";
+		};
+	};
 
-	nix-flatpak.url = "github:gmodena/nix-flatpak";
-  };
-
-  outputs =
-	{
+  outputs = {
 		nixpkgs,
-		nixpkgs-unstable,
 		home-manager,
 		hyprland,
-		walker,
 		nixpkgs-xr,
 		nix-flatpak,
+		dms,
 		...
 	}:
-    let
-      lib = nixpkgs.lib;
-      system = "x86_64-linux";
-      pkgs = import nixpkgs {
-        inherit system;
-        config = {
-          allowUnfree = true;
-        };
-      };
-      pkgs-unstable = import nixpkgs-unstable {
-        inherit system;
-        config = {
-          allowUnfree = true;
-        };
-	  };
-    in
-	{
-      nixosConfigurations = {
-        simonDesktop = lib.nixosSystem {
-          specialArgs = {
-            inherit hyprland;
-            inherit pkgs-unstable;
-          };
-          inherit system;
-          inherit pkgs;
-          modules = [
-			./general/config/configuration.nix
-			./with-desktop/config/configuration.nix
-			nixpkgs-xr.nixosModules.nixpkgs-xr
-		  ];
-        };
-      };
+	let
+		lib = nixpkgs.lib;
+		system = "x86_64-linux";
+		pkgs = import nixpkgs {
+			inherit system;
+			config = {
+				allowUnfree = true;
+			};
+		};
+	
+		nixos-conf-with-desktop = { pc, extraSpecialArgs ? {}, extraModules ? [] }:
+			lib.nixosSystem {
+				specialArgs = {
+				} // extraSpecialArgs;
 
-      homeConfigurations = {
-        simonDesktop = home-manager.lib.homeManagerConfiguration {
-          pkgs = pkgs-unstable;
-		  extraSpecialArgs = {
-			pkgs-stable = pkgs;
-			inherit walker;
-		  };
-          modules = [
-			nix-flatpak.homeManagerModules.nix-flatpak
-			./general/home/home.nix
-			./with-desktop/home/home.nix
-		  ];
-        };
-      };
-    };
+				inherit system;
+				inherit pkgs;
+				modules = [
+					(./with-desktop/machines + "/${pc}/hardware-configuration.nix")
+					./general/config/configuration.nix
+					./with-desktop/config/configuration.nix
+				] ++ extraModules;
+			};
+
+		home-manager-conf-with-desktop = { extraSpecialArgs ? {}, extraModules ? [] }:
+			home-manager.lib.homeManagerConfiguration {
+				inherit pkgs;
+				extraSpecialArgs = {
+					pkgs-stable = pkgs;
+					inherit dms;
+				} // extraSpecialArgs;
+				modules = [
+					nix-flatpak.homeManagerModules.nix-flatpak
+					./general/home/home.nix
+					./with-desktop/home/home.nix
+				] ++ extraModules;
+			};
+
+	in {
+		nixosConfigurations = {
+			hyprland-mainpc = (nixos-conf-with-desktop {
+				pc = "mainpc";
+				extraSpecialArgs = {
+					inherit hyprland;
+				};
+				extraModules = [
+					./with-desktop/hyprland/configuration.nix
+					nixpkgs-xr.nixosModules.nixpkgs-xr
+				];
+			});
+			niri-mainpc = (nixos-conf-with-desktop {
+				pc = "mainpc";
+				extraModules = [
+					./with-desktop/niri/configuration.nix#todo change
+					nixpkgs-xr.nixosModules.nixpkgs-xr
+				];
+			});
+		};
+
+		homeConfigurations = {
+			hyprland-mainpc = (home-manager-conf-with-desktop {
+				extraModules = [
+					./with-desktop/hyprland/home.nix
+					./with-desktop/machines/mainpc/hypr.nix
+				];
+			});
+			niri-mainpc = (home-manager-conf-with-desktop {
+				extraModules = [
+					./with-desktop/niri/home.nix
+				];
+			});
+		};
+	};
 }
