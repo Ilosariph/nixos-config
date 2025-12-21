@@ -1,4 +1,4 @@
-{ lib, pkgs, pkgs-stable, config, dms, ... }: 
+{ lib, pkgs, pkgs-stable, config, ... }: 
 let
   username = "simon";
   wallpaperDir = pkgs.stdenv.mkDerivation {
@@ -13,8 +13,6 @@ in {
   imports = [
     ./hypr/hyprland.nix
 		./hypr/hypridle.nix
-		dms.homeModules.dankMaterialShell.default
-		./hypr/dms.nix
   ];
 
   services.hyprpolkitagent.enable = true;

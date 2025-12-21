@@ -1,17 +1,19 @@
-{ lib, pkgs, pkgs-stable, config, walker, ... }: 
+{ lib, pkgs, pkgs-stable, config, dms, ... }: 
 let
   username = "simon";
 in {
   imports = [
-	./programs/kitty.nix
-	./programs/swappy.nix
-	./programs/easyeffects/easyeffects.nix
-	./programs/mpv.nix
-	./programs/vr/wlx-overlay-s.nix
-	./programs/orca-slicer.nix
-	./programs/udiskie.nix
-	./programs/yazi.nix
-	./general/links.nix
+		dms.homeModules.dankMaterialShell.default
+		./programs/dms.nix
+		./programs/kitty.nix
+		./programs/swappy.nix
+		./programs/easyeffects/easyeffects.nix
+		./programs/mpv.nix
+		./programs/vr/wlx-overlay-s.nix
+		./programs/orca-slicer.nix
+		./programs/udiskie.nix
+		./programs/yazi.nix
+		./general/links.nix
   ];
 
   programs.neovim.enable = true;

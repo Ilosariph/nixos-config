@@ -16,7 +16,6 @@
   services.gnome.gnome-keyring.enable = true;
   security.pam.services.swaylock = {};
 	environment.systemPackages = with pkgs; [
-		fuzzel
 		swaylock
 		mako
 		swayidle
