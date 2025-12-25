@@ -49,6 +49,7 @@
 				inherit pkgs;
 				modules = [
 					(./with-desktop/machines + "/${pc}/hardware-configuration.nix")
+					(./with-desktop/machines + "/${pc}/configuration.nix")
 					./general/config/configuration.nix
 					./with-desktop/config/configuration.nix
 				] ++ extraModules;
@@ -80,6 +81,15 @@
 					nixpkgs-xr.nixosModules.nixpkgs-xr
 				];
 			});
+			hyprland-laptop = (nixos-conf-with-desktop {
+				pc = "laptop";
+				extraSpecialArgs = {
+					inherit hyprland;
+				};
+				extraModules = [
+					./with-desktop/hyprland/configuration.nix
+				];
+			});
 			niri-mainpc = (nixos-conf-with-desktop {
 				pc = "mainpc";
 				extraModules = [
@@ -94,6 +104,13 @@
 				extraModules = [
 					./with-desktop/hyprland/home.nix
 					./with-desktop/machines/mainpc/hypr.nix
+				];
+			});
+		homeConfigurations = {
+			hyprland-laptop = (home-manager-conf-with-desktop {
+				extraModules = [
+					./with-desktop/hyprland/home.nix
+					./with-desktop/machines/laptop/hypr.nix
 				];
 			});
 			niri-mainpc = (home-manager-conf-with-desktop {
