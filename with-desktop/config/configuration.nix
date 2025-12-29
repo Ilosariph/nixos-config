@@ -3,14 +3,12 @@
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 { config, pkgs, ... }:
 {
-  imports =
-    [
+	imports = [
 	  ./drives.nix
 	  ./shares.nix
 	  ./virtualisation.nix
 	  ./network.nix
-	  ./gaming/gaming.nix
-    ];
+	];
 
   services.xserver.enable = true;
 
@@ -128,13 +126,6 @@
   hardware.graphics = {
     enable = true;
   };
-
-  services.xserver.videoDrivers = ["nvidia"];
-  hardware.nvidia = {
-		modesetting.enable = true;
-		open = false;
-		package = config.boot.kernelPackages.nvidiaPackages.stable;
-	};
 
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
