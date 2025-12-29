@@ -40,32 +40,49 @@
 			};
 		};
 	
-		nixos-conf-with-desktop = { pc, extraSpecialArgs ? {}, extraModules ? [] }:
-			lib.nixosSystem {
+		nixos-conf = { desktop, pc, extraSpecialArgs ? {}, extraModules ? [] }:
+			lib.nixosSystem { 
 				specialArgs = {
 				} // extraSpecialArgs;
 
 				inherit system;
 				inherit pkgs;
 				modules = [
-					(./with-desktop/machines + "/${pc}/hardware-configuration.nix")
-					(./with-desktop/machines + "/${pc}/configuration.nix")
+					(./${desktop}/machines + "/${pc}/configuration.nix")
+					(./${desktop}/machines + "/${pc}/hardware-configuration.nix")
 					./general/config/configuration.nix
-					./with-desktop/config/configuration.nix
+					./${desktop}/config/configuration.nix
 				] ++ extraModules;
 			};
 
-		home-manager-conf-with-desktop = { extraSpecialArgs ? {}, extraModules ? [] }:
+		home-manager-conf = { desktop, extraSpecialArgs ? {}, extraModules ? [] }:
 			home-manager.lib.homeManagerConfiguration {
 				inherit pkgs;
 				extraSpecialArgs = {
 					pkgs-stable = pkgs;
-					inherit dms;
 				} // extraSpecialArgs;
 				modules = [
-					nix-flatpak.homeManagerModules.nix-flatpak
 					./general/home/home.nix
-					./with-desktop/home/home.nix
+					./${desktop}/home/home.nix
+				] ++ extraModules;
+		};
+
+		nixos-conf-with-desktop = { pc, extraSpecialArgs ? {}, extraModules ? [] }:
+			nixos-conf {
+				desktop = "with-desktop";
+				inherit pc;
+				inherit extraSpecialArgs;
+				inherit extraModules;
+			};
+
+		home-manager-conf-with-desktop = { extraSpecialArgs ? {}, extraModules ? [] }:
+			home-manager-conf {
+				desktop = "with-desktop";
+				extraSpecialArgs = {
+					inherit dms;
+				};
+				extraModules = [
+					nix-flatpak.homeManagerModules.nix-flatpak
 				] ++ extraModules;
 			};
 
@@ -106,7 +123,6 @@
 					./with-desktop/machines/mainpc/hypr.nix
 				];
 			});
-		homeConfigurations = {
 			hyprland-laptop = (home-manager-conf-with-desktop {
 				extraModules = [
 					./with-desktop/hyprland/home.nix
