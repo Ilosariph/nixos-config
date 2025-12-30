@@ -2,7 +2,8 @@
 {
   wayland.windowManager.hyprland.settings = {
 		monitor = [
-		];#todo
+			"eDP-1, 1920x1080@59.99900, 0x0, 1"
+		];
 
 		"$left" = "H";
 		"$right" = "L";
