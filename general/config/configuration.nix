@@ -3,8 +3,6 @@
   imports = [
 		./network.nix
   ];
-  boot.loader.systemd-boot.enable = true;
-  boot.loader.efi.canTouchEfiVariables = true;
 
   time.timeZone = "Europe/Zurich";
 
@@ -35,6 +33,7 @@
 		htop
 		dig
 		killall
+		git
   ];
 
   virtualisation.docker.enable = true;
