@@ -114,6 +114,11 @@
 					nixpkgs-xr.nixosModules.nixpkgs-xr
 				];
 			});
+
+			server = (nixos-conf {
+				desktop = "no⨪desktop";
+				pc = "nucserver";
+			});
 		};
 
 		homeConfigurations = {
