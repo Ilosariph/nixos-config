@@ -115,8 +115,8 @@
 				];
 			});
 
-			server = (nixos-conf {
-				desktop = "no⨪desktop";
+			nucserver = (nixos-conf {
+				desktop = "no-desktop";
 				pc = "nucserver";
 			});
 		};
