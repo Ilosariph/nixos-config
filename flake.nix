@@ -55,7 +55,7 @@
 				] ++ extraModules;
 			};
 
-		home-manager-conf = { desktop, extraSpecialArgs ? {}, extraModules ? [] }:
+		home-manager-conf = { desktop, pc, extraSpecialArgs ? {}, extraModules ? [] }:
 			home-manager.lib.homeManagerConfiguration {
 				inherit pkgs;
 				extraSpecialArgs = {
@@ -63,6 +63,7 @@
 				} // extraSpecialArgs;
 				modules = [
 					./general/home/home.nix
+					(./${desktop}/machines + "/${pc}/home.nix")
 					./${desktop}/home/home.nix
 				] ++ extraModules;
 		};
@@ -75,9 +76,10 @@
 				inherit extraModules;
 			};
 
-		home-manager-conf-with-desktop = { extraSpecialArgs ? {}, extraModules ? [] }:
+		home-manager-conf-with-desktop = { pc, extraSpecialArgs ? {}, extraModules ? [] }:
 			home-manager-conf {
 				desktop = "with-desktop";
+				inherit pc;
 				extraSpecialArgs = {
 					inherit dms;
 				};
@@ -123,18 +125,21 @@
 
 		homeConfigurations = {
 			hyprland-mainpc = (home-manager-conf-with-desktop {
+			 pc = "mainpc";
 				extraModules = [
 					./with-desktop/hyprland/home.nix
 					./with-desktop/machines/mainpc/hypr.nix
 				];
 			});
 			hyprland-laptop = (home-manager-conf-with-desktop {
+			 pc = "laptop";
 				extraModules = [
 					./with-desktop/hyprland/home.nix
 					./with-desktop/machines/laptop/hypr.nix
 				];
 			});
 			niri-mainpc = (home-manager-conf-with-desktop {
+			 pc = "mainpc";
 				extraModules = [
 					./with-desktop/niri/home.nix
 				];

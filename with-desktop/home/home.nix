@@ -70,7 +70,6 @@ in {
 			qview
 			filezilla
 			grimblast
-			streamcontroller
 			qpwgraph
 			jetbrains.pycharm-professional
 			orca-slicer
