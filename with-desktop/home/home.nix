@@ -84,6 +84,7 @@ in {
 			gtk3-x11
 			gimp
 			fsearch
+			libreoffice
     ];
 
 	sessionVariables = {
