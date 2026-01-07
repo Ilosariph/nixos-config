@@ -59,7 +59,7 @@ in {
 			libnotify
 			chromium
 			spotify
-				discord
+			discord
 			material-cursors
 			protonmail-desktop
 			github-desktop
