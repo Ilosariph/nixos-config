@@ -35,9 +35,8 @@
 	pkgs.vial
   ];
 
-  # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.simon = {
-    extraGroups = [ "networkmanager" "wheel" "libvirtd" "openrazer" ];
+    extraGroups = [ "networkmanager" "libvirtd" "openrazer" ];
   };
 
   services.udisks2.enable = true;

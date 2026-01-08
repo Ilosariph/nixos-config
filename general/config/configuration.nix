@@ -21,7 +21,7 @@
 
   users.users.simon = {
     isNormalUser = true;
-    description = "simon";
+    extraGroups = [ "wheel" ];
   };
 
   hardware.enableAllFirmware = true;
