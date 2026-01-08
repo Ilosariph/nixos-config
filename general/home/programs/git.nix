@@ -2,25 +2,25 @@
 let
   onePassPath = "~/.1password/agent.sock";
 in {
-  programs.ssh = {
-	enable = true;
-	enableDefaultConfig = false;
-	matchBlocks."*" = {
-	  forwardAgent = false;
-	  serverAliveInterval = 0;
-	  serverAliveCountMax = 3;
-	  compression = false;
-	  addKeysToAgent = "no";
-	  hashKnownHosts = false;
-	  controlMaster = "no";
-	  controlPersist = "no";
-	  extraOptions = {
-		"Host" = ''
+	programs.ssh = {
+		enable = true;
+		enableDefaultConfig = false;
+		matchBlocks."*" = {
+			forwardAgent = false;
+			serverAliveInterval = 0;
+			serverAliveCountMax = 3;
+			compression = false;
+			addKeysToAgent = "no";
+			hashKnownHosts = false;
+			controlMaster = "no";
+			controlPersist = "no";
+			extraOptions = {
+			"Host" = ''
 *
     IdentityAgent ${onePassPath}
-		'';
-	  };
-	};
+			'';
+			};
+		};
   };
 
   programs.git = {

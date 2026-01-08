@@ -1,3 +1,17 @@
+# Set bootloader settings in {desktop}/machines/{machine}/configuration.nix
+So far either
+```nix
+	boot.loader.grub.enable = true;
+	boot.loader.grub.device = "/dev/nvme0n1";
+	boot.loader.grub.useOSProber = true;
+	boot.kernelPackages = pkgs.linuxPackages_latest;
+```
+or
+```nix
+  boot.loader.systemd-boot.enable = true;
+  boot.loader.efi.canTouchEfiVariables = true;
+```
+
 # Build nixos config
 From project root:
 ```bash
@@ -18,12 +32,8 @@ username=username
 password=password
 ```
 
-## Hyprpanel weather api
-Key from [weatherapi](https://www.weatherapi.com)
-`/etc/nixos/weather.json`
+# Ssh authorized keys for nucserver
+`/etc/nixos/nucserver-ssh-key`
 ```
-{
-  "weather_api_key": "123123123"
-}
+ssh-ed25519 VERYLONGKEY
 ```
-
