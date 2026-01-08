@@ -34,6 +34,7 @@
 		dig
 		killall
 		git
+		unixtools.ifconfig
   ];
 
   virtualisation.docker.enable = true;
