@@ -10,15 +10,6 @@
 	  ./network.nix
 	];
 
-  services.xserver.enable = true;
-
-  services.xserver.xkb = {
-    layout = "ch";
-    variant = "";
-  };
-
-  console.keyMap = "sg";
-
   services.printing.enable = true;
 
   services.pulseaudio.enable = false;
@@ -30,53 +21,49 @@
     pulse.enable = true;
   };
 
-  services.udev.packages = [
-	pkgs.qmk-udev-rules
-	pkgs.vial
-  ];
+	services.udev.packages = [
+		pkgs.qmk-udev-rules
+		pkgs.vial
+	];
 
   users.users.simon = {
-    extraGroups = [ "networkmanager" "libvirtd" "openrazer" ];
+    extraGroups = [ "libvirtd" ];
   };
 
   services.udisks2.enable = true;
   services.gvfs.enable = true;
 
-  hardware.openrazer = {
-	enable = true;
-  };
-
   programs.firefox.enable = true;
 
   xdg.mime = {
-	defaultApplications =
-	let
-	  browser = "firefox.desktop";
-	  imgViewer = "com.interversehq.qView.desktop";
-	  vidViewer = "mpv.desktop";
-	  fileManager = "org.kde.dolphin.desktop";
-	in
-	{
-	  "image/png" = imgViewer;
-	  "image/webp" = imgViewer;
-	  "image/jpeg" = imgViewer;
+		defaultApplications =
+		let
+			browser = "firefox.desktop";
+			imgViewer = "com.interversehq.qView.desktop";
+			vidViewer = "mpv.desktop";
+			fileManager = "org.kde.dolphin.desktop";
+		in
+		{
+			"image/png" = imgViewer;
+			"image/webp" = imgViewer;
+			"image/jpeg" = imgViewer;
 
-	  "inode/directory" = fileManager;
-      "video/avi" = vidViewer;
-      "video/flv" = vidViewer;
-      "video/mp4" = vidViewer;
-      "video/mpeg" = vidViewer;
-      "video/webm" = vidViewer;
-      "video/vnd.avi" = vidViewer;
+			"inode/directory" = fileManager;
+			"video/avi" = vidViewer;
+			"video/flv" = vidViewer;
+			"video/mp4" = vidViewer;
+			"video/mpeg" = vidViewer;
+			"video/webm" = vidViewer;
+			"video/vnd.avi" = vidViewer;
 
-	  "application/pdf" = browser;
+			"application/pdf" = browser;
 
-      "text/html" = browser;
-      "x-scheme-handler/http" = browser;
-      "x-scheme-handler/https" = browser;
-      "x-scheme-handler/about" = browser;
-      "x-scheme-handler/unknown" = browser;
-    };
+			"text/html" = browser;
+			"x-scheme-handler/http" = browser;
+			"x-scheme-handler/https" = browser;
+			"x-scheme-handler/about" = browser;
+			"x-scheme-handler/unknown" = browser;
+			};
   };
 
   # List packages installed in system profile. To search, run:
@@ -97,18 +84,6 @@
   ];
 
   services.flatpak.enable = true;
-
-  boot.kernelModules = [ "coretemp" "nct6775" ];
-
-  services.udev.extraRules = ''
-    ACTION=="add", SUBSYSTEM=="hwmon", ATTR{name}=="coretemp", ATTRS{temp1_label}=="Package id 0", RUN+="/bin/sh -c 'ln -s /sys$devpath/temp1_input /dev/cpu_temp'"
-  #   ACTION=="add", SUBSYSTEM=="hwmon", KERNELS=="nct6775.656", DRIVERS=="nct6775", RUN+="/bin/sh -c 'ln -s /sys$devpath/pwm2 /dev/cpu_fan'"
-  #   ACTION=="add", SUBSYSTEM=="hwmon", KERNELS=="nct6775.656", DRIVERS=="nct6775", RUN+="/bin/sh -c 'ln -s /sys$devpath/pwm2_input /dev/cpu_fan_input'"
-  #   ACTION=="add", SUBSYSTEM=="hwmon", KERNELS=="nct6774.656", DRIVERS=="nct6775", RUN+="/bin/sh -c 'ln -s /sys$devpath/pwm6 /dev/case_fan'"
-  #   ACTION=="add", SUBSYSTEM=="hwmon", KERNELS=="nct6774.656", DRIVERS=="nct6775", RUN+="/bin/sh -c 'ln -s /sys$devpath/pwm6_input /dev/case_fan_input'"
-  '';
-
-  systemd.services.fancontrol.enable = true;
 
   fonts.packages = with pkgs; [
 		nerd-fonts.jetbrains-mono
