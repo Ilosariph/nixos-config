@@ -21,6 +21,8 @@
     pulse.enable = true;
   };
 
+	services.xserver.enable = true;
+
 	services.udev.packages = [
 		pkgs.qmk-udev-rules
 		pkgs.vial
