@@ -30,10 +30,10 @@
     pulse.enable = true;
   };
 
-  services.udev.packages = [
-	pkgs.qmk-udev-rules
-	pkgs.vial
-  ];
+	services.udev.packages = [
+		pkgs.qmk-udev-rules
+		pkgs.vial
+	];
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.simon = {
@@ -95,6 +95,7 @@
 		protonvpn-gui
 		pulseaudio
 		spice-gtk
+		gemini-cli
   ];
 
   services.flatpak.enable = true;
