@@ -19,6 +19,8 @@
 			url = "github:AvengeMedia/DankMaterialShell/stable";
 			inputs.nixpkgs.follows = "nixpkgs";
 		};
+
+		sops-nix.url = "github:Mic92/sops-nix";
 	};
 
   outputs = {
@@ -28,6 +30,7 @@
 		nixpkgs-xr,
 		nix-flatpak,
 		dms,
+		sops-nix,
 		...
 	}:
 	let
@@ -48,6 +51,7 @@
 				inherit system;
 				inherit pkgs;
 				modules = [
+					sops-nix.nixosModules.sops
 					./${desktop}/machines/${pc}/configuration.nix
 					./${desktop}/machines/${pc}/hardware-configuration.nix
 					./general/config/configuration.nix
