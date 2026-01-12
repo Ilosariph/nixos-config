@@ -2,6 +2,7 @@
 {
   imports = [
 		./network.nix
+		./nix-vm.nix
   ];
 
   time.timeZone = "Europe/Zurich";
