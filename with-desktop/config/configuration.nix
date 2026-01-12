@@ -4,7 +4,6 @@
 { config, pkgs, ... }:
 {
 	imports = [
-	  ./drives.nix
 	  ./shares.nix
 	  ./virtualisation.nix
 	  ./network.nix
