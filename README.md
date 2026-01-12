@@ -31,9 +31,8 @@ home-manager switch --flake .#simon
 username=username
 password=password
 ```
-
-# Ssh authorized keys for nucserver
-`/etc/nixos/nucserver-ssh-key`
+# Key file for sops
+`/home/simon/.config/sops/age/keys.txt`
 ```
-ssh-ed25519 VERYLONGKEY
+SECRET-KEY
 ```
