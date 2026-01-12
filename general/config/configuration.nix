@@ -42,6 +42,8 @@
 		killall
 		git
 		unixtools.ifconfig
+		age
+		sops
   ];
 
   virtualisation.docker.enable = true;

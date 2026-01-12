@@ -83,6 +83,7 @@
 		protonvpn-gui
 		pulseaudio
 		spice-gtk
+		gemini-cli
   ];
 
   services.flatpak.enable = true;

@@ -26,7 +26,7 @@ home-manager switch --flake .#simon
 
 # Create cred files:
 ## SMB
-`/etc/nixos/smb-p` and `/etc/nixos/smb-s`
+`/etc/nixos/smb-p`, `/etc/nixos/smb-s` and `/etc/nixos/smb-scan`
 ```
 username=username
 password=password
