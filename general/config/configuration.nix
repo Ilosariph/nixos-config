@@ -34,6 +34,8 @@
 		dig
 		killall
 		git
+		age
+		sops
   ];
 
   virtualisation.docker.enable = true;
