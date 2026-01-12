@@ -1,3 +1,17 @@
+# Set bootloader settings in {desktop}/machines/{machine}/configuration.nix
+So far either
+```nix
+	boot.loader.grub.enable = true;
+	boot.loader.grub.device = "/dev/nvme0n1";
+	boot.loader.grub.useOSProber = true;
+	boot.kernelPackages = pkgs.linuxPackages_latest;
+```
+or
+```nix
+  boot.loader.systemd-boot.enable = true;
+  boot.loader.efi.canTouchEfiVariables = true;
+```
+
 # Build nixos config
 From project root:
 ```bash
@@ -17,13 +31,8 @@ home-manager switch --flake .#simon
 username=username
 password=password
 ```
-
-## Hyprpanel weather api
-Key from [weatherapi](https://www.weatherapi.com)
-`/etc/nixos/weather.json`
+# Key file for sops
+`/home/simon/.config/sops/age/keys.txt`
 ```
-{
-  "weather_api_key": "123123123"
-}
+SECRET-KEY
 ```
-

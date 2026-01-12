@@ -19,6 +19,8 @@
 			url = "github:AvengeMedia/DankMaterialShell/stable";
 			inputs.nixpkgs.follows = "nixpkgs";
 		};
+
+		sops-nix.url = "github:Mic92/sops-nix";
 	};
 
   outputs = {
@@ -28,6 +30,7 @@
 		nixpkgs-xr,
 		nix-flatpak,
 		dms,
+		sops-nix,
 		...
 	}:
 	let
@@ -48,8 +51,9 @@
 				inherit system;
 				inherit pkgs;
 				modules = [
-					(./${desktop}/machines + "/${pc}/configuration.nix")
-					(./${desktop}/machines + "/${pc}/hardware-configuration.nix")
+					sops-nix.nixosModules.sops
+					./${desktop}/machines/${pc}/configuration.nix
+					./${desktop}/machines/${pc}/hardware-configuration.nix
 					./general/config/configuration.nix
 					./${desktop}/config/configuration.nix
 				] ++ extraModules;
@@ -63,7 +67,7 @@
 				} // extraSpecialArgs;
 				modules = [
 					./general/home/home.nix
-					(./${desktop}/machines + "/${pc}/home.nix")
+					./${desktop}/machines/${pc}/home.nix
 					./${desktop}/home/home.nix
 				] ++ extraModules;
 		};
@@ -121,6 +125,10 @@
 				desktop = "no-desktop";
 				pc = "nucserver";
 			});
+			laptopserver = (nixos-conf {
+				desktop = "no-desktop";
+				pc = "laptopserver";
+			});
 		};
 
 		homeConfigurations = {
@@ -143,6 +151,13 @@
 				extraModules = [
 					./with-desktop/niri/home.nix
 				];
+			});
+
+			nucserver = (home-manager-conf-with-desktop {
+			 pc = "nucserver";
+			});
+			laptopserver = (home-manager-conf-with-desktop {
+			 pc = "laptopserver";
 			});
 		};
 	};

@@ -2,6 +2,7 @@
 {
   imports = [
 		./network.nix
+		./nix-vm.nix
   ];
 
   time.timeZone = "Europe/Zurich";
@@ -19,10 +20,16 @@
     LC_TIME = "de_CH.UTF-8";
   };
 
-  users.users.simon = {
-    isNormalUser = true;
-    description = "simon";
-  };
+	users.users.simon = {
+		isNormalUser = true;
+		extraGroups = [ "networkmanager" "wheel" ];
+	};
+
+	services.xserver.xkb = {
+		layout = "ch";
+		variant = "";
+	};
+	console.keyMap = "sg";
 
   hardware.enableAllFirmware = true;
 
@@ -34,6 +41,7 @@
 		dig
 		killall
 		git
+		unixtools.ifconfig
 		age
 		sops
   ];
