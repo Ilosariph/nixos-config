@@ -4,19 +4,19 @@
 { config, pkgs, dms, ... }:
 {
 	imports = [
-		dms.nixosModules.dankMaterialShell
+		# dms.nixosModules.dankMaterialShell
 	  ./shares.nix
 	  ./virtualisation.nix
 	  ./network.nix
 	];
-	programs.dankMaterialShell = {
+	programs.dms-shell = {
 		enable = true;
 
 		systemd = {
 			enable = true;             # Systemd service for auto-start
-			restartIfChanged = true;   # Auto-restart dms.service when dankMaterialShell changes
+			restartIfChanged = true;   # Auto-restart dms.service when dms-shell changes
 		};
-
+		
 		# Core features
 		enableSystemMonitoring = true;     # System monitoring widgets (dgop)
 		enableClipboard = true;            # Clipboard history manager
@@ -24,8 +24,24 @@
 		enableDynamicTheming = true;       # Wallpaper-based theming (matugen)
 		enableAudioWavelength = true;      # Audio visualizer (cava)
 		enableCalendarEvents = true;       # Calendar integration (khal)
-    quickshell.package = pkgs.quickshell;
 	};
+	# programs.dankMaterialShell = {
+	# 	enable = true;
+	#
+	# 	systemd = {
+	# 		enable = true;             # Systemd service for auto-start
+	# 		restartIfChanged = true;   # Auto-restart dms.service when dankMaterialShell changes
+	# 	};
+	#
+	# 	# Core features
+	# 	enableSystemMonitoring = true;     # System monitoring widgets (dgop)
+	# 	enableClipboard = true;            # Clipboard history manager
+	# 	enableVPN = true;                  # VPN management widget
+	# 	enableDynamicTheming = true;       # Wallpaper-based theming (matugen)
+	# 	enableAudioWavelength = true;      # Audio visualizer (cava)
+	# 	enableCalendarEvents = true;       # Calendar integration (khal)
+	#    quickshell.package = pkgs.quickshell;
+	# };
 
   services.printing.enable = true;
 
