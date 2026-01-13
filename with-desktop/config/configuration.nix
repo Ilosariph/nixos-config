@@ -1,13 +1,31 @@
 # Edit this configuration file to define what should be installed on
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
-{ config, pkgs, ... }:
+{ config, pkgs, dms, ... }:
 {
 	imports = [
+		dms.nixosModules.dankMaterialShell
 	  ./shares.nix
 	  ./virtualisation.nix
 	  ./network.nix
 	];
+	programs.dankMaterialShell = {
+		enable = true;
+
+		systemd = {
+			enable = true;             # Systemd service for auto-start
+			restartIfChanged = true;   # Auto-restart dms.service when dankMaterialShell changes
+		};
+
+		# Core features
+		enableSystemMonitoring = true;     # System monitoring widgets (dgop)
+		enableClipboard = true;            # Clipboard history manager
+		enableVPN = true;                  # VPN management widget
+		enableDynamicTheming = true;       # Wallpaper-based theming (matugen)
+		enableAudioWavelength = true;      # Audio visualizer (cava)
+		enableCalendarEvents = true;       # Calendar integration (khal)
+    quickshell.package = pkgs.quickshell;
+	};
 
   services.printing.enable = true;
 
@@ -83,6 +101,7 @@
 		pulseaudio
 		spice-gtk
 		gemini-cli
+		quickshell
   ];
 
   services.flatpak.enable = true;

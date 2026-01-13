@@ -4,7 +4,10 @@ let
   randomWallpaperScript = pkgs.writeShellScriptBin "random-wallpaper" (builtins.readFile ./hyprpaper/random_background.sh);
 in {
   programs.kitty.enable = true;
-  wayland.windowManager.hyprland.enable = true;
+  wayland.windowManager.hyprland = {
+		enable = true;
+		systemd.enable = true;
+	};
 
   imports = [ ./hyprpaper/hyprpaper.nix ];
   home.packages = [ randomWallpaperScript ];
@@ -14,6 +17,8 @@ in {
 
   wayland.windowManager.hyprland.settings = {
 		exec-once = [
+			"dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP && systemctl --user start hyprland-session.target"
+			"systemctl --user import-environment XDG_DATA_DIRS"
 			"hyprpaper"
 			"hypridle"
 			"systemctl --user start hyprpolkitagent"
@@ -24,7 +29,6 @@ in {
 			"qpwgraph"
 			"${randomWallpaperScript}/bin/random-wallpaper ${wallpaperPath} > /home/simon/random-wallpaper-script.txt 2>&1"
 			"systemctl --user import-environment PATH"
-			"systemctl --user import-environment XDG_DATA_DIRS"
 			"systemctl --user restart xdg-desktop-portal.service"
 			"bash -c 'wl-paste --watch cliphist store &'"
 			"easyeffects"

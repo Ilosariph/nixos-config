@@ -75,8 +75,10 @@
 		nixos-conf-with-desktop = { pc, extraSpecialArgs ? {}, extraModules ? [] }:
 			nixos-conf {
 				desktop = "with-desktop";
+				extraSpecialArgs = {
+					inherit dms;
+				} // extraSpecialArgs;
 				inherit pc;
-				inherit extraSpecialArgs;
 				inherit extraModules;
 			};
 
@@ -86,7 +88,7 @@
 				inherit pc;
 				extraSpecialArgs = {
 					inherit dms;
-				};
+				} // extraSpecialArgs;
 				extraModules = [
 					nix-flatpak.homeManagerModules.nix-flatpak
 				] ++ extraModules;

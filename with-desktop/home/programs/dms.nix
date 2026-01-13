@@ -4,10 +4,10 @@
 		enable = true;
 
 		systemd = {
-			enable = false;             # Systemd service for auto-start
-			# restartIfChanged = true;   # Auto-restart dms.service when dankMaterialShell changes
+			enable = true;             # Systemd service for auto-start
+			restartIfChanged = true;   # Auto-restart dms.service when dankMaterialShell changes
 		};
-		
+
 		# Core features
 		enableSystemMonitoring = true;     # System monitoring widgets (dgop)
 		enableClipboard = true;            # Clipboard history manager
@@ -16,4 +16,12 @@
 		enableAudioWavelength = true;      # Audio visualizer (cava)
 		enableCalendarEvents = true;       # Calendar integration (khal)
 	};
+	systemd.user.services.dms = {
+	   Unit = {
+	     Description = "Dank Material Shell";
+	     After = [ "graphical-session-pre.target" ];
+	     PartOf = [ "graphical-session.target" ];
+	   };
+	   Install.WantedBy = [ "graphical-session.target" ];
+	 };
 }

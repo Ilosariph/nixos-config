@@ -3,8 +3,8 @@ let
   username = "simon";
 in {
   imports = [
-		dms.homeModules.dankMaterialShell.default
-		./programs/dms.nix
+		# dms.homeModules.dankMaterialShell.default
+		# ./programs/dms.nix
 		./programs/kitty.nix
 		./programs/swappy.nix
 		./programs/easyeffects/easyeffects.nix
