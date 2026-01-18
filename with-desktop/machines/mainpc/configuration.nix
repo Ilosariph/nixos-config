@@ -4,9 +4,6 @@
 	  ./gaming/gaming.nix
 	  ./drives.nix
 	];
-  boot.loader.systemd-boot.enable = true;
-	boot.loader.systemd-boot.consoleMode = "max";
-	boot.loader.efi.canTouchEfiVariables = true;
   boot.kernelModules = [ "coretemp" "nct6775" ];
 
   services.udev.extraRules = ''

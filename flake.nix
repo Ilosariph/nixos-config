@@ -43,7 +43,7 @@
 			};
 		};
 	
-		nixos-conf = { desktop, pc, extraSpecialArgs ? {}, extraModules ? [] }:
+		nixos-conf = { desktop, pc, bootloader, extraSpecialArgs ? {}, extraModules ? [] }:
 			lib.nixosSystem { 
 				specialArgs = {
 				} // extraSpecialArgs;
@@ -54,6 +54,7 @@
 					sops-nix.nixosModules.sops
 					./${desktop}/machines/${pc}/configuration.nix
 					./${desktop}/machines/${pc}/hardware-configuration.nix
+					./general/bootloader/${bootloader}.nix
 					./general/config/configuration.nix
 					./${desktop}/config/configuration.nix
 				] ++ extraModules;
@@ -72,10 +73,11 @@
 				] ++ extraModules;
 		};
 
-		nixos-conf-with-desktop = { pc, extraSpecialArgs ? {}, extraModules ? [] }:
+		nixos-conf-with-desktop = { pc, bootloader, extraSpecialArgs ? {}, extraModules ? [] }:
 			nixos-conf {
 				desktop = "with-desktop";
 				inherit pc;
+				inherit bootloader;
 				inherit extraSpecialArgs;
 				inherit extraModules;
 			};
@@ -96,6 +98,7 @@
 		nixosConfigurations = {
 			hyprland-mainpc = (nixos-conf-with-desktop {
 				pc = "mainpc";
+				bootloader = "systemd";
 				extraSpecialArgs = {
 					inherit hyprland;
 				};
@@ -106,6 +109,7 @@
 			});
 			hyprland-laptop = (nixos-conf-with-desktop {
 				pc = "laptop";
+				bootloader = "grub";
 				extraSpecialArgs = {
 					inherit hyprland;
 				};
@@ -115,6 +119,7 @@
 			});
 			niri-mainpc = (nixos-conf-with-desktop {
 				pc = "mainpc";
+				bootloader = "systemd";
 				extraModules = [
 					./with-desktop/niri/configuration.nix#todo change
 					nixpkgs-xr.nixosModules.nixpkgs-xr
@@ -128,6 +133,7 @@
 			laptopserver = (nixos-conf {
 				desktop = "no-desktop";
 				pc = "laptopserver";
+				bootloader = "grub";
 			});
 		};
 

@@ -1,15 +1,7 @@
-# Set bootloader settings in {desktop}/machines/{machine}/configuration.nix
-So far either
+# If grub, set grub device in {desktop}/machines/{machine}/configuration.nix
 ```nix
-	boot.loader.grub.enable = true;
 	boot.loader.grub.device = "/dev/nvme0n1";
-	boot.loader.grub.useOSProber = true;
 	boot.kernelPackages = pkgs.linuxPackages_latest;
-```
-or
-```nix
-  boot.loader.systemd-boot.enable = true;
-  boot.loader.efi.canTouchEfiVariables = true;
 ```
 
 # Build nixos config
