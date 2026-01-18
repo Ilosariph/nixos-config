@@ -27,6 +27,9 @@ case "$1" in
     shift
     ;;
   vm)
+    echo "Cleaning up previous VM builds..."
+    rm -rf ./result
+    find . -maxdepth 1 -name "*.qcow2" -delete
     BUILD_CMD="nixos-rebuild"
     ACTION="build-vm"
     USE_SUDO=true
