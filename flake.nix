@@ -42,10 +42,11 @@
 				allowUnfree = true;
 			};
 		};
-	
-		nixos-conf = { desktop, pc, bootloader, extraSpecialArgs ? {}, extraModules ? [] }:
-			lib.nixosSystem { 
+
+		nixos-conf = { desktop, pc, bootloader ? null, username, extraSpecialArgs ? {}, extraModulesNixos ? [], extraModulesHome ? [] }:
+			lib.nixosSystem {
 				specialArgs = {
+					pkgs-stable = pkgs;
 				} // extraSpecialArgs;
 
 				inherit system;
@@ -54,116 +55,90 @@
 					sops-nix.nixosModules.sops
 					./${desktop}/machines/${pc}/configuration.nix
 					./${desktop}/machines/${pc}/hardware-configuration.nix
-					./general/bootloader/${bootloader}.nix
+				] ++ (lib.optional (bootloader != null) ./general/bootloader/${bootloader}.nix) ++ [
 					./general/config/configuration.nix
 					./${desktop}/config/configuration.nix
-				] ++ extraModules;
-			};
 
-		home-manager-conf = { desktop, pc, extraSpecialArgs ? {}, extraModules ? [] }:
-			home-manager.lib.homeManagerConfiguration {
-				inherit pkgs;
-				extraSpecialArgs = {
-					pkgs-stable = pkgs;
-				} // extraSpecialArgs;
-				modules = [
-					./general/home/home.nix
-					./${desktop}/machines/${pc}/home.nix
-					./${desktop}/home/home.nix
-				] ++ extraModules;
-		};
-
-		nixos-conf-with-desktop = { pc, bootloader, extraSpecialArgs ? {}, extraModules ? [] }:
-			nixos-conf {
-				desktop = "with-desktop";
-				inherit pc;
-				inherit bootloader;
-				inherit extraSpecialArgs;
-				inherit extraModules;
-			};
-
-		home-manager-conf-with-desktop = { pc, extraSpecialArgs ? {}, extraModules ? [] }:
-			home-manager-conf {
-				desktop = "with-desktop";
-				inherit pc;
-				extraSpecialArgs = {
-					inherit dms;
-				};
-				extraModules = [
-					nix-flatpak.homeManagerModules.nix-flatpak
-				] ++ extraModules;
+					home-manager.nixosModules.home-manager
+					{
+						home-manager.useGlobalPkgs = true;
+						home-manager.useUserPackages = true;
+						home-manager.users.${username} = {
+							imports = [
+								./general/home/home.nix
+								./${desktop}/machines/${pc}/home.nix
+								./${desktop}/home/home.nix
+							] ++ (
+								if desktop == "with-desktop" then [
+									nix-flatpak.homeManagerModules.nix-flatpak
+									dms.homeModules.dankMaterialShell.default
+								] else []
+							) ++ extraModulesHome;
+						};
+					}
+				] ++ extraModulesNixos;
 			};
 
 	in {
 		nixosConfigurations = {
-			hyprland-mainpc = (nixos-conf-with-desktop {
+			hyprland-mainpc = (nixos-conf {
+				desktop = "with-desktop";
 				pc = "mainpc";
 				bootloader = "systemd";
+				username = "simon";
 				extraSpecialArgs = {
 					inherit hyprland;
 				};
-				extraModules = [
+				extraModulesNixos = [
 					./with-desktop/hyprland/configuration.nix
 					nixpkgs-xr.nixosModules.nixpkgs-xr
 				];
+				extraModulesHome = [
+					./with-desktop/hyprland/home.nix
+					./with-desktop/machines/mainpc/hypr.nix
+				];
 			});
-			hyprland-laptop = (nixos-conf-with-desktop {
+			hyprland-laptop = (nixos-conf {
+				desktop = "with-desktop";
 				pc = "laptop";
 				bootloader = "grub";
+				username = "simon";
 				extraSpecialArgs = {
 					inherit hyprland;
 				};
-				extraModules = [
+				extraModulesNixos = [
 					./with-desktop/hyprland/configuration.nix
 				];
+				extraModulesHome = [
+					./with-desktop/hyprland/home.nix
+					./with-desktop/machines/laptop/hypr.nix
+				];
 			});
-			niri-mainpc = (nixos-conf-with-desktop {
+			niri-mainpc = (nixos-conf {
+				desktop = "with-desktop";
 				pc = "mainpc";
 				bootloader = "systemd";
-				extraModules = [
-					./with-desktop/niri/configuration.nix#todo change
+				username = "simon";
+				extraModulesNixos = [
+					./with-desktop/niri/configuration.nix #todo change
 					nixpkgs-xr.nixosModules.nixpkgs-xr
+				];
+				extraModulesHome = [
+					./with-desktop/niri/home.nix
 				];
 			});
 
 			nucserver = (nixos-conf {
 				desktop = "no-desktop";
 				pc = "nucserver";
+				bootloader = "systemd";
+				username = "simon";
 			});
 			laptopserver = (nixos-conf {
 				desktop = "no-desktop";
 				pc = "laptopserver";
 				bootloader = "grub";
-			});
-		};
-
-		homeConfigurations = {
-			hyprland-mainpc = (home-manager-conf-with-desktop {
-			 pc = "mainpc";
-				extraModules = [
-					./with-desktop/hyprland/home.nix
-					./with-desktop/machines/mainpc/hypr.nix
-				];
-			});
-			hyprland-laptop = (home-manager-conf-with-desktop {
-			 pc = "laptop";
-				extraModules = [
-					./with-desktop/hyprland/home.nix
-					./with-desktop/machines/laptop/hypr.nix
-				];
-			});
-			niri-mainpc = (home-manager-conf-with-desktop {
-			 pc = "mainpc";
-				extraModules = [
-					./with-desktop/niri/home.nix
-				];
-			});
-
-			nucserver = (home-manager-conf-with-desktop {
-			 pc = "nucserver";
-			});
-			laptopserver = (home-manager-conf-with-desktop {
-			 pc = "laptopserver";
+				username = "simon";
 			});
 		};
 	};
