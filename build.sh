@@ -41,10 +41,15 @@ LABEL="$*"
 
 # --- Command Execution ---
 
+FULL_COMMAND=""
+
 # Note: We pass NIXOS_LABEL directly inside sudo to ensure it isn't scrubbed 
 # by the security policy.
 if [[ "$USE_SUDO" == true ]]; then
-    sudo NIXOS_LABEL="$LABEL" "$BUILD_CMD" "$ACTION" "--flake" ".#$FLAKE_NAME"
+		FULL_COMMAND="sudo NIXOS_LABEL=$LABEL $BUILD_CMD $ACTION --flake .#$FLAKE_NAME"
 else
-    NIXOS_LABEL="$LABEL" "$BUILD_CMD" "$ACTION" "--flake" ".#$FLAKE_NAME"
+		FULL_COMMAND="NIXOS_LABEL=$LABEL $BUILD_CMD $ACTION --flake .#$FLAKE_NAME"
 fi
+
+echo $FULL_COMMAND
+$FULL_COMMAND
