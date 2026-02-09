@@ -1,4 +1,4 @@
-{ pkgs, ... }
+{ pkgs, ... }:
 {
   services.flatpak = {
 		enable = true;
@@ -7,9 +7,9 @@
 			"page.codeberg.libre_menu_editor.LibreMenuEditor"
 		];
 	};
-    packages = with pkgs; [
-			spotify
-			discord
-			protonmail-desktop
-		];
+	home.packages = with pkgs; [
+		spotify
+		discord
+		protonmail-desktop
+	];
 }

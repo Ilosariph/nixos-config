@@ -21,13 +21,14 @@
 
   systemd.services.fancontrol.enable = true;
 
-	packages = with pkgs; [
+  environment.systemPackages = with pkgs; [
 		qmk
 		qmk_hid
 		qmk-udev-rules
 		vial
 		losslesscut-bin
-	};
+		musescore
+	];
 
   users.users.simon = {
     extraGroups = [ "openrazer" ];
@@ -42,7 +43,4 @@
 		open = false;
 		package = config.boot.kernelPackages.nvidiaPackages.stable;
 	};
-  environment.systemPackages = with pkgs; [
-		musescore
-	];
 }
