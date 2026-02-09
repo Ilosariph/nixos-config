@@ -1,4 +1,3 @@
-
 {
   services.easyeffects.extraPresets = {
 	output-comp = {

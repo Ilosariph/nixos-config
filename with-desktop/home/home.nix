@@ -3,8 +3,8 @@ let
   username = "simon";
 in {
   imports = [
-		dms.homeModules.dankMaterialShell.default
-		./programs/dms.nix
+		# dms.homeModules.dankMaterialShell.default
+		# ./programs/dms.nix
 		./programs/kitty.nix
 		./programs/swappy.nix
 		./programs/easyeffects/easyeffects.nix
@@ -44,8 +44,6 @@ in {
 		enable = true;
 		packages = [
 			"com.github.iwalton3.jellyfin-media-player"
-			"app.grayjay.Grayjay"
-			"page.codeberg.libre_menu_editor.LibreMenuEditor"
 		];
 	};
 
@@ -58,10 +56,7 @@ in {
 			wl-clipboard
 			libnotify
 			chromium
-			spotify
-			discord
 			material-cursors
-			protonmail-desktop
 			github-desktop
 			obsidian
 			seahorse
@@ -75,11 +70,6 @@ in {
 			orca-slicer
 			udisks
 			vlc
-			qmk
-			qmk_hid
-			qmk-udev-rules
-			vial
-			losslesscut-bin
 			jellyfin-mpv-shim
 			gtk3-x11
 			gimp

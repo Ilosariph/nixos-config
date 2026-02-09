@@ -1,5 +1,6 @@
+{ pc, ... }:
 {
   networking = {
-    hostName = "nixos-desktop";
+    hostName = "nixos-${pc}";
   };
 }

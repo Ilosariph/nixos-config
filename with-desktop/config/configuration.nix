@@ -39,11 +39,6 @@
 
 	services.xserver.enable = true;
 
-	services.udev.packages = [
-		pkgs.qmk-udev-rules
-		pkgs.vial
-	];
-
   users.users.simon = {
     extraGroups = [ "libvirtd" ];
   };
@@ -89,7 +84,6 @@
   environment.systemPackages = with pkgs; [
     kitty
 		gcc
-    # git
 		polychromatic
     home-manager
 		lm_sensors

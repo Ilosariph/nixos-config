@@ -14,7 +14,20 @@
   #   ACTION=="add", SUBSYSTEM=="hwmon", KERNELS=="nct6774.656", DRIVERS=="nct6775", RUN+="/bin/sh -c 'ln -s /sys$devpath/pwm6_input /dev/case_fan_input'"
   '';
 
+	services.udev.packages = [
+		pkgs.qmk-udev-rules
+		pkgs.vial
+	];
+
   systemd.services.fancontrol.enable = true;
+
+	packages = with pkgs; [
+		qmk
+		qmk_hid
+		qmk-udev-rules
+		vial
+		losslesscut-bin
+	};
 
   users.users.simon = {
     extraGroups = [ "openrazer" ];
