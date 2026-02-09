@@ -35,17 +35,19 @@
 	}:
 	let
 		lib = nixpkgs.lib;
-		system = "x86_64-linux";
-		pkgs = import nixpkgs {
-			inherit system;
-			config = {
-				allowUnfree = true;
-			};
-		};
 
-		nixos-conf = { desktop, pc, bootloader ? null, username, extraSpecialArgs ? {}, extraModulesNixos ? [], extraModulesHome ? [] }:
+		nixos-conf = { desktop, pc, bootloader ? "systemd", windowManager ? null, username, system ? "x86_64-linux", extraSpecialArgs ? {}, extraModulesNixos ? [], extraModulesHome ? [] }:
+			let
+				pkgs = import nixpkgs {
+					inherit system;
+					config = {
+						allowUnfree = true;
+					};
+				};
+			in
 			lib.nixosSystem {
 				specialArgs = {
+					inherit pc;
 					pkgs-stable = pkgs;
 				} // extraSpecialArgs;
 
@@ -55,10 +57,15 @@
 					sops-nix.nixosModules.sops
 					./${desktop}/machines/${pc}/configuration.nix
 					./${desktop}/machines/${pc}/hardware-configuration.nix
-				] ++ (lib.optional (bootloader != null) ./general/bootloader/${bootloader}.nix) ++ [
+					./${desktop}/systems/${system}/configuration.nix
+					./general/bootloader/${bootloader}.nix
 					./general/config/configuration.nix
 					./${desktop}/config/configuration.nix
-
+				] ++ (
+					if desktop == "with-desktop" then [
+						./with-desktop/${windowManager}/configuration.nix
+					] else []
+				)++ [
 					home-manager.nixosModules.home-manager
 					{
 						home-manager.useGlobalPkgs = true;
@@ -67,9 +74,11 @@
 							imports = [
 								./general/home/home.nix
 								./${desktop}/machines/${pc}/home.nix
+								./${desktop}/systems/${system}/home.nix
 								./${desktop}/home/home.nix
 							] ++ (
 								if desktop == "with-desktop" then [
+									./with-desktop/${windowManager}/home.nix
 									nix-flatpak.homeManagerModules.nix-flatpak
 									dms.homeModules.dankMaterialShell.default
 								] else []
@@ -85,16 +94,15 @@
 				desktop = "with-desktop";
 				pc = "mainpc";
 				bootloader = "systemd";
+				windowManager = "hyprland";
 				username = "simon";
 				extraSpecialArgs = {
 					inherit hyprland;
 				};
 				extraModulesNixos = [
-					./with-desktop/hyprland/configuration.nix
 					nixpkgs-xr.nixosModules.nixpkgs-xr
 				];
 				extraModulesHome = [
-					./with-desktop/hyprland/home.nix
 					./with-desktop/machines/mainpc/hypr.nix
 				];
 			});
@@ -102,25 +110,40 @@
 				desktop = "with-desktop";
 				pc = "laptop";
 				bootloader = "grub";
+				windowManager = "hyprland";
 				username = "simon";
 				extraSpecialArgs = {
 					inherit hyprland;
 				};
 				extraModulesNixos = [
-					./with-desktop/hyprland/configuration.nix
 				];
 				extraModulesHome = [
-					./with-desktop/hyprland/home.nix
 					./with-desktop/machines/laptop/hypr.nix
+				];
+			});
+			hyprland-macbook = (nixos-conf {
+				desktop = "with-desktop";
+				pc = "macbook";
+				bootloader = "systemd";
+				windowManager = "hyprland";
+				system = "aarch64-linux";
+				username = "simon";
+				extraSpecialArgs = {
+					inherit hyprland;
+				};
+				extraModulesNixos = [
+				];
+				extraModulesHome = [
+					./with-desktop/machines/macbook/hypr.nix
 				];
 			});
 			niri-mainpc = (nixos-conf {
 				desktop = "with-desktop";
 				pc = "mainpc";
 				bootloader = "systemd";
+				windowManager = "niri";
 				username = "simon";
 				extraModulesNixos = [
-					./with-desktop/niri/configuration.nix #todo change
 					nixpkgs-xr.nixosModules.nixpkgs-xr
 				];
 				extraModulesHome = [

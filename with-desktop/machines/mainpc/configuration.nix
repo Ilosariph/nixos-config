@@ -14,7 +14,21 @@
   #   ACTION=="add", SUBSYSTEM=="hwmon", KERNELS=="nct6774.656", DRIVERS=="nct6775", RUN+="/bin/sh -c 'ln -s /sys$devpath/pwm6_input /dev/case_fan_input'"
   '';
 
+	services.udev.packages = [
+		pkgs.qmk-udev-rules
+		pkgs.vial
+	];
+
   systemd.services.fancontrol.enable = true;
+
+  environment.systemPackages = with pkgs; [
+		qmk
+		qmk_hid
+		qmk-udev-rules
+		vial
+		losslesscut-bin
+		musescore
+	];
 
   users.users.simon = {
     extraGroups = [ "openrazer" ];
@@ -29,7 +43,4 @@
 		open = false;
 		package = config.boot.kernelPackages.nvidiaPackages.stable;
 	};
-  environment.systemPackages = with pkgs; [
-		musescore
-	];
 }
