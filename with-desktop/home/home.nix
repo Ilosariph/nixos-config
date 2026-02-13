@@ -42,6 +42,12 @@ in {
 			name = "Tokyonight-Dark";
 			package = pkgs.tokyonight-gtk-theme;
 		};
+		gtk3.extraConfig = {
+			gtk-application-prefer-dark-theme = 1;
+		};
+		gtk4.extraConfig = {
+			gtk-application-prefer-dark-theme = 1;
+		};
   };
 
   qt = {
@@ -92,6 +98,8 @@ in {
 			gimp
 			fsearch
 			libreoffice
+			gsettings-desktop-schemas
+			glib
 
     ];
 
@@ -99,8 +107,16 @@ in {
 		XDG_THEME_MODE = "dark";
 		DEFAULT_BROWSER = "${pkgs.firefox}/bin/firefox";
 		XCURSOR_SIZE = 35;
+		GTK_THEME = "Tokyonight-Dark";
 	};
 
     stateVersion = "23.11";
+  };
+
+  dconf.settings = {
+    "org/gnome/desktop/interface" = {
+      color-scheme = "prefer-dark";
+      gtk-theme = "Tokyonight-Dark";
+    };
   };
 }

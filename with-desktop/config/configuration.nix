@@ -49,6 +49,7 @@
 
   xdg.portal.enable = true;
 
+  programs.dconf.enable = true;
 
   programs.firefox.enable = true;
 
@@ -100,6 +101,8 @@
 		gemini-cli
 		xdg-utils
 		xdg-desktop-portal-gnome
+		gsettings-desktop-schemas
+		gnome-themes-extra
   ];
 
   services.flatpak.enable = true;
