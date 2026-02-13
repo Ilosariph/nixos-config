@@ -3,17 +3,16 @@
   programs.hyprland = {
     enable = true;
   };
-  xdg.portal = {
-    enable = true;
-    extraPortals = [
-			pkgs.xdg-desktop-portal-gtk
-			pkgs.xdg-desktop-portal-hyprland
-		];
-		config.common.default = [
-			"hyprland"
-			"gtk"
-		];
+
+  environment.sessionVariables = {
+    XDG_CURRENT_DESKTOP = "Hyprland";
+    XDG_SESSION_DESKTOP = "Hyprland";
+    XDG_SESSION_TYPE = "wayland";
+    NIXOS_XDG_OPEN_USE_PORTAL = "1";
   };
+
+  systemd.user.services.xdg-desktop-portal-hyprland.wantedBy = [ "hyprland-session.target" ];
+  systemd.user.services.xdg-desktop-portal-gtk.wantedBy = [ "hyprland-session.target" ];
 
   environment.systemPackages = with pkgs; [
     hyprland

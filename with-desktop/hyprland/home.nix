@@ -1,4 +1,4 @@
-{ lib, pkgs, pkgs-stable, config, ... }: 
+{ lib, pkgs, pkgs-stable, config, ... }:
 let
   username = "simon";
   wallpaperDir = pkgs.stdenv.mkDerivation {
@@ -14,6 +14,11 @@ in {
     ./hypr/hyprland.nix
 		./hypr/hypridle.nix
   ];
+  xdg.portal = {
+    extraPortals = with pkgs; [
+      xdg-desktop-portal-hyprland
+    ];
+  };
 
   services.hyprpolkitagent.enable = true;
 

@@ -45,6 +45,10 @@
 
   services.udisks2.enable = true;
   services.gvfs.enable = true;
+  services.dbus.enable = true;
+
+  xdg.portal.enable = true;
+
 
   programs.firefox.enable = true;
 
@@ -94,6 +98,8 @@
 		pulseaudio
 		spice-gtk
 		gemini-cli
+		xdg-utils
+		xdg-desktop-portal-gnome
   ];
 
   services.flatpak.enable = true;

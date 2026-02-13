@@ -22,6 +22,20 @@ in {
   programs.neovim.enable = true;
   xdg.configFile."nvim".source = ./nvim;
 
+  xdg.portal = {
+    enable = true;
+    extraPortals = with pkgs; [
+      xdg-desktop-portal-gtk
+    ];
+    config = {
+      common = {
+        default = [ "hyprland" "gtk" ];
+        "org.freedesktop.impl.portal.FileChooser" = [ "gtk" ];
+        "org.freedesktop.impl.portal.OpenURI" = [ "gtk" ];
+      };
+    };
+  };
+
   gtk = {
 		enable = true;
 		theme = {

@@ -25,7 +25,6 @@ in {
 			"${randomWallpaperScript}/bin/random-wallpaper ${wallpaperPath} > /home/simon/random-wallpaper-script.txt 2>&1"
 			"systemctl --user import-environment PATH"
 			"systemctl --user import-environment XDG_DATA_DIRS"
-			"systemctl --user restart xdg-desktop-portal.service"
 			"bash -c 'wl-paste --watch cliphist store &'"
 			"easyeffects"
 		];
