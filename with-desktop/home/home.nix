@@ -1,4 +1,4 @@
-{ lib, pkgs, pkgs-stable, config, dms, ... }: 
+{ lib, pkgs, pkgs-stable, config, dms, ... }:
 let
   username = "simon";
 in {
@@ -15,6 +15,7 @@ in {
 		./programs/orca-slicer.nix
 		./programs/udiskie.nix
 		./programs/yazi.nix
+		./programs/zed.nix
 		./general/links.nix
   ];
 
@@ -77,7 +78,7 @@ in {
 			gimp
 			fsearch
 			libreoffice
-			zed-editor
+
     ];
 
 	sessionVariables = {
