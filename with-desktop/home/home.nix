@@ -6,6 +6,8 @@ in {
 		# dms.homeModules.dankMaterialShell.default
 		# ./programs/dms.nix
 		./programs/kitty.nix
+		./programs/bash.nix
+		./programs/fish.nix
 		./programs/swappy.nix
 		./programs/easyeffects/easyeffects.nix
 		./programs/mpv.nix
@@ -75,6 +77,7 @@ in {
 			gimp
 			fsearch
 			libreoffice
+			zed-editor
     ];
 
 	sessionVariables = {
