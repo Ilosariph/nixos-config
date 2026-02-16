@@ -4,6 +4,9 @@
 	boot.kernelPackages = pkgs.linuxPackages_latest;
 ```
 
+# For macbook
+Put wireguard conf into `/etc/wireguard/home.conf` and `/etc/wireguard/proton.conf`
+
 # Build nixos config
 From project root:
 ```bash
