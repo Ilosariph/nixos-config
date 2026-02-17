@@ -60,12 +60,12 @@
 					./${desktop}/machines/${pc}/configuration.nix
 					./${desktop}/machines/${pc}/hardware-configuration.nix
 					./general/bootloader/default.nix
+					./general/vpn.nix
 					./general/config/configuration.nix
 					./${desktop}/config/configuration.nix
 				] ++ (
 					if desktop == "with-desktop" then [
 						./with-desktop/${windowManager}/configuration.nix
-						./with-desktop/general/vpn.nix
 					] else []
 				) ++ [
 					home-manager.nixosModules.home-manager

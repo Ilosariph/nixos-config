@@ -40,10 +40,17 @@
         };
       };
     };
-    vpn = lib.mkOption {
-      type = lib.types.bool;
-      default = false;
-      description = "Enable VPN.";
+    vpn = {
+      enable = lib.mkOption {
+        type = lib.types.bool;
+        default = false;
+        description = "Enable VPN.";
+      };
+      accounts = lib.mkOption {
+        type = lib.types.listOf lib.types.str;
+        default = [];
+        description = "List of VPN accounts to import (e.g. ['home', 'proton']).";
+      };
     };
     bootloader = lib.mkOption {
       type = lib.types.enum [ "systemd" "grub" ];
