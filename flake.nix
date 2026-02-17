@@ -36,7 +36,7 @@
 	let
 		lib = nixpkgs.lib;
 
-		nixos-conf = { desktop, pc, bootloader ? "systemd", windowManager ? null, username, system ? "x86_64-linux", extraSpecialArgs ? {}, extraModulesNixos ? [], extraModulesHome ? [] }:
+		nixos-conf = { desktop, pc, windowManager ? null, username, system ? "x86_64-linux", extraSpecialArgs ? {}, extraModulesNixos ? [], extraModulesHome ? [] }:
 			let
 				pkgs = import nixpkgs {
 					inherit system;
@@ -55,16 +55,19 @@
 				inherit pkgs;
 				modules = [
 					sops-nix.nixosModules.sops
+					./options.nix
+					./${desktop}/machines/${pc}/options.nix
 					./${desktop}/machines/${pc}/configuration.nix
 					./${desktop}/machines/${pc}/hardware-configuration.nix
-					./general/bootloader/${bootloader}.nix
+					./general/bootloader/default.nix
 					./general/config/configuration.nix
 					./${desktop}/config/configuration.nix
 				] ++ (
 					if desktop == "with-desktop" then [
 						./with-desktop/${windowManager}/configuration.nix
+						./with-desktop/general/vpn.nix
 					] else []
-				)++ [
+				) ++ [
 					home-manager.nixosModules.home-manager
 					{
 						home-manager.useGlobalPkgs = true;
@@ -91,7 +94,6 @@
 			hyprland-mainpc = (nixos-conf {
 				desktop = "with-desktop";
 				pc = "mainpc";
-				bootloader = "systemd";
 				windowManager = "hyprland";
 				username = "simon";
 				extraSpecialArgs = {
@@ -101,13 +103,11 @@
 					nixpkgs-xr.nixosModules.nixpkgs-xr
 				];
 				extraModulesHome = [
-					./with-desktop/machines/mainpc/hypr.nix
 				];
 			});
 			hyprland-laptop = (nixos-conf {
 				desktop = "with-desktop";
 				pc = "laptop";
-				bootloader = "grub";
 				windowManager = "hyprland";
 				username = "simon";
 				extraSpecialArgs = {
@@ -116,13 +116,11 @@
 				extraModulesNixos = [
 				];
 				extraModulesHome = [
-					./with-desktop/machines/laptop/hypr.nix
 				];
 			});
 			hyprland-macbook = (nixos-conf {
 				desktop = "with-desktop";
 				pc = "macbook";
-				bootloader = "systemd";
 				windowManager = "hyprland";
 				system = "aarch64-linux";
 				username = "simon";
@@ -132,13 +130,11 @@
 				extraModulesNixos = [
 				];
 				extraModulesHome = [
-					./with-desktop/machines/macbook/hypr.nix
 				];
 			});
 			niri-mainpc = (nixos-conf {
 				desktop = "with-desktop";
 				pc = "mainpc";
-				bootloader = "systemd";
 				windowManager = "niri";
 				username = "simon";
 				extraModulesNixos = [
@@ -152,13 +148,11 @@
 			nucserver = (nixos-conf {
 				desktop = "no-desktop";
 				pc = "nucserver";
-				bootloader = "systemd";
 				username = "simon";
 			});
 			laptopserver = (nixos-conf {
 				desktop = "no-desktop";
 				pc = "laptopserver";
-				bootloader = "grub";
 				username = "simon";
 			});
 		};

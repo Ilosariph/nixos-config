@@ -1,0 +1,4 @@
+{ ... }:
+{
+  dotfiles.bootloader = "systemd";
+}

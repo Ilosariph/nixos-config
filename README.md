@@ -1,7 +1,7 @@
-# If grub, set grub device in {desktop}/machines/{machine}/configuration.nix
+# If grub, set grub device in {desktop}/machines/{machine}/options.nix
 ```nix
-	boot.loader.grub.device = "/dev/nvme0n1";
-	boot.kernelPackages = pkgs.linuxPackages_latest;
+  dotfiles.bootloader = "grub";
+  dotfiles.grubDevice = "/dev/nvme0n1";
 ```
 
 # For macbook

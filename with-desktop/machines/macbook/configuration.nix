@@ -4,7 +4,6 @@
 		[ # Include the results of the hardware scan.
 			./apple-silicon-support
 			./touchbar.nix
-			../general/wireguard/vpn.nix
 		];
   networking.networkmanager.enable = true;
   networking.wireless.iwd = {
