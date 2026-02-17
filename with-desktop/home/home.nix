@@ -67,6 +67,9 @@ in {
 		enable = true;
 		packages = [
 			"com.github.iwalton3.jellyfin-media-player"
+		] ++ lib.optionals (pkgs.stdenv.hostPlatform.system == "x86_64-linux") [
+			"app.grayjay.Grayjay"
+			"page.codeberg.libre_menu_editor.LibreMenuEditor"
 		];
 	};
 
@@ -100,8 +103,11 @@ in {
 			libreoffice
 			gsettings-desktop-schemas
 			glib
-
-    ];
+    ] ++ lib.optionals (pkgs.stdenv.hostPlatform.system == "x86_64-linux") [
+			spotify
+			discord
+			protonmail-desktop
+	];
 
 	sessionVariables = {
 		XDG_THEME_MODE = "dark";

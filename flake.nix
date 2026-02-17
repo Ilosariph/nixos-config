@@ -57,7 +57,6 @@
 					sops-nix.nixosModules.sops
 					./${desktop}/machines/${pc}/configuration.nix
 					./${desktop}/machines/${pc}/hardware-configuration.nix
-					./${desktop}/systems/${system}/configuration.nix
 					./general/bootloader/${bootloader}.nix
 					./general/config/configuration.nix
 					./${desktop}/config/configuration.nix
@@ -74,7 +73,6 @@
 							imports = [
 								./general/home/home.nix
 								./${desktop}/machines/${pc}/home.nix
-								./${desktop}/systems/${system}/home.nix
 								./${desktop}/home/home.nix
 							] ++ (
 								if desktop == "with-desktop" then [
