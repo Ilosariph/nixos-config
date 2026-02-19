@@ -1,7 +1,12 @@
-{ lib, ... }:
+{ lib, config, ... }:
 {
   options.dotfiles = {
     hyprland = {
+      keyboardLayout = lib.mkOption {
+        type = lib.types.enum [ "qwerty" "colemak" ];
+        default = "qwerty";
+        description = "Keyboard layout for Hyprland keybindings.";
+      };
       settings = {
         monitors = lib.mkOption {
           type = lib.types.listOf lib.types.str;
@@ -10,22 +15,22 @@
         };
         left = lib.mkOption {
           type = lib.types.str;
-          default = "H";
+          default = if config.dotfiles.hyprland.keyboardLayout == "qwerty" then "H" else "N";
           description = "Keybinding for left.";
         };
         right = lib.mkOption {
           type = lib.types.str;
-          default = "L";
+          default = if config.dotfiles.hyprland.keyboardLayout == "qwerty" then "L" else "I";
           description = "Keybinding for right.";
         };
         up = lib.mkOption {
           type = lib.types.str;
-          default = "K";
+          default = if config.dotfiles.hyprland.keyboardLayout == "qwerty" then "K" else "U";
           description = "Keybinding for up.";
         };
         down = lib.mkOption {
           type = lib.types.str;
-          default = "J";
+          default = if config.dotfiles.hyprland.keyboardLayout == "qwerty" then "J" else "comma";
           description = "Keybinding for down.";
         };
         sensitivity = lib.mkOption {
