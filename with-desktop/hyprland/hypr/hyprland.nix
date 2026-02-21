@@ -196,6 +196,7 @@ in {
     in hyprland-settings)
     {
       monitor = lib.mkIf (cfg.monitors != []) cfg.monitors;
+      workspace = lib.mkIf (cfg.workspaces != []) cfg.workspaces;
       input = {
         sensitivity = lib.mkIf (cfg.sensitivity != null) cfg.sensitivity;
         accel_profile = lib.mkIf (cfg.accel_profile != null) cfg.accel_profile;

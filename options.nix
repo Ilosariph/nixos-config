@@ -13,6 +13,11 @@
           default = [];
           description = "A list of monitor configurations for Hyprland.";
         };
+        workspaces = lib.mkOption {
+          type = lib.types.listOf lib.types.str;
+          default = [];
+          description = "A list of workspace configurations for Hyprland.";
+        };
         left = lib.mkOption {
           type = lib.types.str;
           default = if config.dotfiles.hyprland.keyboardLayout == "qwerty" then "H" else "N";
