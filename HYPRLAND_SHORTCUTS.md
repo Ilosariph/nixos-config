@@ -76,10 +76,6 @@
 
 | Shortcut | Action |
 |----------|--------|
-| `$mod + -` | Shrink window horizontally (–100px) |
-| `$mod + =` | Grow window horizontally (+100px) |
-| `$mod + Shift + -` | Shrink window vertically (–100px) |
-| `$mod + Shift + =` | Grow window vertically (+100px) |
 | `$mod + Ctrl + ←` | Resize window left (–50px, repeating) |
 | `$mod + Ctrl + →` | Resize window right (+50px, repeating) |
 | `$mod + Ctrl + ↑` | Resize window up (–50px, repeating) |
@@ -93,7 +89,6 @@
 |----------|--------|
 | `$mod + 1–9` | Switch to workspace 1–9 |
 | `$mod + Shift + 1–9` | Move active window to workspace 1–9 |
-| `$mod + .` | Next workspace |
 | `$mod + Scroll Down` | Next workspace |
 | `$mod + Scroll Up` | Previous workspace |
 
@@ -122,7 +117,7 @@
 
 | Shortcut | Action |
 |----------|--------|
-| `$mod + Ctrl + V` | Open clipboard manager (clipse) |
+| `$mod + Shift + V` | Open clipboard manager (clipse) |
 
 ---
 

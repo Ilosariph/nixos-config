@@ -52,40 +52,19 @@ in {
         };
 
         windowrulev2 = [
-          # Suppress maximize requests from apps
           "suppressevent maximize, class:.*"
 
-          # My existing rules
           "opacity 1.0 override 1.0 override, class:^(com.interversehq.qView)$"
           "opacity 1.0 override 1.0 override, class:^(mpv)$"
+          "opacity 0.97 0.9, class:.*"
+          "opacity 1 1, class:^(cef)$, title:^(Grayjay)$"
+
           "noborder, class:^(kitty)$"
-
-          # Force chromium-based apps into a tile to deal with --app bug
-          "tile, class:^(chromium)$"
-
-          # Pulsemeeter: start silently in special workspace (no window on startup)
           "workspace special:pulsemeeter silent, class:^(org.pulsemeeter.pulsemeeter)$"
-
-          # Audio/Bluetooth controls floating
           "float, class:^(org.pulseaudio.pavucontrol|blueberry.py)$"
 
-          # Steam float, RetroArch fullscreen
-          "float, class:^(steam)$"
-          "fullscreen, class:^(com.libretro.RetroArch)$"
-
-          # Transparency
-          "opacity 0.97 0.9, class:.*"
-          "opacity 1 1, class:^(chromium|google-chrome|google-chrome-unstable)$, title:.*Youtube.*"
-          "opacity 1 0.97, class:^(chromium|google-chrome|google-chrome-unstable)$"
-          "opacity 0.97 0.9, initialClass:^(chrome-.*-Default)$"
-          "opacity 1 1, initialClass:^(chrome-youtube.*-Default)$"
-          "opacity 1 1, class:^(zoom|vlc|org.kde.kdenlive|com.obsproject.Studio)$"
-          "opacity 1 1, class:^(com.libretro.RetroArch|steam)$"
-
-          # Fix dragging issues with XWayland
           "nofocus,class:^$,title:^$,xwayland:1,floating:1,fullscreen:0,pinned:0"
 
-          # Clipse clipboard manager floating window
           "float, class:(clipse)"
           "size 622 652, class:(clipse)"
           "stayfocused, class:(clipse)"
@@ -98,7 +77,7 @@ in {
         decoration = {
           "rounding" = 4;
           "active_opacity" = 1.0;
-          "inactive_opacity" = 0.9;
+          "inactive_opacity" = 0.97;
           shadow = {
             "enabled" = false;
             "range" = 30;
@@ -190,7 +169,6 @@ in {
           "$mainMod, SPACE, exec, $menu"
           "$mainMod, T, togglesplit"
           "$mainMod ALT, L, exec, $lock"
-          ", Print, exec, $screenshotUtil"
 
           # ── Additional kill / session management ───────────────────────
           "$mainMod, W, killactive"
@@ -208,12 +186,13 @@ in {
           "$mainMod SHIFT, SPACE, exec, pkill -SIGUSR1 waybar"
 
           # ── Screenshots ────────────────────────────────────────────────
+          ", Print, exec, $screenshotUtil"
           "SHIFT, Print, exec, grimblast -f save screen - | swappy -f -"
           "CTRL, Print, exec, grimblast -f save active - | swappy -f -"
           "$mainMod, Print, exec, hyprpicker -a"
 
           # ── Clipboard manager (clipse) ─────────────────────────────────
-          "CTRL $mainMod, V, exec, kitty --class clipse -e clipse"
+          "SHIFT $mainMod, V, exec, kitty --class clipse -e clipse"
 
           # ── Special workspace ──────────────────────────────────────────
           "$mainMod, S, togglespecialworkspace, magic"
@@ -239,15 +218,8 @@ in {
           "$mainMod SHIFT, comma, movewindow, d"
 
           # ── Workspace shortcuts ────────────────────────────────────────
-          "$mainMod, period, workspace, +1"
           "$mainMod, mouse_down, workspace, e+1"
           "$mainMod, mouse_up, workspace, e-1"
-
-          # ── Resize with keyboard ───────────────────────────────────────
-          "$mainMod, minus, resizeactive, -100 0"
-          "$mainMod, equal, resizeactive, 100 0"
-          "$mainMod SHIFT, minus, resizeactive, 0 -100"
-          "$mainMod SHIFT, equal, resizeactive, 0 100"
         ]
         ++ (
           # workspaces – binds $mod + [shift +] {1..9} to [move to] workspace {1..9}
