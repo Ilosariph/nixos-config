@@ -34,6 +34,8 @@ in {
 
     packages = with pkgs; [
 			hyprpaper
+			hyprsunset
+			cliphist
     ];
 
     stateVersion = "23.11";

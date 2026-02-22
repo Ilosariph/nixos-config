@@ -1,10 +1,9 @@
-{ lib, pkgs, pkgs-stable, config, dms, ... }:
+{ lib, pkgs, pkgs-stable, config, ... }:
 let
   username = "simon";
 in {
   imports = [
-		# dms.homeModules.dankMaterialShell.default
-		# ./programs/dms.nix
+		./programs/waybar.nix
 		./programs/kitty.nix
 		./programs/bash.nix
 		./programs/fish.nix
@@ -186,6 +185,23 @@ in {
 			gsettings-desktop-schemas
 			glib
 			desktop-file-utils
+			# System monitor
+			btop
+			# Bluetooth manager
+			blueberry
+			# WiFi / network manager GUI
+			networkmanagerapplet
+			# Launcher (replaces DMS spotlight)
+			wofi
+			# Color picker
+			hyprpicker
+			# Media key control
+			playerctl
+			# Brightness control
+			brightnessctl
+			# Clipboard manager
+			clipse
+			wl-clip-persist
     ] ++ lib.optionals (pkgs.stdenv.hostPlatform.system == "x86_64-linux") [
 			spotify
 			discord

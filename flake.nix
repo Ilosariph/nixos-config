@@ -15,11 +15,6 @@
 
 		nix-flatpak.url = "github:gmodena/nix-flatpak";
 
-		dms = {
-			url = "github:AvengeMedia/DankMaterialShell/stable";
-			inputs.nixpkgs.follows = "nixpkgs";
-		};
-
 		sops-nix.url = "github:Mic92/sops-nix";
 	};
 
@@ -29,7 +24,6 @@
 		hyprland,
 		nixpkgs-xr,
 		nix-flatpak,
-		dms,
 		sops-nix,
 		...
 	}:
@@ -82,7 +76,7 @@
 								if desktop == "with-desktop" then [
 									./with-desktop/${windowManager}/home.nix
 									nix-flatpak.homeManagerModules.nix-flatpak
-									dms.homeModules.dankMaterialShell.default
+
 								] else []
 							) ++ extraModulesHome;
 						};

@@ -1,3 +1,9 @@
+# Hyprland Shortcuts
+
+See [HYPRLAND_SHORTCUTS.md](./HYPRLAND_SHORTCUTS.md) for a full list of keybindings.
+
+---
+
 # If grub, set grub device in {desktop}/machines/{machine}/options.nix
 ```nix
   dotfiles.bootloader = "grub";

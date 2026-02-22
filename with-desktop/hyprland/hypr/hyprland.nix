@@ -10,27 +10,29 @@ in {
   imports = [ ./hyprpaper/hyprpaper.nix ];
   home.packages = [ randomWallpaperScript ];
 
-  # Optional, hint Electron apps to use Wayland:
-  # home.sessionVariables.NIXOS_OZONE_WL = "1";
-
   wayland.windowManager.hyprland.settings = lib.mkMerge [
     (let
       hyprland-settings = {
         exec-once = [
           "hyprpaper"
           "hypridle"
+          "hyprsunset"
           "systemctl --user start hyprpolkitagent"
           "gsettings set org.gnome.desktop.interface cursor-theme '${config.home.pointerCursor.name}'"
           "gsettings set org.gnome.desktop.interface cursor-size ${toString config.home.pointerCursor.size}"
           "pulsemeeter"
-          "streamcontroller"
           "qpwgraph"
           "${randomWallpaperScript}/bin/random-wallpaper ${wallpaperPath} > /home/simon/random-wallpaper-script.txt 2>&1"
           "systemctl --user import-environment PATH XDG_DATA_DIRS XDG_CURRENT_DESKTOP"
           "systemctl --user stop xdg-desktop-portal xdg-desktop-portal-gtk xdg-desktop-portal-hyprland"
           "systemctl --user start xdg-desktop-portal xdg-desktop-portal-hyprland"
           "bash -c 'wl-paste --watch cliphist store &'"
-          "easyeffects"
+          "wl-clip-persist --clipboard regular"
+          "nm-applet --indicator"
+        ] ++ cfg.execOnce;
+
+        exec = [
+          "pkill -SIGUSR2 waybar || waybar"
         ];
 
         env = [
@@ -40,48 +42,85 @@ in {
         ];
 
         general = {
-          "gaps_in" = 3;
+          "gaps_in" = 5;
           "gaps_out" = 10;
           "border_size" = 2;
           "col.active_border" = "rgba(33ccffee) rgba(00ff99ee) 45deg";
           "col.inactive_border" = "rgba(595959aa)";
+          "resize_on_border" = false;
+          "allow_tearing" = false;
           "layout" = "dwindle";
         };
 
         windowrulev2 = [
+          # Suppress maximize requests from apps
+          "suppressevent maximize, class:.*"
+
+          # My existing rules
           "opacity 1.0 override 1.0 override, class:^(com.interversehq.qView)$"
           "opacity 1.0 override 1.0 override, class:^(mpv)$"
           "noborder, class:^(kitty)$"
-          "float, class:^(org.quickshell)$"
+
+          # Force chromium-based apps into a tile to deal with --app bug
+          "tile, class:^(chromium)$"
+
+          # Audio/Bluetooth controls floating
+          "float, class:^(org.pulseaudio.pavucontrol|blueberry.py)$"
+
+          # Steam float, RetroArch fullscreen
+          "float, class:^(steam)$"
+          "fullscreen, class:^(com.libretro.RetroArch)$"
+
+          # Transparency
+          "opacity 0.97 0.9, class:.*"
+          "opacity 1 1, class:^(chromium|google-chrome|google-chrome-unstable)$, title:.*Youtube.*"
+          "opacity 1 0.97, class:^(chromium|google-chrome|google-chrome-unstable)$"
+          "opacity 0.97 0.9, initialClass:^(chrome-.*-Default)$"
+          "opacity 1 1, initialClass:^(chrome-youtube.*-Default)$"
+          "opacity 1 1, class:^(zoom|vlc|org.kde.kdenlive|com.obsproject.Studio)$"
+          "opacity 1 1, class:^(com.libretro.RetroArch|steam)$"
+
+          # Fix dragging issues with XWayland
+          "nofocus,class:^$,title:^$,xwayland:1,floating:1,fullscreen:0,pinned:0"
+
+          # Clipse clipboard manager floating window
+          "float, class:(clipse)"
+          "size 622 652, class:(clipse)"
+          "stayfocused, class:(clipse)"
+        ];
+
+        layerrule = [
+          "blur,wofi"
+          "blur,waybar"
         ];
 
         decoration = {
-          "rounding" = 5;
+          "rounding" = 4;
           "active_opacity" = 1.0;
           "inactive_opacity" = 0.9;
           shadow = {
-            "enabled" = true;
-            "range" = 4;
+            "enabled" = false;
+            "range" = 30;
             "render_power" = 3;
-            "color" = "rgba(1a1a1aee)";
+            "ignore_window" = true;
+            "color" = "rgba(00000045)";
           };
           blur = {
             "enabled" = true;
-            "size" = 3;
-            "passes" = 1;
-
+            "size" = 5;
+            "passes" = 2;
             "vibrancy" = 0.1696;
           };
         };
 
         animations = {
-          enabled = "yes, please :)";
+          enabled = true;
 
           bezier = [
             "easeOutQuint, 0.23, 1, 0.32, 1"
             "easeInOutCubic, 0.65, 0.05, 0.36, 1"
             "linear, 0, 0, 1, 1"
-            "almostLinear, 0.5, 0.5, 0.75, 1"
+            "almostLinear, 0.5, 0.5, 0.75, 1.0"
             "quick, 0.15, 0, 0.1, 1"
           ];
 
@@ -99,23 +138,23 @@ in {
             "layersOut, 1, 1.5, linear, fade"
             "fadeLayersIn, 1, 1.79, almostLinear"
             "fadeLayersOut, 1, 1.39, almostLinear"
-            "workspaces, 1, 1.94, almostLinear, fade"
-            "workspacesIn, 1, 1.21, almostLinear, fade"
-            "workspacesOut, 1, 1.94, almostLinear, fade"
-            # "zoomFactor, 1, 7, quick" # Uncomment if needed
+            # Workspace animations disabled for snappy feel
+            "workspaces, 0, 0, ease"
           ];
         };
 
         dwindle = {
-          "pseudotile" = true; # Master switch for pseudotiling. Enabling is bound to mainMod + P in the keybinds section below
-          "preserve_split" = true; # You probably want this
+          "pseudotile" = true;
+          "preserve_split" = true;
+          "force_split" = 2;
         };
 
         master.new_status = "master";
 
         misc = {
           force_default_wallpaper = -1;
-          disable_hyprland_logo = false;
+          disable_hyprland_logo = true;
+          disable_splash_rendering = true;
         };
 
         input = {
@@ -123,7 +162,7 @@ in {
           kb_options = "caps:escape";
 
           follow_mouse = 1;
-          
+
           touchpad = {
             natural_scroll = true;
           };
@@ -133,16 +172,16 @@ in {
           inactive_timeout = 3;
         };
 
-        # Variables for programs. Variables for left, right, up and down are defined in ../../machines/{machine}/home.nix
+        # Program variables
         "$mainMod" = "SUPER";
         "$terminal" = "kitty";
         "$fileManager" = "kitty yazi";
-        "$menu" = "dms ipc call spotlight toggle";
+        "$menu" = "wofi --show drun --sort-order=alphabetical";
         "$screenshotUtil" = "grimblast -f save area - | swappy -f -";
-        "$lock" = "dms ipc call lock lock";
-        "$overview" = "dms ipc call hypr toggleOverview";
+        "$lock" = "hyprlock";
 
         bind = [
+          # ── My core bindings ───────────────────────────────────────────
           "$mainMod, Q, exec, $terminal"
           "$mainMod, C, killactive"
           "$mainMod, E, exec, $fileManager"
@@ -151,26 +190,65 @@ in {
           "$mainMod, T, togglesplit"
           "$mainMod ALT, L, exec, $lock"
           ", Print, exec, $screenshotUtil"
-          "$mainMod, TAB, exec, $overview"
 
+          # ── Additional kill / session management ───────────────────────
+          "$mainMod, W, killactive"
+          "$mainMod, Backspace, killactive"
+          "$mainMod, ESCAPE, exec, $lock"
+          "$mainMod SHIFT, ESCAPE, exit,"
+          "$mainMod CTRL, ESCAPE, exec, reboot"
+          "$mainMod SHIFT CTRL, ESCAPE, exec, systemctl poweroff"
+
+          # ── Tiling helpers ─────────────────────────────────────────────
+          "$mainMod, P, pseudo"
+          "$mainMod SHIFT, Plus, fullscreen,"
+
+          # ── Waybar toggle ──────────────────────────────────────────────
+          "$mainMod SHIFT, SPACE, exec, pkill -SIGUSR1 waybar"
+
+          # ── Screenshots ────────────────────────────────────────────────
+          "SHIFT, Print, exec, grimblast -f save screen - | swappy -f -"
+          "CTRL, Print, exec, grimblast -f save active - | swappy -f -"
+          "$mainMod, Print, exec, hyprpicker -a"
+
+          # ── Clipboard manager (clipse) ─────────────────────────────────
+          "CTRL $mainMod, V, exec, kitty --class clipse -e clipse"
+
+          # ── Special workspace ──────────────────────────────────────────
           "$mainMod, S, togglespecialworkspace, magic"
           "$mainMod SHIFT, S, movetoworkspace, special:magic"
 
-
+          # ── Focus movement (machine-specific $left/$right/$up/$down) ───
           "$mainMod, $left, movefocus, l"
           "$mainMod, $right, movefocus, r"
           "$mainMod, $up, movefocus, u"
           "$mainMod, $down, movefocus, d"
 
-          # Move windows
+          # ── Swap windows ────────────────────────────────────────────────
+          "$mainMod SHIFT, left, swapwindow, l"
+          "$mainMod SHIFT, right, swapwindow, r"
+          "$mainMod SHIFT, up, swapwindow, u"
+          "$mainMod SHIFT, down, swapwindow, d"
+
+          # ── Move windows (my custom keys) ──────────────────────────────
           "$mainMod SHIFT, N, movewindow, l"
           "$mainMod SHIFT, I, movewindow, r"
           "$mainMod SHIFT, U, movewindow, u"
           "$mainMod SHIFT, comma, movewindow, d"
+
+          # ── Workspace shortcuts ────────────────────────────────────────
+          "$mainMod, period, workspace, +1"
+          "$mainMod, mouse_down, workspace, e+1"
+          "$mainMod, mouse_up, workspace, e-1"
+
+          # ── Resize with keyboard ───────────────────────────────────────
+          "$mainMod, minus, resizeactive, -100 0"
+          "$mainMod, equal, resizeactive, 100 0"
+          "$mainMod SHIFT, minus, resizeactive, 0 -100"
+          "$mainMod SHIFT, equal, resizeactive, 0 100"
         ]
         ++ (
-          # workspaces
-          # binds $mod + [shift +] {1..9} to [move to] workspace {1..9}
+          # workspaces – binds $mod + [shift +] {1..9} to [move to] workspace {1..9}
           builtins.concatLists (
             builtins.genList (i:
               let ws = i + 1;
@@ -181,23 +259,40 @@ in {
             )
           9)
         );
-        # Mouse binds
+
+        # ── Mouse binds ──────────────────────────────────────────────────
         bindm = [
           "$mainMod, mouse:272, movewindow"
           "$mainMod, mouse:273, resizewindow"
         ];
-        # Repeating binds when held
+
+        # ── Repeating binds when held ────────────────────────────────────
         binde = [
-          # Resize windows
-          "$mainMod CTRL, $left, resizeactive, -50 0" # Right side of the window left
-          "$mainMod CTRL, $right, resizeactive, 50 0"  # Right side of the window right
-          "$mainMod CTRL, $up, resizeactive, 0 -50" # Bottom of the window up
-          "$mainMod CTRL, $down, resizeactive, 0 50"  # Bottom of the window down
-          # Move floating windows
+          "$mainMod CTRL, $left, resizeactive, -50 0"
+          "$mainMod CTRL, $right, resizeactive, 50 0"
+          "$mainMod CTRL, $up, resizeactive, 0 -50"
+          "$mainMod CTRL, $down, resizeactive, 0 50"
           "$mainMod ALT, $left, moveactive, -50 0"
           "$mainMod ALT, $right, moveactive, 50 0"
           "$mainMod ALT, $up, moveactive, 0 -50"
           "$mainMod ALT, $down, moveactive, 0 50"
+        ];
+
+        # ── Multimedia / laptop keys ─────────────────────────────────────
+        bindel = [
+          ",XF86AudioRaiseVolume, exec, wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%+"
+          ",XF86AudioLowerVolume, exec, wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-"
+          ",XF86AudioMute, exec, wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"
+          ",XF86AudioMicMute, exec, wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"
+          ",XF86MonBrightnessUp, exec, brightnessctl -e4 -n2 set 5%+"
+          ",XF86MonBrightnessDown, exec, brightnessctl -e4 -n2 set 5%-"
+        ];
+
+        bindl = [
+          ", XF86AudioNext, exec, playerctl next"
+          ", XF86AudioPause, exec, playerctl play-pause"
+          ", XF86AudioPlay, exec, playerctl play-pause"
+          ", XF86AudioPrev, exec, playerctl previous"
         ];
       };
     in hyprland-settings)

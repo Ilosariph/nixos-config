@@ -48,6 +48,11 @@
           default = null;
           description = "Mouse acceleration profile.";
         };
+        execOnce = lib.mkOption {
+          type = lib.types.listOf lib.types.str;
+          default = [];
+          description = "Extra commands to run once on Hyprland startup (appended to the shared exec-once list).";
+        };
       };
     };
     vpn = {
