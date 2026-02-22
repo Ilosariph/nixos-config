@@ -13,10 +13,6 @@
   systemd.user.services.xdg-desktop-portal-hyprland.wantedBy = [ "hyprland-session.target" ];
   systemd.user.services.xdg-desktop-portal-gtk.wantedBy = [ "hyprland-session.target" ];
 
-  environment.systemPackages = with pkgs; [
-    hyprlock
-  ];
-
   nix.settings = {
     extra-substituters = [ "https://hyprland.cachix.org" ];
     extra-trusted-public-keys = [ "hyprland.cachix.org-1:a7pgxzMz7+chwVL3/pzj6jIBMioiJM7ypFP8PwtkuGc=" ];

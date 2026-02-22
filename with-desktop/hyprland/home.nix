@@ -13,6 +13,8 @@ in {
   imports = [
     ./hypr/hyprland.nix
 		./hypr/hypridle.nix
+		./hypr/hyprlock.nix
+		./hypr/hyprpaper/hyprpaper.nix
   ];
   xdg.portal = {
     extraPortals = with pkgs; [
