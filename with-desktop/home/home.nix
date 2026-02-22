@@ -4,6 +4,7 @@ let
 in {
   imports = [
 		./programs/waybar.nix
+		./programs/wofi.nix
 		./programs/kitty.nix
 		./programs/bash.nix
 		./programs/fish.nix

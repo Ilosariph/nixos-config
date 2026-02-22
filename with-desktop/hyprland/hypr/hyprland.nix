@@ -90,7 +90,6 @@ in {
         ];
 
         layerrule = [
-          "blur,wofi"
           "blur,waybar"
         ];
 
