@@ -29,6 +29,7 @@ in {
           "bash -c 'wl-paste --watch cliphist store &'"
           "wl-clip-persist --clipboard regular"
           "nm-applet --indicator"
+          "1password --silent"
         ] ++ cfg.execOnce;
 
         exec = [
