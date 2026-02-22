@@ -103,6 +103,7 @@
 |----------|--------|
 | `$mod + S` | Toggle special workspace |
 | `$mod + Shift + S` | Move window to special workspace |
+| `$mod + F1` | Toggle Pulsemeeter |
 
 ---
 

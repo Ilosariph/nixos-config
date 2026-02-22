@@ -34,7 +34,6 @@ in {
 
     packages = with pkgs; [
 			hyprpaper
-			hyprsunset
 			cliphist
     ];
 

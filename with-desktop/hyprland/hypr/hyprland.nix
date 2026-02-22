@@ -16,7 +16,6 @@ in {
         exec-once = [
           "hyprpaper"
           "hypridle"
-          "hyprsunset"
           "systemctl --user start hyprpolkitagent"
           "gsettings set org.gnome.desktop.interface cursor-theme '${config.home.pointerCursor.name}'"
           "gsettings set org.gnome.desktop.interface cursor-size ${toString config.home.pointerCursor.size}"
@@ -64,6 +63,9 @@ in {
 
           # Force chromium-based apps into a tile to deal with --app bug
           "tile, class:^(chromium)$"
+
+          # Pulsemeeter: start silently in special workspace (no window on startup)
+          "workspace special:pulsemeeter silent, class:^(org.pulsemeeter.pulsemeeter)$"
 
           # Audio/Bluetooth controls floating
           "float, class:^(org.pulseaudio.pavucontrol|blueberry.py)$"
@@ -217,6 +219,7 @@ in {
           # ── Special workspace ──────────────────────────────────────────
           "$mainMod, S, togglespecialworkspace, magic"
           "$mainMod SHIFT, S, movetoworkspace, special:magic"
+          "$mainMod, F1, togglespecialworkspace, pulsemeeter"
 
           # ── Focus movement (machine-specific $left/$right/$up/$down) ───
           "$mainMod, $left, movefocus, l"
