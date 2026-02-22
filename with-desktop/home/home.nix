@@ -22,6 +22,87 @@ in {
   programs.neovim.enable = true;
   xdg.configFile."nvim".source = ./nvim;
 
+  xdg.mimeApps = {
+    enable = true;
+    defaultApplications =
+    let
+      browser = [ "firefox.desktop" ];
+      imgViewer = [ "com.interversehq.qView.desktop" ];
+      vidViewer = [ "mpv.desktop" ];
+      fileManager = [ "org.kde.dolphin.desktop" ];
+      audioPlayer = [ "mpv.desktop" ];
+      textEditor = [ "zed.desktop" ];
+      archiveManager = [ "org.kde.dolphin.desktop" ];
+      officeSuite = [ "libreoffice-writer.desktop" ];
+      spreadsheet = [ "libreoffice-calc.desktop" ];
+      presentation = [ "libreoffice-impress.desktop" ];
+    in
+    {
+      "image/png" = imgViewer;
+      "image/webp" = imgViewer;
+      "image/jpeg" = imgViewer;
+      "image/gif" = imgViewer;
+      "image/svg+xml" = imgViewer;
+      "image/avif" = imgViewer;
+      "image/bmp" = imgViewer;
+      "image/tiff" = imgViewer;
+      "image/x-icon" = imgViewer;
+
+      "inode/directory" = fileManager;
+
+      "video/avi" = vidViewer;
+      "video/flv" = vidViewer;
+      "video/x-flv" = vidViewer;
+      "video/mp4" = vidViewer;
+      "video/mpeg" = vidViewer;
+      "video/webm" = vidViewer;
+      "video/vnd.avi" = vidViewer;
+      "video/x-msvideo" = vidViewer;
+      "video/x-matroska" = vidViewer;
+      "video/quicktime" = vidViewer;
+      "video/ogg" = vidViewer;
+      "video/3gpp" = vidViewer;
+
+      "audio/mpeg" = audioPlayer;
+      "audio/flac" = audioPlayer;
+      "audio/ogg" = audioPlayer;
+      "audio/wav" = audioPlayer;
+      "audio/x-wav" = audioPlayer;
+      "audio/aac" = audioPlayer;
+      "audio/mp4" = audioPlayer;
+      "audio/x-m4a" = audioPlayer;
+      "audio/webm" = audioPlayer;
+
+      "application/pdf" = browser;
+      "text/plain" = textEditor;
+      "text/markdown" = textEditor;
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document" = officeSuite;
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" = spreadsheet;
+      "application/vnd.openxmlformats-officedocument.presentationml.presentation" = presentation;
+      "application/msword" = officeSuite;
+      "application/vnd.ms-excel" = spreadsheet;
+      "application/vnd.ms-powerpoint" = presentation;
+      "application/vnd.oasis.opendocument.text" = officeSuite;
+      "application/vnd.oasis.opendocument.spreadsheet" = spreadsheet;
+      "application/vnd.oasis.opendocument.presentation" = presentation;
+
+      "application/zip" = archiveManager;
+      "application/x-tar" = archiveManager;
+      "application/gzip" = archiveManager;
+      "application/x-bzip2" = archiveManager;
+      "application/x-7z-compressed" = archiveManager;
+      "application/vnd.rar" = archiveManager;
+      "application/x-xz" = archiveManager;
+
+      "text/html" = browser;
+      "x-scheme-handler/http" = browser;
+      "x-scheme-handler/https" = browser;
+      "x-scheme-handler/about" = browser;
+      "x-scheme-handler/unknown" = browser;
+      "x-scheme-handler/ftp" = [ "filezilla.desktop" ];
+    };
+  };
+
   xdg.portal = {
     enable = true;
     extraPortals = with pkgs; [
@@ -82,6 +163,7 @@ in {
 			wl-clipboard
 			libnotify
 			chromium
+			firefox
 			material-cursors
 			github-desktop
 			obsidian
@@ -103,18 +185,21 @@ in {
 			libreoffice
 			gsettings-desktop-schemas
 			glib
+			desktop-file-utils
     ] ++ lib.optionals (pkgs.stdenv.hostPlatform.system == "x86_64-linux") [
 			spotify
 			discord
 			protonmail-desktop
 	];
 
-	sessionVariables = {
-		XDG_THEME_MODE = "dark";
-		DEFAULT_BROWSER = "${pkgs.firefox}/bin/firefox";
-		XCURSOR_SIZE = 35;
-		GTK_THEME = "Tokyonight-Dark";
-	};
+  	sessionVariables = {
+  		XDG_THEME_MODE = "dark";
+  		DEFAULT_BROWSER = "${pkgs.firefox}/bin/firefox";
+  		BROWSER = "firefox";
+  		GTK_USE_PORTAL = "1";
+  		XCURSOR_SIZE = 35;
+  		GTK_THEME = "Tokyonight-Dark";
+  	};
 
     stateVersion = "23.11";
   };

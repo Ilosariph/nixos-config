@@ -8,7 +8,6 @@
     XDG_CURRENT_DESKTOP = "Hyprland";
     XDG_SESSION_DESKTOP = "Hyprland";
     XDG_SESSION_TYPE = "wayland";
-    NIXOS_XDG_OPEN_USE_PORTAL = "1";
   };
 
   systemd.user.services.xdg-desktop-portal-hyprland.wantedBy = [ "hyprland-session.target" ];

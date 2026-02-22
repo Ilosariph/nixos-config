@@ -26,10 +26,17 @@ in {
           "streamcontroller"
           "qpwgraph"
           "${randomWallpaperScript}/bin/random-wallpaper ${wallpaperPath} > /home/simon/random-wallpaper-script.txt 2>&1"
-          "systemctl --user import-environment PATH"
-          "systemctl --user import-environment XDG_DATA_DIRS"
+          "systemctl --user import-environment PATH XDG_DATA_DIRS XDG_CURRENT_DESKTOP"
+          "systemctl --user stop xdg-desktop-portal xdg-desktop-portal-gtk xdg-desktop-portal-hyprland"
+          "systemctl --user start xdg-desktop-portal xdg-desktop-portal-hyprland"
           "bash -c 'wl-paste --watch cliphist store &'"
           "easyeffects"
+        ];
+
+        env = [
+          "XDG_CURRENT_DESKTOP,Hyprland"
+          "XDG_SESSION_TYPE,wayland"
+          "XDG_SESSION_DESKTOP,Hyprland"
         ];
 
         general = {
