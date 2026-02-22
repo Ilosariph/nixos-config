@@ -1,4 +1,4 @@
-{ config, pkgs, pkgs-unstable, hyprland, ... }:
+{ config, pkgs, ... }:
 {
   imports = [
 		./network.nix

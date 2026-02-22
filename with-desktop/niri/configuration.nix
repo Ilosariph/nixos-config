@@ -1,4 +1,4 @@
-{ config, pkgs, pkgs-unstable, ... }:
+{ config, pkgs, ... }:
 {
 	programs.niri.enable = true;
   xdg.portal = {

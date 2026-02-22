@@ -16,7 +16,6 @@ in {
         exec-once = [
           "hyprpaper"
           "hypridle"
-          "systemctl --user start hyprpolkitagent"
           "gsettings set org.gnome.desktop.interface cursor-theme '${config.home.pointerCursor.name}'"
           "gsettings set org.gnome.desktop.interface cursor-size ${toString config.home.pointerCursor.size}"
           "pulsemeeter"
@@ -25,7 +24,7 @@ in {
           "systemctl --user import-environment PATH XDG_DATA_DIRS XDG_CURRENT_DESKTOP"
           "systemctl --user stop xdg-desktop-portal xdg-desktop-portal-gtk xdg-desktop-portal-hyprland"
           "systemctl --user start xdg-desktop-portal xdg-desktop-portal-hyprland"
-          "bash -c 'wl-paste --watch cliphist store &'"
+          "clipse -listen"
           "wl-clip-persist --clipboard regular"
           "nm-applet --indicator"
           "1password --silent"

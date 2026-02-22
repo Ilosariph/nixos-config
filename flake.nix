@@ -9,19 +9,22 @@
 			inputs.nixpkgs.follows = "nixpkgs";
 		};
 
-		hyprland.url = "github:hyprwm/Hyprland";
-
-		nixpkgs-xr.url = "github:nix-community/nixpkgs-xr";
+		nixpkgs-xr = {
+			url = "github:nix-community/nixpkgs-xr";
+			inputs.nixpkgs.follows = "nixpkgs";
+		};
 
 		nix-flatpak.url = "github:gmodena/nix-flatpak";
 
-		sops-nix.url = "github:Mic92/sops-nix";
+		sops-nix = {
+			url = "github:Mic92/sops-nix";
+			inputs.nixpkgs.follows = "nixpkgs";
+		};
 	};
 
   outputs = {
 		nixpkgs,
 		home-manager,
-		hyprland,
 		nixpkgs-xr,
 		nix-flatpak,
 		sops-nix,
@@ -30,7 +33,7 @@
 	let
 		lib = nixpkgs.lib;
 
-		nixos-conf = { desktop, pc, windowManager ? null, username, system ? "x86_64-linux", extraSpecialArgs ? {}, extraModulesNixos ? [], extraModulesHome ? [] }:
+		nixos-conf = { desktop, pc, windowManager ? null, username, system ? "x86_64-linux", extraModulesNixos ? [], extraModulesHome ? [] }:
 			let
 				pkgs = import nixpkgs {
 					inherit system;
@@ -42,8 +45,7 @@
 			lib.nixosSystem {
 				specialArgs = {
 					inherit pc;
-					pkgs-stable = pkgs;
-				} // extraSpecialArgs;
+				};
 
 				inherit system;
 				inherit pkgs;
@@ -91,9 +93,6 @@
 				pc = "mainpc";
 				windowManager = "hyprland";
 				username = "simon";
-				extraSpecialArgs = {
-					inherit hyprland;
-				};
 				extraModulesNixos = [
 					nixpkgs-xr.nixosModules.nixpkgs-xr
 				];
@@ -105,9 +104,6 @@
 				pc = "laptop";
 				windowManager = "hyprland";
 				username = "simon";
-				extraSpecialArgs = {
-					inherit hyprland;
-				};
 				extraModulesNixos = [
 				];
 				extraModulesHome = [
@@ -119,9 +115,6 @@
 				windowManager = "hyprland";
 				system = "aarch64-linux";
 				username = "simon";
-				extraSpecialArgs = {
-					inherit hyprland;
-				};
 				extraModulesNixos = [
 				];
 				extraModulesHome = [
@@ -136,7 +129,6 @@
 					nixpkgs-xr.nixosModules.nixpkgs-xr
 				];
 				extraModulesHome = [
-					./with-desktop/niri/home.nix
 				];
 			});
 

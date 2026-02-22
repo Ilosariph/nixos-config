@@ -1,4 +1,4 @@
-{ lib, pkgs, pkgs-stable, config, ... }:
+{ lib, pkgs, config, ... }:
 let
   username = "simon";
 in {
@@ -175,11 +175,8 @@ in {
 			grimblast
 			qpwgraph
 			jetbrains.pycharm-professional
-			orca-slicer
-			udisks
 			vlc
 			jellyfin-mpv-shim
-			gtk3-x11
 			gimp
 			fsearch
 			libreoffice

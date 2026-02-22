@@ -15,10 +15,7 @@ in {
 			controlMaster = "no";
 			controlPersist = "no";
 			extraOptions = {
-			"Host" = ''
-*
-    IdentityAgent ${onePassPath}
-			'';
+				IdentityAgent = onePassPath;
 			};
 		};
   };

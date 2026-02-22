@@ -44,11 +44,11 @@
     kitty
 		gcc
 		polychromatic
-    home-manager
+		home-manager
 		lm_sensors
 		libsecret
 	# fancontrol-gui
-    pulsemeeter
+		pulsemeeter
 		protonvpn-gui
 		pulseaudio
 		spice-gtk

@@ -1,4 +1,4 @@
-{ lib, pkgs, pkgs-stable, config, ... }:
+{ lib, pkgs, config, ... }:
 let
   username = "simon";
   wallpaperDir = pkgs.stdenv.mkDerivation {
@@ -34,7 +34,6 @@ in {
 
     packages = with pkgs; [
 			hyprpaper
-			cliphist
     ];
 
     stateVersion = "23.11";
