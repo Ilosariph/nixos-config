@@ -4,6 +4,7 @@ let
 in {
   imports = [
 		./programs/git.nix
+		./programs/dotfiles-update-check.nix
   ];
 
   home = {

@@ -10,6 +10,7 @@ in {
     (let
       hyprland-settings = {
         exec-once = [
+          "dotfiles-update-check --startup"
           "hyprpaper"
           "hypridle"
           "gsettings set org.gnome.desktop.interface cursor-theme '${config.home.pointerCursor.name}'"
