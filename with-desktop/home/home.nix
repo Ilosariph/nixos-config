@@ -3,6 +3,7 @@ let
   username = "simon";
 in {
   imports = [
+		./programs/mako.nix
 		./programs/waybar.nix
 		./programs/wofi.nix
 		./programs/kitty.nix

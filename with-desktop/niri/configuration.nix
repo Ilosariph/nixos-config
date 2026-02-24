@@ -17,7 +17,6 @@
   security.pam.services.swaylock = {};
 	environment.systemPackages = with pkgs; [
 		swaylock
-		mako
 		swayidle
 	];
 }
