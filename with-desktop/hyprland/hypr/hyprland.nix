@@ -26,7 +26,7 @@ in {
         ] ++ cfg.execOnce;
 
         exec = [
-          "pkill -SIGUSR2 waybar || waybar"
+          "systemctl --user restart waybar"
         ];
 
         env = [

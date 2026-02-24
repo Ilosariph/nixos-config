@@ -3,6 +3,8 @@
   programs.waybar = {
     enable = true;
 
+    systemd.enable = true;
+
     style = ''
       /* ── Tokyo Night colour palette ─────────────────────────────────── */
       @define-color background #1a1b26;

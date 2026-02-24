@@ -14,7 +14,7 @@
         "QT_QPA_PLATFORM=wayland"
       ];
       ExecStartPre = [
-        "${pkgs.bash}/bin/bash -c 'until [ -S \${XDG_RUNTIME_DIR}/wayland-1 ]; do sleep 0.5; done'"
+        # "${pkgs.bash}/bin/bash -c 'until [ -S \${XDG_RUNTIME_DIR}/wayland-1 ]; do sleep 0.5; done'"
         "${pkgs.bash}/bin/bash -c 'rm -f /tmp/EasyEffectsServer /tmp/easyeffects.lock'"
       ];
     };
