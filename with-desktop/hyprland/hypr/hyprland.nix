@@ -1,6 +1,7 @@
 { config, pkgs, lib, osConfig, ... }:
 let
   cfg = osConfig.dotfiles.hyprland.settings;
+  mainMonitor = osConfig.dotfiles.hyprland.mainMonitor;
 in {
   programs.kitty.enable = true;
   wayland.windowManager.hyprland.enable = true;
@@ -267,7 +268,12 @@ in {
     in hyprland-settings)
     {
       monitor = lib.mkIf (cfg.monitors != []) cfg.monitors;
-      workspace = lib.mkIf (cfg.workspaces != []) cfg.workspaces;
+      workspace =
+        let
+          mainWorkspace = lib.optional (mainMonitor != "") "1, monitor:${mainMonitor}";
+          allWorkspaces = mainWorkspace ++ cfg.workspaces;
+        in
+          lib.mkIf (allWorkspaces != []) allWorkspaces;
       input = {
         sensitivity = lib.mkIf (cfg.sensitivity != null) cfg.sensitivity;
         accel_profile = lib.mkIf (cfg.accel_profile != null) cfg.accel_profile;

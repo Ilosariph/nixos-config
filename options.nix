@@ -2,6 +2,11 @@
 {
   options.dotfiles = {
     hyprland = {
+      mainMonitor = lib.mkOption {
+        type = lib.types.str;
+        default = "";
+        description = "The primary monitor name (used for hyprlock widgets, default workspace assignment, etc.).";
+      };
       keyboardLayout = lib.mkOption {
         type = lib.types.enum [ "qwerty" "colemak" ];
         default = "qwerty";

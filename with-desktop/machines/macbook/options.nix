@@ -1,5 +1,6 @@
 { lib, pkgs, ... }:
 {
+  dotfiles.hyprland.mainMonitor = "eDP-1";
   dotfiles.vpn = {
     enable = true;
     accounts = [ "home" "proton" ];

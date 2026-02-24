@@ -1,4 +1,7 @@
-{
+{ config, osConfig, ... }:
+let
+  mainMonitor = osConfig.dotfiles.hyprland.mainMonitor;
+in {
   programs.hyprlock.enable = true;
 
   programs.hyprlock.settings = {
@@ -16,7 +19,7 @@
       "disable_loading_bar" = true;
       "hide_cursor" = true;
     };
-    
+
     background = {
       "monitor" = "";
       "path" = "screenshot";
@@ -26,7 +29,7 @@
 
     label = [
       {
-        "monitor" = "DP-1";
+        "monitor" = mainMonitor;
         "text" = "cmd[update:30000] echo \"$(date +\"%R\")\"";
         "color" = "$text";
         "font_size" = 90;
@@ -36,7 +39,7 @@
         "valign" = "top";
       }
       {
-        "monitor" = "DP-1";
+        "monitor" = mainMonitor;
         "text" = "cmd[update:43200000] echo \"$(date +\"%A, %d %B %Y\")\"";
         "color" = "$text";
         "font_size" = 25;
@@ -48,7 +51,7 @@
     ];
 
     input-field = {
-      "monitor" = "DP-1";
+      "monitor" = mainMonitor;
       "size" = "300, 60";
       "outline_thickness" = 4;
       "dots_size" = 0.2;
