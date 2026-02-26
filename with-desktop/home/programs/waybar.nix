@@ -154,8 +154,8 @@
         battery = {
           interval = 5;
           format = "{capacity}% {icon}";
-          format-discharging = "{icon}";
-          format-charging = "{icon}";
+          format-discharging = "{capacity}% {icon}";
+          format-charging = "{capacity}% {icon}";
           format-plugged = "";
           format-icons = {
             charging = [

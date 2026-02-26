@@ -17,7 +17,6 @@ in {
 		./programs/udiskie.nix
 		./programs/yazi.nix
 		./programs/zed.nix
-		./general/links.nix
   ];
 
   programs.neovim.enable = true;
