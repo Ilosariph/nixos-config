@@ -1,5 +1,8 @@
 { config, ... }:
 {
+	imports = [
+		 ./links.nix
+	 ];
   home.file = {
 	data = {
       source = config.lib.file.mkOutOfStoreSymlink "/data";

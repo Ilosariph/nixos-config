@@ -153,10 +153,10 @@
 
         battery = {
           interval = 5;
-          format = "{capacity}% {icon}";
-          format-discharging = "{icon}";
-          format-charging = "{icon}";
-          format-plugged = "";
+          format = "{icon} {capacity}%";
+          format-discharging = "{icon} {capacity}%";
+          format-charging = " {capacity}%";
+          format-plugged = " {capacity}%";
           format-icons = {
             charging = [
               "󰢜"
