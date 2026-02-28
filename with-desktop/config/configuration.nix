@@ -56,6 +56,7 @@
 		xdg-utils
 		gsettings-desktop-schemas
 		gnome-themes-extra
+		claude-code
   ];
 
   services.flatpak.enable = true;
