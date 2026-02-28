@@ -230,4 +230,23 @@
       }
     ];
   };
+
+  systemd.user.services.waybar = {
+    Unit = {
+      Wants = [
+        "xdg-desktop-portal.service"
+        "xdg-desktop-portal-hyprland.service"
+        "xdg-desktop-portal-gtk.service"
+      ];
+      After = [
+        "xdg-desktop-portal.service"
+        "xdg-desktop-portal-hyprland.service"
+        "xdg-desktop-portal-gtk.service"
+      ];
+    };
+    Service = {
+      ExecStartPre = "${pkgs.coreutils}/bin/sleep 2";
+      RestartSec = 5;
+    };
+  };
 }
