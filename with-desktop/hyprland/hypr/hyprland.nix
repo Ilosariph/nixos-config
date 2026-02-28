@@ -26,10 +26,6 @@ in {
           "1password --silent"
         ] ++ cfg.execOnce;
 
-        exec = [
-          "systemctl --user restart waybar"
-        ];
-
         env = [
           "XDG_CURRENT_DESKTOP,Hyprland"
           "XDG_SESSION_TYPE,wayland"

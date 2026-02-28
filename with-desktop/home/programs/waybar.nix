@@ -3,7 +3,10 @@
   programs.waybar = {
     enable = true;
 
-    systemd.enable = true;
+    systemd = {
+      enable = true;
+      target = "hyprland-session.target";
+    };
 
     style = ''
       /* ── Tokyo Night colour palette ─────────────────────────────────── */
