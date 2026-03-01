@@ -5,6 +5,7 @@ in {
   imports = [
 		./programs/mako.nix
 		./programs/waybar.nix
+		./programs/noctalia.nix
 		./programs/wofi.nix
 		./programs/kitty.nix
 		./programs/bash.nix

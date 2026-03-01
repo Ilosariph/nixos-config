@@ -7,6 +7,11 @@
         default = "";
         description = "The primary monitor name (used for hyprlock widgets, default workspace assignment, etc.).";
       };
+      statusbar = lib.mkOption {
+        type = lib.types.enum [ "waybar" "noctalia" ];
+        default = "waybar";
+        description = "Statusbar/shell to use (waybar with mako, or noctalia-shell with built-in notifications).";
+      };
       keyboardLayout = lib.mkOption {
         type = lib.types.enum [ "qwerty" "colemak" ];
         default = "qwerty";

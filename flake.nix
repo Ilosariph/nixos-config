@@ -20,6 +20,11 @@
 			url = "github:Mic92/sops-nix";
 			inputs.nixpkgs.follows = "nixpkgs";
 		};
+
+		noctalia-shell = {
+			url = "github:noctalia-dev/noctalia-shell";
+			inputs.nixpkgs.follows = "nixpkgs";
+		};
 	};
 
   outputs = {
@@ -28,6 +33,7 @@
 		nixpkgs-xr,
 		nix-flatpak,
 		sops-nix,
+		noctalia-shell,
 		...
 	}:
 	let
@@ -78,7 +84,7 @@
 								if desktop == "with-desktop" then [
 									./with-desktop/${windowManager}/home.nix
 									nix-flatpak.homeManagerModules.nix-flatpak
-
+									noctalia-shell.homeModules.default
 								] else []
 							) ++ extraModulesHome;
 						};

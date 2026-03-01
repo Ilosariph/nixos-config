@@ -11,7 +11,6 @@ in {
     (let
       hyprland-settings = {
         exec-once = [
-          "hyprpaper"
           "hypridle"
           "gsettings set org.gnome.desktop.interface cursor-theme '${config.home.pointerCursor.name}'"
           "gsettings set org.gnome.desktop.interface cursor-size ${toString config.home.pointerCursor.size}"
@@ -24,7 +23,11 @@ in {
           "wl-clip-persist --clipboard regular"
           "nm-applet --indicator"
           "1password --silent"
-        ] ++ cfg.execOnce;
+        ] ++ (lib.optionals (osConfig.dotfiles.hyprland.statusbar == "waybar") [
+          "hyprpaper"
+        ]) ++ (lib.optionals (osConfig.dotfiles.hyprland.statusbar == "noctalia") [
+          "noctalia-shell"
+        ]) ++ cfg.execOnce;
 
         env = [
           "XDG_CURRENT_DESKTOP,Hyprland"
@@ -62,7 +65,7 @@ in {
           "stayfocused, class:(clipse)"
         ];
 
-        layerrule = [
+        layerrule = lib.optionals (osConfig.dotfiles.hyprland.statusbar == "waybar") [
           "blur,waybar"
         ];
 
@@ -148,7 +151,9 @@ in {
         "$mainMod" = "SUPER";
         "$terminal" = "kitty";
         "$fileManager" = "kitty yazi";
-        "$menu" = "wofi --show drun --sort-order=alphabetical";
+        "$menu" = if osConfig.dotfiles.hyprland.statusbar == "noctalia"
+                  then "noctalia-shell ipc call launcher toggle"
+                  else "wofi --show drun --sort-order=alphabetical";
         "$screenshotUtil" = "grimblast -f save area - | swappy -f -";
         "$lock" = "hyprlock";
 
@@ -173,9 +178,6 @@ in {
           # ── Tiling helpers ─────────────────────────────────────────────
           "$mainMod, P, pseudo"
           "$mainMod SHIFT, Plus, fullscreen,"
-
-          # ── Waybar toggle ──────────────────────────────────────────────
-          "$mainMod SHIFT, SPACE, exec, pkill -SIGUSR1 waybar"
 
           # ── Screenshots ────────────────────────────────────────────────
           ", Print, exec, $screenshotUtil"
@@ -213,6 +215,10 @@ in {
           "$mainMod, mouse_down, workspace, e+1"
           "$mainMod, mouse_up, workspace, e-1"
         ]
+        ++ (lib.optionals (osConfig.dotfiles.hyprland.statusbar == "waybar") [
+          # ── Waybar toggle ──────────────────────────────────────────────
+          "$mainMod SHIFT, SPACE, exec, pkill -SIGUSR1 waybar"
+        ])
         ++ (
           # workspaces – binds $mod + [shift +] {1..9} to [move to] workspace {1..9}
           builtins.concatLists (

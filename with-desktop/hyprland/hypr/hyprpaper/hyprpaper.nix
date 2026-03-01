@@ -2,6 +2,9 @@
 let
   wallpaperPath = config.home.sessionVariables.WALLPAPER_DIR;
   randomWallpaperScript = pkgs.writeShellScriptBin "random-wallpaper" (builtins.readFile ./random_background.sh);
+  wallpaperDir = ./wallpapers;
+  wallpaperFiles = builtins.attrNames (builtins.readDir wallpaperDir);
+  wallpaperPaths = map (name: "${wallpaperPath}/${name}") wallpaperFiles;
 in {
   home.packages = [ randomWallpaperScript ];
   wayland.windowManager.hyprland.settings.exec-once = [
@@ -10,12 +13,7 @@ in {
   services.hyprpaper = {
 		enable = true;
 		settings = {
-			preload = [
-			"${wallpaperPath}/shaded.png"
-			"${wallpaperPath}/car-with-full-moon-background.png"
-			"${wallpaperPath}/lofiwallpaper.png"
-			"${wallpaperPath}/nice-blue-background.png"
-			];
+			preload = wallpaperPaths;
 			wallpaper = [ ",${wallpaperPath}/shaded.png" ];
 		};
   };

@@ -1,6 +1,7 @@
 { lib, pkgs, ... }:
 {
   dotfiles.hyprland.mainMonitor = "DP-3";
+	dotfiles.hyprland.statusbar = "noctalia";
   dotfiles.hyprland.settings = {
     monitors = [
       "DP-3, 3440x1440@120, 0x0, 1"

@@ -1,4 +1,4 @@
-{ lib, pkgs, config, ... }:
+{ lib, pkgs, config, osConfig, ... }:
 let
   username = "simon";
   wallpaperDir = pkgs.stdenv.mkDerivation {
@@ -8,12 +8,15 @@ let
   };
 in {
   home.sessionVariables = {
+    QT_QPA_PLATFORM = "wayland";
+    QT_WAYLAND_DISABLE_WINDOWDECORATION = "1";
     WALLPAPER_DIR = "${wallpaperDir}";
   };
   imports = [
     ./hypr/hyprland.nix
 		./hypr/hypridle.nix
 		./hypr/hyprlock.nix
+  ] ++ lib.optionals (osConfig.dotfiles.hyprland.statusbar == "waybar") [
 		./hypr/hyprpaper/hyprpaper.nix
   ];
   xdg.portal = {
@@ -34,9 +37,10 @@ in {
     inherit username;
     homeDirectory = "/home/${username}";
 
-    packages = with pkgs; [
-			hyprpaper
-    ];
+    packages = with pkgs; []
+      ++ lib.optionals (osConfig.dotfiles.hyprland.statusbar == "waybar") [
+        hyprpaper
+      ];
 
     stateVersion = "23.11";
   };

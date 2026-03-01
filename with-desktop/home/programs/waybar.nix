@@ -1,6 +1,7 @@
-{ pkgs, ... }:
+{ lib, pkgs, osConfig, ... }:
 {
-  programs.waybar = {
+  config = lib.mkIf (osConfig.dotfiles.hyprland.statusbar == "waybar") {
+    programs.waybar = {
     enable = true;
 
     systemd = {
@@ -231,22 +232,23 @@
     ];
   };
 
-  systemd.user.services.waybar = {
-    Unit = {
-      Wants = [
-        "xdg-desktop-portal.service"
-        "xdg-desktop-portal-hyprland.service"
-        "xdg-desktop-portal-gtk.service"
-      ];
-      After = [
-        "xdg-desktop-portal.service"
-        "xdg-desktop-portal-hyprland.service"
-        "xdg-desktop-portal-gtk.service"
-      ];
-    };
-    Service = {
-      ExecStartPre = "${pkgs.coreutils}/bin/sleep 2";
-      RestartSec = 5;
+    systemd.user.services.waybar = {
+      Unit = {
+        Wants = [
+          "xdg-desktop-portal.service"
+          "xdg-desktop-portal-hyprland.service"
+          "xdg-desktop-portal-gtk.service"
+        ];
+        After = [
+          "xdg-desktop-portal.service"
+          "xdg-desktop-portal-hyprland.service"
+          "xdg-desktop-portal-gtk.service"
+        ];
+      };
+      Service = {
+        ExecStartPre = "${pkgs.coreutils}/bin/sleep 2";
+        RestartSec = 5;
+      };
     };
   };
 }
