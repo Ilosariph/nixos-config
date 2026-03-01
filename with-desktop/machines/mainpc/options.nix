@@ -1,5 +1,6 @@
 { lib, pkgs, ... }:
 {
+  dotfiles.bluetooth.enable = true;
   dotfiles.hyprland.mainMonitor = "DP-3";
 	dotfiles.hyprland.statusbar = "noctalia";
   dotfiles.hyprland.settings = {

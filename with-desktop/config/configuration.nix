@@ -7,6 +7,7 @@
 	  ./shares.nix
 	  ./virtualisation.nix
 	  ./network.nix
+	  ./noctalia.nix
 	];
 
 

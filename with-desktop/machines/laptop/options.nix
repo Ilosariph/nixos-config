@@ -1,5 +1,6 @@
 { lib, pkgs, ... }:
 {
+  dotfiles.bluetooth.enable = true;
   dotfiles.bootloader = "grub";
   dotfiles.grubDevice = "/dev/nvme0n1";
   dotfiles.hyprland.mainMonitor = "eDP-1";

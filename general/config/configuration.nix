@@ -3,6 +3,7 @@
   imports = [
 		./network.nix
 		./nix-vm.nix
+		./bluetooth.nix
   ];
 
   time.timeZone = "Europe/Zurich";

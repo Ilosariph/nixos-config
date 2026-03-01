@@ -1,5 +1,6 @@
 { lib, pkgs, ... }:
 {
+  dotfiles.bluetooth.enable = true;
   dotfiles.hyprland.mainMonitor = "eDP-1";
   dotfiles.vpn = {
     enable = true;

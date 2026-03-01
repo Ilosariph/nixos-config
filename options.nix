@@ -77,6 +77,13 @@
         description = "List of VPN accounts to import (e.g. ['home', 'proton']).";
       };
     };
+    bluetooth = {
+      enable = lib.mkOption {
+        type = lib.types.bool;
+        default = false;
+        description = "Enable bluetooth.";
+      };
+    };
     bootloader = lib.mkOption {
       type = lib.types.enum [ "systemd" "grub" ];
       default = "systemd";
