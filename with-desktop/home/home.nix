@@ -200,6 +200,7 @@ in {
 			# Clipboard manager
 			clipse
 			wl-clip-persist
+			weechat
     ] ++ lib.optionals (pkgs.stdenv.hostPlatform.system == "x86_64-linux") [
 			spotify
 			discord
