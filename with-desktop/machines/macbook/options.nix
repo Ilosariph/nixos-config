@@ -2,6 +2,7 @@
 {
   dotfiles.bluetooth.enable = true;
   dotfiles.hyprland.mainMonitor = "eDP-1";
+	dotfiles.hyprland.statusbar = "noctalia";
   dotfiles.vpn = {
     enable = true;
     accounts = [ "home" "proton" ];
