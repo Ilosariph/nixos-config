@@ -94,5 +94,10 @@
       default = "/dev/sda";
       description = "Device to install GRUB to.";
     };
+    use1PasswordAgent = lib.mkOption {
+      type = lib.types.bool;
+      default = true;
+      description = "Use 1Password SSH agent. Set to false on servers to use forwarded agent.";
+    };
   };
 }

@@ -1,21 +1,36 @@
-{ lib, pkgs, ... }:
+{ lib, pkgs, config, ... }:
 let
   onePassPath = "~/.1password/agent.sock";
 in {
 	programs.ssh = {
 		enable = true;
 		enableDefaultConfig = false;
-		matchBlocks."*" = {
-			forwardAgent = false;
-			serverAliveInterval = 0;
-			serverAliveCountMax = 3;
-			compression = false;
-			addKeysToAgent = "no";
-			hashKnownHosts = false;
-			controlMaster = "no";
-			controlPersist = "no";
-			extraOptions = {
-				IdentityAgent = onePassPath;
+		matchBlocks = {
+			"nucserver" = {
+				forwardAgent = true;
+				serverAliveInterval = 0;
+				serverAliveCountMax = 3;
+				compression = false;
+				addKeysToAgent = "no";
+				hashKnownHosts = false;
+				controlMaster = "no";
+				controlPersist = "no";
+				extraOptions = lib.mkIf config.dotfiles.use1PasswordAgent {
+					IdentityAgent = onePassPath;
+				};
+			};
+			"*" = {
+				forwardAgent = false;
+				serverAliveInterval = 0;
+				serverAliveCountMax = 3;
+				compression = false;
+				addKeysToAgent = "no";
+				hashKnownHosts = false;
+				controlMaster = "no";
+				controlPersist = "no";
+				extraOptions = lib.mkIf config.dotfiles.use1PasswordAgent {
+					IdentityAgent = onePassPath;
+				};
 			};
 		};
   };
