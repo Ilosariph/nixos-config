@@ -20,9 +20,6 @@ in {
 		./programs/zed.nix
   ];
 
-  programs.neovim.enable = true;
-  xdg.configFile."nvim".source = ./nvim;
-
   xdg.mimeApps = {
     enable = true;
     defaultApplications =

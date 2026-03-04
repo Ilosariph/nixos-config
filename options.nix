@@ -99,5 +99,14 @@
       default = true;
       description = "Use 1Password SSH agent. Set to false on servers to use forwarded agent.";
     };
+    programs = {
+      neovim = {
+        enable = lib.mkOption {
+          type = lib.types.bool;
+          default = true;
+          description = "Enable neovim with dotfiles configuration.";
+        };
+      };
+    };
   };
 }
