@@ -148,6 +148,11 @@
 				pc = "laptopserver";
 				username = "simon";
 			});
+			evo = (nixos-conf {
+				desktop = "no-desktop";
+				pc = "evo";
+				username = "simon";
+			});
 		};
 	};
 }

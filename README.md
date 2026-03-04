@@ -37,3 +37,35 @@ password=password
 ```
 SECRET-KEY
 ```
+
+# Ollama (evo)
+
+Ollama runs on `127.0.0.1:11435` internally. nginx proxies port `11434` externally and requires an OpenAI-style Bearer token.
+
+Create `/etc/nixos/secrets/ollama-nginx-auth.conf` with your API key:
+```bash
+sudo mkdir -p /etc/nixos/secrets
+sudo nano /etc/nixos/secrets/ollama-nginx-auth.conf
+```
+```nginx
+map $http_authorization $ollama_auth_ok {
+    "Bearer YOUR_API_KEY_HERE" 1;
+    default                   0;
+}
+```
+```bash
+sudo chmod 600 /etc/nixos/secrets/ollama-nginx-auth.conf
+```
+
+Test:
+```bash
+curl http://localhost:11434/api/tags -H "Authorization: Bearer YOUR_API_KEY_HERE"
+```
+
+# Pangolin (evo)
+Create `/etc/nixos/secrets/pangolin.env`:
+```bash
+sudo mkdir -p /etc/nixos/secrets
+sudo bash -c 'echo "SERVER_SECRET=$(openssl rand -hex 32)" > /etc/nixos/secrets/pangolin.env'
+sudo chmod 600 /etc/nixos/secrets/pangolin.env
+```

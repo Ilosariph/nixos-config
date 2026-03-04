@@ -1,4 +1,4 @@
-{ lib, pkgs, config, ... }:
+{ lib, pkgs, config, osConfig, ... }:
 let
   onePassPath = "~/.1password/agent.sock";
 in {
@@ -15,7 +15,7 @@ in {
 				hashKnownHosts = false;
 				controlMaster = "no";
 				controlPersist = "no";
-				extraOptions = lib.mkIf config.dotfiles.use1PasswordAgent {
+				extraOptions = lib.mkIf osConfig.dotfiles.use1PasswordAgent {
 					IdentityAgent = onePassPath;
 				};
 			};
@@ -28,7 +28,7 @@ in {
 				hashKnownHosts = false;
 				controlMaster = "no";
 				controlPersist = "no";
-				extraOptions = lib.mkIf config.dotfiles.use1PasswordAgent {
+				extraOptions = lib.mkIf osConfig.dotfiles.use1PasswordAgent {
 					IdentityAgent = onePassPath;
 				};
 			};

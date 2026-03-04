@@ -45,6 +45,7 @@
 		unixtools.ifconfig
 		age
 		sops
+		kitty.terminfo
   ];
 
   virtualisation.docker.enable = true;
