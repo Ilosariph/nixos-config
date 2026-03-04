@@ -1,6 +1,7 @@
 { config, ... }:
 {
   programs.yazi.enable = true;
+  programs.yazi.shellWrapperName = "yy";
   programs.yazi.keymap = {
 	mgr.prepend_keymap = [
 	  {

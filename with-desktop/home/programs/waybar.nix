@@ -1,6 +1,6 @@
 { lib, pkgs, osConfig, ... }:
 {
-  config = lib.mkIf (osConfig.dotfiles.hyprland.statusbar == "waybar") {
+  config = lib.mkIf (osConfig.dotfiles.windowManager.statusbar == "waybar") {
     programs.waybar = {
     enable = true;
 

@@ -12,7 +12,7 @@ let
     zlib
     pkgs.libglvnd
     pkgs.mesa
-    pkgs.xorg.libX11
+    pkgs.libX11
     pkgs.glib
   ];
 in

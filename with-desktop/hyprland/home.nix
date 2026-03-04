@@ -16,7 +16,7 @@ in {
     ./hypr/hyprland.nix
 		./hypr/hypridle.nix
 		./hypr/hyprlock.nix
-  ] ++ lib.optionals (osConfig.dotfiles.hyprland.statusbar == "waybar") [
+  ] ++ lib.optionals (osConfig.dotfiles.windowManager.statusbar == "waybar") [
 		./hypr/hyprpaper/hyprpaper.nix
   ];
   xdg.portal = {
@@ -38,7 +38,7 @@ in {
     homeDirectory = "/home/${username}";
 
     packages = with pkgs; []
-      ++ lib.optionals (osConfig.dotfiles.hyprland.statusbar == "waybar") [
+      ++ lib.optionals (osConfig.dotfiles.windowManager.statusbar == "waybar") [
         hyprpaper
       ];
 

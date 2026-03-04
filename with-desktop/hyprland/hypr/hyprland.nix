@@ -1,7 +1,7 @@
 { config, pkgs, lib, osConfig, ... }:
 let
-  cfg = osConfig.dotfiles.hyprland.settings;
-  mainMonitor = osConfig.dotfiles.hyprland.mainMonitor;
+  cfg = osConfig.dotfiles.windowManager.settings;
+  mainMonitor = osConfig.dotfiles.windowManager.mainMonitor;
 in {
   programs.kitty.enable = true;
   wayland.windowManager.hyprland.enable = true;
@@ -23,9 +23,9 @@ in {
           "wl-clip-persist --clipboard regular"
           "nm-applet --indicator"
           "1password --silent"
-        ] ++ (lib.optionals (osConfig.dotfiles.hyprland.statusbar == "waybar") [
+        ] ++ (lib.optionals (osConfig.dotfiles.windowManager.statusbar == "waybar") [
           "hyprpaper"
-        ]) ++ (lib.optionals (osConfig.dotfiles.hyprland.statusbar == "noctalia") [
+        ]) ++ (lib.optionals (osConfig.dotfiles.windowManager.statusbar == "noctalia") [
           "noctalia-shell"
         ]) ++ cfg.execOnce;
 
@@ -46,26 +46,26 @@ in {
           "layout" = "dwindle";
         };
 
-        windowrulev2 = [
-          "suppressevent maximize, class:.*"
+        windowrule = [
+          "suppress_event maximize, match:class .*"
 
-          "opacity 1.0 override 1.0 override, class:^(com.interversehq.qView)$"
-          "opacity 1.0 override 1.0 override, class:^(mpv)$"
-          "opacity 0.97 0.9, class:.*"
-          "opacity 1 1, class:^(cef)$, title:^(Grayjay)$"
+          "opacity 1.0 override 1.0 override, match:class ^(com.interversehq.qView)$"
+          "opacity 1.0 override 1.0 override, match:class ^(mpv)$"
+          "opacity 0.97 0.9, match:class .*"
+          "opacity 1 1, match:class ^(cef)$, match:title ^(Grayjay)$"
 
-          "noborder, class:^(kitty)$"
-          "workspace special:pulsemeeter silent, class:^(org.pulsemeeter.pulsemeeter)$"
-          "float, class:^(org.pulseaudio.pavucontrol|blueberry.py)$"
+          "border_size 0, match:class ^(kitty)$"
+          "workspace special:pulsemeeter silent, match:class ^(org.pulsemeeter.pulsemeeter)$"
+          "float on, match:class ^(org.pulseaudio.pavucontrol|blueberry.py)$"
 
-          "nofocus,class:^$,title:^$,xwayland:1,floating:1,fullscreen:0,pinned:0"
+          "no_focus on, match:class ^$, match:title ^$, match:xwayland 1, match:float 1, match:fullscreen 0, match:pin 0"
 
-          "float, class:(clipse)"
-          "size 622 652, class:(clipse)"
-          "stayfocused, class:(clipse)"
+          "float on, match:class (clipse)"
+          "size 622 652, match:class (clipse)"
+          "stay_focused on, match:class (clipse)"
         ];
 
-        layerrule = lib.optionals (osConfig.dotfiles.hyprland.statusbar == "waybar") [
+        layerrule = lib.optionals (osConfig.dotfiles.windowManager.statusbar == "waybar") [
           "blur,waybar"
         ];
 
@@ -151,7 +151,7 @@ in {
         "$mainMod" = "SUPER";
         "$terminal" = "kitty";
         "$fileManager" = "kitty yazi";
-        "$menu" = if osConfig.dotfiles.hyprland.statusbar == "noctalia"
+        "$menu" = if osConfig.dotfiles.windowManager.statusbar == "noctalia"
                   then "noctalia-shell ipc call launcher toggle"
                   else "wofi --show drun --sort-order=alphabetical";
         "$screenshotUtil" = "grimblast -f save area - | swappy -f -";
@@ -215,7 +215,7 @@ in {
           "$mainMod, mouse_down, workspace, e+1"
           "$mainMod, mouse_up, workspace, e-1"
         ]
-        ++ (lib.optionals (osConfig.dotfiles.hyprland.statusbar == "waybar") [
+        ++ (lib.optionals (osConfig.dotfiles.windowManager.statusbar == "waybar") [
           # ── Waybar toggle ──────────────────────────────────────────────
           "$mainMod SHIFT, SPACE, exec, pkill -SIGUSR1 waybar"
         ])

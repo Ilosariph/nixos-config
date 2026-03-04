@@ -1,6 +1,6 @@
 { lib, osConfig, ... }:
 {
-  config = lib.mkIf (osConfig.dotfiles.hyprland.statusbar == "waybar") {
+  config = lib.mkIf (osConfig.dotfiles.windowManager.statusbar == "waybar") {
     services.mako = {
       enable = true;
 

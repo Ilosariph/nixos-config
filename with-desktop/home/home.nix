@@ -13,7 +13,7 @@ in {
 		./programs/swappy.nix
 		./programs/easyeffects/easyeffects.nix
 		./programs/mpv.nix
-		./programs/vr/wlx-overlay-s.nix
+		./programs/vr/wayvr.nix
 		./programs/orca-slicer.nix
 		./programs/udiskie.nix
 		./programs/yazi.nix
@@ -175,7 +175,7 @@ in {
 			filezilla
 			grimblast
 			qpwgraph
-			jetbrains.pycharm-professional
+			jetbrains.pycharm
 			vlc
 			jellyfin-mpv-shim
 			gimp

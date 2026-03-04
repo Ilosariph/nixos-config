@@ -6,7 +6,7 @@ let
   wallpaperPaths = map (name: "${wallpaperPath}/${name}") wallpaperFiles;
   defaultWallpaper = if wallpaperPaths != [] then builtins.head wallpaperPaths else "";
 in {
-  config = lib.mkIf (osConfig.dotfiles.hyprland.statusbar == "noctalia") {
+  config = lib.mkIf (osConfig.dotfiles.windowManager.statusbar == "noctalia") {
     programs.noctalia-shell.enable = true;
 
     home.file.".cache/noctalia/wallpapers.json" = {

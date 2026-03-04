@@ -1,11 +1,11 @@
 { lib, config, ... }:
 {
   options.dotfiles = {
-    hyprland = {
+    windowManager = {
       mainMonitor = lib.mkOption {
         type = lib.types.str;
         default = "";
-        description = "The primary monitor name (used for hyprlock widgets, default workspace assignment, etc.).";
+        description = "The primary monitor name (used for screen locking widgets, default workspace assignment, etc.).";
       };
       statusbar = lib.mkOption {
         type = lib.types.enum [ "waybar" "noctalia" ];
@@ -15,37 +15,37 @@
       keyboardLayout = lib.mkOption {
         type = lib.types.enum [ "qwerty" "colemak" ];
         default = "qwerty";
-        description = "Keyboard layout for Hyprland keybindings.";
+        description = "Keyboard layout for window manager keybindings.";
       };
       settings = {
         monitors = lib.mkOption {
           type = lib.types.listOf lib.types.str;
           default = [];
-          description = "A list of monitor configurations for Hyprland.";
+          description = "A list of monitor configurations for the window manager.";
         };
         workspaces = lib.mkOption {
           type = lib.types.listOf lib.types.str;
           default = [];
-          description = "A list of workspace configurations for Hyprland.";
+          description = "A list of workspace configurations for the window manager.";
         };
         left = lib.mkOption {
           type = lib.types.str;
-          default = if config.dotfiles.hyprland.keyboardLayout == "qwerty" then "H" else "N";
+          default = if config.dotfiles.windowManager.keyboardLayout == "qwerty" then "H" else "N";
           description = "Keybinding for left.";
         };
         right = lib.mkOption {
           type = lib.types.str;
-          default = if config.dotfiles.hyprland.keyboardLayout == "qwerty" then "L" else "I";
+          default = if config.dotfiles.windowManager.keyboardLayout == "qwerty" then "L" else "I";
           description = "Keybinding for right.";
         };
         up = lib.mkOption {
           type = lib.types.str;
-          default = if config.dotfiles.hyprland.keyboardLayout == "qwerty" then "K" else "U";
+          default = if config.dotfiles.windowManager.keyboardLayout == "qwerty" then "K" else "U";
           description = "Keybinding for up.";
         };
         down = lib.mkOption {
           type = lib.types.str;
-          default = if config.dotfiles.hyprland.keyboardLayout == "qwerty" then "J" else "comma";
+          default = if config.dotfiles.windowManager.keyboardLayout == "qwerty" then "J" else "comma";
           description = "Keybinding for down.";
         };
         sensitivity = lib.mkOption {
@@ -61,7 +61,7 @@
         execOnce = lib.mkOption {
           type = lib.types.listOf lib.types.str;
           default = [];
-          description = "Extra commands to run once on Hyprland startup (appended to the shared exec-once list).";
+          description = "Extra commands to run once on window manager startup (appended to the shared exec-once list).";
         };
       };
     };

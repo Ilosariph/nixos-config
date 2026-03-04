@@ -1,6 +1,6 @@
 { config, osConfig, ... }:
 let
-  mainMonitor = osConfig.dotfiles.hyprland.mainMonitor;
+  mainMonitor = osConfig.dotfiles.windowManager.mainMonitor;
 in {
   programs.hyprlock.enable = true;
 
