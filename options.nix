@@ -108,5 +108,39 @@
         };
       };
     };
+    network = {
+      hostname = lib.mkOption {
+        type = lib.types.nullOr lib.types.str;
+        default = null;
+        description = "Hostname for the machine. Defaults to 'nixos-{pc}' if null.";
+      };
+      interface = lib.mkOption {
+        type = lib.types.nullOr lib.types.str;
+        default = null;
+        description = "Network interface name for static IP (e.g. 'enp3s0'). Required when staticIP is set.";
+      };
+      staticIP = lib.mkOption {
+        type = lib.types.nullOr lib.types.str;
+        default = null;
+        description = "Static IPv4 address in CIDR notation (e.g. '192.168.1.10/24'). Requires interface to be set.";
+      };
+      gateway = lib.mkOption {
+        type = lib.types.nullOr lib.types.str;
+        default = null;
+        description = "Default gateway IP. Required when staticIP is set.";
+      };
+      nameservers = lib.mkOption {
+        type = lib.types.listOf lib.types.str;
+        default = [
+          "192.168.1.148"
+          "fd32:9975:719f:0:7a55:36ff:fe02:15f3"
+          "1.1.1.1"
+          "2606:4700:4700::1111"
+          "1.0.0.1"
+          "2606:4700:4700::1001"
+        ];
+        description = "DNS nameservers.";
+      };
+    };
   };
 }
