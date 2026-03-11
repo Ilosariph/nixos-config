@@ -4,7 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository Overview
 
-This is a NixOS configuration repository using flakes and home-manager. It manages configurations for multiple machines across two categories: desktop systems (`with-desktop`) and server systems (`no-desktop`). Desktop systems support both Hyprland and Niri window managers.
+This is a NixOS configuration repository using **flake-parts** + **import-tree** (dendritic pattern). Each feature/program lives in a single file under `modules/packages/<aspect>/` covering both NixOS system config and home-manager config. Auto-discovery via `import-tree` removes manual import wiring.
+
+Desktop systems support both Hyprland and Niri window managers, selected via `dotfiles.windowManager.type`.
 
 ## Build Commands
 
@@ -14,148 +16,181 @@ This is a NixOS configuration repository using flakes and home-manager. It manag
 ./build.sh [flake-name] [nix|home|vm] [optional-label]
 
 # Examples:
-./build.sh hyprland-mainpc nix          # Build and switch NixOS config for mainpc
-./build.sh hyprland-laptop home         # Build and switch home-manager config for laptop
-./build.sh hyprland-mainpc vm           # Build a VM for testing
+./build.sh mainpc nix          # Build and switch NixOS config for mainpc
+./build.sh laptop home         # Build and switch home-manager config for laptop
+./build.sh mainpc vm           # Build a VM for testing
 
 # Manual commands (from project root):
-sudo nixos-rebuild switch --flake .#hyprland-mainpc
-sudo nixos-rebuild switch --flake .#niri-mainpc
+sudo nixos-rebuild switch --flake .#mainpc
+sudo nixos-rebuild switch --flake .#mainpc-niri
 sudo nixos-rebuild switch --flake .#nucserver
 ```
 
-### Building Home Manager Configuration
-```bash
-home-manager switch --flake .#simon
-```
-
 ### Available Flake Configurations
-- **Desktop (Hyprland)**: `hyprland-mainpc`, `hyprland-laptop`, `hyprland-macbook` (aarch64)
-- **Desktop (Niri)**: `niri-mainpc`
-- **Servers**: `nucserver`, `laptopserver`
+- **Desktop**: `mainpc`, `mainpc-niri`, `laptop`, `macbook` (aarch64)
+- **Servers**: `nucserver`, `laptopserver`, `evo`
 
 ## Architecture
 
 ### Flake Structure
 
-The `flake.nix` uses a `nixos-conf` function that combines modules based on three parameters:
-- `desktop`: Either `with-desktop` or `no-desktop`
-- `pc`: Machine name (e.g., `mainpc`, `laptop`, `nucserver`)
-- `windowManager`: Either `hyprland` or `niri` (only for desktop systems)
+`flake.nix` uses `flake-parts` as orchestrator:
+- `import-tree ./modules/packages` auto-discovers all aspect modules
+- `modules/_hosts/*.nix` are explicitly loaded (skipped by import-tree due to `_` prefix)
+- Each host file instantiates `nixpkgs.lib.nixosSystem` referencing all `config.flake.nixosModules.*`
 
 ### Module Loading Pattern
 
-NixOS configuration is assembled from:
-1. **Options**: `options.nix` + `{desktop}/machines/{pc}/options.nix`
-2. **System config**:
-   - `general/config/configuration.nix` (base system config)
-   - `{desktop}/config/configuration.nix` (desktop/server-specific)
-   - `{desktop}/{windowManager}/configuration.nix` (WM-specific, if desktop)
-   - `{desktop}/machines/{pc}/configuration.nix` (machine-specific)
-   - `{desktop}/machines/{pc}/hardware-configuration.nix`
-3. **Home-manager config**:
-   - `general/home/home.nix` (base home config)
-   - `{desktop}/home/home.nix` (desktop/server-specific)
-   - `{desktop}/{windowManager}/home.nix` (WM-specific, if desktop)
-   - `{desktop}/machines/{pc}/home.nix` (machine-specific)
+Each aspect in `modules/packages/<aspect>/<aspect>.nix` is a **flake-parts module** exposing `flake.nixosModules.<aspect>`. It contains both NixOS system config and home-manager config for that feature, guarded by the relevant `dotfiles.*` option.
 
 ### Directory Structure
 
 ```
 .
-├── general/          # Shared across all machines
-│   ├── bootloader/   # Bootloader configs (systemd/grub)
-│   ├── config/       # Base system configuration
-│   └── home/         # Base home-manager configuration
-├── with-desktop/     # Desktop machine configs
-│   ├── config/       # Desktop system configs (audio, printing, etc.)
-│   ├── home/         # Desktop home configs and programs
-│   ├── hyprland/     # Hyprland window manager configs
-│   ├── niri/         # Niri window manager configs
-│   └── machines/     # Per-machine configs (mainpc, laptop, macbook)
-├── no-desktop/       # Server machine configs
-│   ├── config/       # Server-specific configs (SSH, fail2ban)
-│   └── machines/     # Per-machine configs (nucserver, laptopserver)
-└── shells/           # Development shells
+├── flake.nix                    # flake-parts entry + import-tree
+├── options.nix                  # All dotfiles.* option definitions
+│
+├── modules/
+│   ├── _hosts/                  # Host instantiation (explicit, not auto-discovered)
+│   │   ├── mainpc.nix
+│   │   ├── mainpc-niri.nix
+│   │   ├── laptop.nix
+│   │   ├── macbook.nix
+│   │   ├── nucserver.nix
+│   │   ├── laptopserver.nix
+│   │   └── evo.nix
+│   │
+│   ├── _machines/               # Per-machine options + hardware (skipped by import-tree)
+│   │   ├── mainpc/
+│   │   ├── laptop/
+│   │   ├── macbook/
+│   │   ├── nucserver/
+│   │   ├── laptopserver/
+│   │   └── evo/
+│   │
+│   └── packages/                # Auto-discovered aspect modules
+│       ├── base/base.nix            # Locale, users, nix settings, base packages
+│       ├── bootloader/bootloader.nix
+│       ├── network/network.nix
+│       ├── bluetooth/bluetooth.nix
+│       ├── vpn/vpn.nix
+│       ├── shares/shares.nix
+│       ├── ssh/ssh.nix
+│       ├── fail2ban/fail2ban.nix
+│       ├── docker/docker.nix
+│       ├── desktop/desktop.nix      # Desktop system + home-manager config
+│       ├── git/git.nix
+│       ├── neovim/neovim.nix + nvim/
+│       ├── 1password/1password.nix
+│       ├── home-base/home-base.nix  # Sets home.username/homeDirectory/stateVersion
+│       ├── kitty/kitty.nix
+│       ├── fish/fish.nix
+│       ├── bash/bash.nix
+│       ├── mpv/mpv.nix
+│       ├── yazi/yazi.nix
+│       ├── zed/zed.nix
+│       ├── swappy/swappy.nix
+│       ├── udiskie/udiskie.nix
+│       ├── orca-slicer/orca-slicer.nix
+│       ├── easyeffects/easyeffects.nix
+│       ├── hyprland/
+│       │   ├── hyprland.nix         # System + home entry (self-guarded by wm.type)
+│       │   └── _hypr/               # Hyprland config files (skipped by import-tree)
+│       │       ├── hyprland.nix
+│       │       ├── hypridle.nix
+│       │       ├── hyprlock.nix
+│       │       └── hyprpaper/
+│       ├── niri/niri.nix
+│       ├── waybar/waybar.nix        # Waybar + mako + wofi
+│       ├── noctalia/noctalia.nix
+│       └── vr/vr.nix
+│
+└── shells/                      # Dev shells
+```
+
+**Key convention**: `_`-prefixed directories are skipped by import-tree. `_hosts/` and `_machines/` must be loaded explicitly.
+
+### Aspect File Pattern
+
+Every file in `modules/packages/` is a **flake-parts module**:
+
+```nix
+{ ... }: {
+  flake.nixosModules.<aspect> = { config, lib, pkgs, ... }:
+    lib.mkIf config.dotfiles.programs.<aspect>.enable {
+      # System config here
+      home-manager.users.${config.dotfiles.user.name} = { ... }: {
+        # Home-manager config here
+      };
+    };
+}
 ```
 
 ### Custom Options System
 
 Machine-specific settings are defined via custom `dotfiles.*` options in `options.nix`:
-- **Hyprland**: Monitor layouts, keybindings (QWERTY/Colemak), mouse sensitivity, exec-once commands
-- **VPN**: Enable/disable, WireGuard account list
-- **Bootloader**: Choose systemd or grub, grub device
 
-Example from `with-desktop/machines/mainpc/options.nix`:
-```nix
-dotfiles.hyprland.mainMonitor = "DP-3";
-dotfiles.hyprland.keyboardLayout = "colemak";
-dotfiles.bootloader = "grub";
-dotfiles.grubDevice = "/dev/nvme0n1";
-```
+- **`dotfiles.desktop.enable`**: Enable desktop environment (audio, printing, flatpak, GUI programs, WM)
+- **`dotfiles.windowManager.type`**: `"hyprland"` (default) or `"niri"`
+- **`dotfiles.windowManager.*`**: Monitor layouts, statusbar, keybindings (QWERTY/Colemak), mouse settings
+- **`dotfiles.services.ssh.enable`**: Enable OpenSSH (server machines)
+- **`dotfiles.services.fail2ban.enable`**: Enable fail2ban (server machines)
+- **`dotfiles.programs.*`**: Per-program enable flags (default to `desktop.enable`)
+  - Terminal/Shell: `kitty`, `fish`, `bash`
+  - Media: `mpv`, `yazi`
+  - Audio: `easyeffects`
+  - Utilities: `swappy`, `udiskie`, `zed`, `orca-slicer`
+  - Specialized: `vr` (default false, mainpc-only)
+- **`dotfiles.vpn`**: Enable/disable, WireGuard account list
+- **`dotfiles.bluetooth.enable`**
+- **`dotfiles.bootloader`**: `"systemd"` (default) or `"grub"`
+- **`dotfiles.network`**: hostname, interface, staticIP, gateway, nameservers
+
+### Adding a New Machine
+
+1. Create `modules/_machines/{machine-name}/` with:
+   - `options.nix` - Set `dotfiles.*` options
+   - `configuration.nix` - NixOS system config
+   - `hardware-configuration.nix` - Hardware config
+   - `home.nix` - Home-manager config
+2. Create `modules/_hosts/{machine-name}.nix` instantiating `nixpkgs.lib.nixosSystem` with all shared `config.flake.nixosModules.*`
+3. Add the host file to the explicit imports in `flake.nix`
+
+### Adding a New Aspect/Program
+
+1. Create `modules/packages/<aspect>/<aspect>.nix` as a flake-parts module
+2. Optionally add a `dotfiles.programs.<aspect>.enable` option in `options.nix`
+3. No changes needed to `flake.nix` — import-tree auto-discovers it
 
 ### Secrets Management
 
 Uses `sops-nix` with age encryption. Configuration is in `.sops.yaml`. Age keys must be placed at `/home/simon/.config/sops/age/keys.txt`.
 
-## Machine-Specific Configurations
-
-### Adding a New Machine
-
-1. Create machine directory: `{desktop}/machines/{machine-name}/`
-2. Add required files:
-   - `options.nix` - Set `dotfiles.*` options
-   - `configuration.nix` - NixOS system config
-   - `hardware-configuration.nix` - Hardware config (generate with `nixos-generate-config`)
-   - `home.nix` - Home-manager config
-3. Add flake entry in `flake.nix` under `nixosConfigurations`
-
-### Desktop Programs
-
-Desktop environment programs are in `with-desktop/home/programs/`:
-- Terminal: `kitty.nix`, `fish.nix`, `bash.nix`
-- Editor: `zed.nix`
-- Notifications: `mako.nix`
-- Application launcher: `wofi.nix`
-- Status bar: `waybar.nix`
-- Media: `mpv.nix`, `yazi.nix`
-- Audio: `easyeffects/` (with presets)
-- VR: `wlx-overlay-s.nix`
-
-## Required Manual Setup
-
-Some configurations require manual file creation:
-
-1. **SMB Credentials** (for network shares):
-   - `/etc/nixos/smb-p`, `/etc/nixos/smb-s`, `/etc/nixos/smb-scan`
-   - Format: `username=...\npassword=...`
-
-2. **WireGuard VPN** (macbook):
-   - `/etc/wireguard/home.conf`, `/etc/wireguard/proton.conf`
-
-3. **Sops Age Key**:
-   - `/home/simon/.config/sops/age/keys.txt`
-
 ## Special Machines
 
 ### Macbook (Apple Silicon)
 - Uses `aarch64-linux` architecture
-- Has custom `apple-silicon-support` module with M1N1 bootloader, kernel, and peripheral firmware
+- Has custom `apple-silicon-support` submodule in `modules/_machines/macbook/`
 - Requires manual WireGuard configuration files
 
 ### Mainpc
-- Includes VR support via `nixpkgs-xr`
-- Gaming configuration with Steam in `gaming/` subdirectory
-- Custom mouse acceleration profile for gaming
-- Colemak keyboard layout with vim-style directional keys
+- Includes VR support via `nixpkgs-xr` (`dotfiles.programs.vr.enable = true`)
+- Gaming configuration with Steam in `modules/_machines/mainpc/gaming/`
+- `mainpc-niri` host overrides `windowManager.type = lib.mkForce "niri"`
 
 ## Window Manager Configurations
 
 ### Hyprland
-- Configs in `with-desktop/hyprland/hypr/`: `hyprland.nix`, `hyprlock.nix`, `hypridle.nix`, `hyprpaper/`
-- Per-machine monitor, workspace, and keybinding customization via `dotfiles.hyprland.*` options
+- Aspect file: `modules/packages/hyprland/hyprland.nix`
+- Config files in `modules/packages/hyprland/_hypr/`: `hyprland.nix`, `hyprlock.nix`, `hypridle.nix`, `hyprpaper/`
+- Self-guarded: only activates when `dotfiles.windowManager.type == "hyprland"`
 - See `HYPRLAND_SHORTCUTS.md` for full keybinding list
 
 ### Niri
-- Configs in `with-desktop/niri/`
-- Alternative tiling compositor option
+- Aspect file: `modules/packages/niri/niri.nix`
+- Self-guarded: only activates when `dotfiles.windowManager.type == "niri"`
+- Config generated from `dotfiles.windowManager` options
+
+### Status Bars & Notifications
+- Waybar + mako + wofi: `modules/packages/waybar/waybar.nix` (guarded by `statusbar == "waybar"`)
+- Noctalia: `modules/packages/noctalia/noctalia.nix` (guarded by `statusbar == "noctalia"`)

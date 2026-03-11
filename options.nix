@@ -1,7 +1,33 @@
 { lib, config, ... }:
 {
   options.dotfiles = {
+    desktop = {
+      enable = lib.mkOption {
+        type = lib.types.bool;
+        default = false;
+        description = "Enable desktop environment (audio, printing, flatpak, GUI programs, window manager).";
+      };
+    };
+
+    user = {
+      name = lib.mkOption {
+        type = lib.types.str;
+        default = "simon";
+        description = "Primary user account name.";
+      };
+      wheel = lib.mkOption {
+        type = lib.types.bool;
+        default = true;
+        description = "Add primary user to the wheel group (sudo access).";
+      };
+    };
+
     windowManager = {
+      type = lib.mkOption {
+        type = lib.types.enum [ "hyprland" "niri" ];
+        default = "hyprland";
+        description = "Window manager to use on desktop systems.";
+      };
       mainMonitor = lib.mkOption {
         type = lib.types.str;
         default = "";
@@ -65,6 +91,29 @@
         };
       };
     };
+
+    services = {
+      ssh = {
+        enable = lib.mkOption {
+          type = lib.types.bool;
+          default = false;
+          description = "Enable OpenSSH daemon.";
+        };
+        authorizedKeySecret = lib.mkOption {
+          type = lib.types.nullOr lib.types.str;
+          default = null;
+          description = "Name of the sops secret to use as authorized_keys (e.g. 'nucserver-ssh-public-key').";
+        };
+      };
+      fail2ban = {
+        enable = lib.mkOption {
+          type = lib.types.bool;
+          default = false;
+          description = "Enable fail2ban intrusion prevention.";
+        };
+      };
+    };
+
     vpn = {
       enable = lib.mkOption {
         type = lib.types.bool;
@@ -84,22 +133,45 @@
         description = "Enable bluetooth.";
       };
     };
-    bootloader = lib.mkOption {
-      type = lib.types.enum [ "systemd" "grub" ];
-      default = "systemd";
-      description = "Bootloader to use.";
-    };
-    grubDevice = lib.mkOption {
-      type = lib.types.str;
-      default = "/dev/sda";
-      description = "Device to install GRUB to.";
-    };
-    use1PasswordAgent = lib.mkOption {
-      type = lib.types.bool;
-      default = true;
-      description = "Use 1Password SSH agent. Set to false on servers to use forwarded agent.";
+    bootloader = {
+      type = lib.mkOption {
+        type = lib.types.enum [ "systemd" "grub" ];
+        default = "systemd";
+        description = "Bootloader to use.";
+      };
+      grubDevice = lib.mkOption {
+        type = lib.types.str;
+        default = "/dev/sda";
+        description = "Device to install GRUB to.";
+      };
     };
     programs = {
+      _1password = {
+        enable = lib.mkOption {
+          type = lib.types.bool;
+          default = true;
+          description = "Enable 1Password CLI and GUI integration.";
+        };
+        sshAgent = lib.mkOption {
+          type = lib.types.bool;
+          default = true;
+          description = "Use 1Password SSH agent. Set to false on servers to use forwarded agent.";
+        };
+      };
+      docker = {
+        enable = lib.mkOption {
+          type = lib.types.bool;
+          default = true;
+          description = "Enable Docker virtualisation.";
+        };
+      };
+      virtualisation = {
+        enable = lib.mkOption {
+          type = lib.types.bool;
+          default = config.dotfiles.desktop.enable;
+          description = "Enable libvirt/QEMU virtualisation (virt-manager).";
+        };
+      };
       neovim = {
         enable = lib.mkOption {
           type = lib.types.bool;
@@ -107,8 +179,181 @@
           description = "Enable neovim with dotfiles configuration.";
         };
       };
+
+      # Terminal & Shell
+      kitty = {
+        enable = lib.mkOption {
+          type = lib.types.bool;
+          default = config.dotfiles.desktop.enable;
+          description = "Enable kitty terminal emulator.";
+        };
+      };
+      fish = {
+        enable = lib.mkOption {
+          type = lib.types.bool;
+          default = config.dotfiles.desktop.enable;
+          description = "Enable fish shell configuration.";
+        };
+      };
+      bash = {
+        enable = lib.mkOption {
+          type = lib.types.bool;
+          default = config.dotfiles.desktop.enable;
+          description = "Enable bash shell configuration.";
+        };
+      };
+
+      # Media
+      mpv = {
+        enable = lib.mkOption {
+          type = lib.types.bool;
+          default = config.dotfiles.desktop.enable;
+          description = "Enable mpv media player.";
+        };
+      };
+      yazi = {
+        enable = lib.mkOption {
+          type = lib.types.bool;
+          default = config.dotfiles.desktop.enable;
+          description = "Enable yazi file manager.";
+        };
+      };
+
+      # Audio
+      easyeffects = {
+        enable = lib.mkOption {
+          type = lib.types.bool;
+          default = config.dotfiles.desktop.enable;
+          description = "Enable EasyEffects audio processor.";
+        };
+      };
+
+      # Utilities
+      swappy = {
+        enable = lib.mkOption {
+          type = lib.types.bool;
+          default = config.dotfiles.desktop.enable;
+          description = "Enable swappy screenshot annotation tool.";
+        };
+      };
+      udiskie = {
+        enable = lib.mkOption {
+          type = lib.types.bool;
+          default = config.dotfiles.desktop.enable;
+          description = "Enable udiskie USB automounter.";
+        };
+      };
+      zed = {
+        enable = lib.mkOption {
+          type = lib.types.bool;
+          default = config.dotfiles.desktop.enable;
+          description = "Enable Zed text editor.";
+        };
+      };
+
+      # Specialized
+      orca-slicer = {
+        enable = lib.mkOption {
+          type = lib.types.bool;
+          default = config.dotfiles.desktop.enable;
+          description = "Enable OrcaSlicer 3D printer slicer.";
+        };
+      };
+      vr = {
+        enable = lib.mkOption {
+          type = lib.types.bool;
+          default = false;
+          description = "Enable VR support (WiVRn / WayVR). Requires nixpkgs-xr.";
+        };
+      };
+      steam = {
+        enable = lib.mkOption {
+          type = lib.types.bool;
+          default = false;
+          description = "Enable Steam gaming platform.";
+        };
+      };
     };
+    locale = {
+      timeZone = lib.mkOption {
+        type = lib.types.str;
+        default = "Europe/Zurich";
+        description = "System time zone.";
+      };
+      defaultLocale = lib.mkOption {
+        type = lib.types.str;
+        default = "en_US.UTF-8";
+        description = "Default system locale.";
+      };
+      extraLocale = lib.mkOption {
+        type = lib.types.str;
+        default = "de_CH.UTF-8";
+        description = "Locale used for LC_ADDRESS, LC_MEASUREMENT, LC_TIME, etc.";
+      };
+      keyMap = lib.mkOption {
+        type = lib.types.str;
+        default = "sg";
+        description = "Console key map.";
+      };
+      xkbLayout = lib.mkOption {
+        type = lib.types.str;
+        default = "ch";
+        description = "X keyboard layout.";
+      };
+      xkbVariant = lib.mkOption {
+        type = lib.types.str;
+        default = "";
+        description = "X keyboard variant.";
+      };
+    };
+    sharesDefaultServer = lib.mkOption {
+      type = lib.types.str;
+      default = "192.168.1.148";
+      description = "Default SMB server IP used when a share does not specify its own server.";
+    };
+
+    shares = lib.mkOption {
+      type = lib.types.listOf (lib.types.submodule ({ config, ... }: {
+        options = {
+          mountPoint = lib.mkOption {
+            type = lib.types.str;
+            description = "Local mount point (e.g. '/mnt/projects').";
+          };
+          server = lib.mkOption {
+            type = lib.types.nullOr lib.types.str;
+            default = null;
+            description = "SMB server IP. Defaults to dotfiles.sharesDefaultServer when null.";
+          };
+          share = lib.mkOption {
+            type = lib.types.str;
+            description = "Share name on the server (e.g. 'p' or 'simon_data').";
+          };
+          credentials = lib.mkOption {
+            type = lib.types.str;
+            description = "Path to the credentials file (e.g. '/etc/nixos/smb-p').";
+          };
+          uid = lib.mkOption {
+            type = lib.types.int;
+            default = 1000;
+            description = "UID for the mount owner.";
+          };
+          gid = lib.mkOption {
+            type = lib.types.int;
+            default = 100;
+            description = "GID for the mount owner.";
+          };
+        };
+      }));
+      default = [];
+      description = "List of CIFS/SMB shares to mount.";
+    };
+
     network = {
+      wakeOnLan = lib.mkOption {
+        type = lib.types.bool;
+        default = false;
+        description = "Enable Wake-on-LAN on the network interface.";
+      };
       hostname = lib.mkOption {
         type = lib.types.nullOr lib.types.str;
         default = null;
