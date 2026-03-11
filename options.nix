@@ -198,7 +198,7 @@
       bash = {
         enable = lib.mkOption {
           type = lib.types.bool;
-          default = config.dotfiles.desktop.enable;
+          default = true;
           description = "Enable bash shell configuration.";
         };
       };
