@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-FLAKE_NAME="hyprland-mainpc"
+FLAKE_NAME="mainpc"
 BUILD_CMD="nixos-rebuild"
 ACTION="switch"
 USE_SUDO=true
