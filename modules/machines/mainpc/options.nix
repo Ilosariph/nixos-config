@@ -3,6 +3,7 @@
   dotfiles.desktop.enable = true;
   dotfiles.programs.tmux.enable = false;
   dotfiles.windowManager.type = "hyprland";
+  dotfiles.windowManager.displayManager = "greetd";
   dotfiles.programs.vr.enable = true;
   dotfiles.programs.steam.enable = true;
   dotfiles.bluetooth.enable = true;
