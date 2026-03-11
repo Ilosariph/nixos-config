@@ -23,6 +23,10 @@
           };
         };
         programs.fish.enable = true;
+        programs.fzf = {
+          enable = true;
+          enableFishIntegration = true;
+        };
       };
     };
 }

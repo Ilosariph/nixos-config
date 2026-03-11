@@ -138,6 +138,16 @@
 
 ---
 
+## fzf (Fish Shell)
+
+| Shortcut | Action |
+|----------|--------|
+| `Ctrl + R` | Fuzzy search command history |
+| `Ctrl + T` | Fuzzy search files in current directory |
+| `Alt + C` | Fuzzy cd into subdirectory |
+
+---
+
 ## Media & Laptop Keys
 
 | Key | Action |
