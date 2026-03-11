@@ -138,6 +138,42 @@
 
 ---
 
+## tmux
+
+> Prefix = `Ctrl + A`
+>
+> Directional keys match the window manager layout (QWERTY: H/J/K/L, Colemak: N/,/U/I)
+
+### Sessions & Windows
+
+| Shortcut | Action |
+|----------|--------|
+| `Prefix + c` | New window (keeps current path) |
+| `Prefix + \|` | Split pane horizontally |
+| `Prefix + -` | Split pane vertically |
+| `Prefix + r` | Reload tmux config |
+| `Alt + 1–9` | Switch to window 1–9 |
+
+### Pane Navigation
+
+| Shortcut | Action |
+|----------|--------|
+| `Prefix + ←` | Focus pane left |
+| `Prefix + →` | Focus pane right |
+| `Prefix + ↑` | Focus pane up |
+| `Prefix + ↓` | Focus pane down |
+
+### Pane Resizing
+
+| Shortcut | Action |
+|----------|--------|
+| `Prefix + Shift + ←` | Resize pane left |
+| `Prefix + Shift + →` | Resize pane right |
+| `Prefix + Shift + ↑` | Resize pane up |
+| `Prefix + Shift + ↓` | Resize pane down |
+
+---
+
 ## fzf (Fish Shell)
 
 | Shortcut | Action |

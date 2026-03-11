@@ -1,6 +1,7 @@
 { lib, pkgs, ... }:
 {
   dotfiles.desktop.enable = true;
+  dotfiles.programs.tmux.enable = false;
   dotfiles.windowManager.type = "hyprland";
   dotfiles.programs.vr.enable = true;
   dotfiles.programs.steam.enable = true;

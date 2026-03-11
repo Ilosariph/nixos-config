@@ -191,7 +191,7 @@
       fish = {
         enable = lib.mkOption {
           type = lib.types.bool;
-          default = config.dotfiles.desktop.enable;
+          default = true;
           description = "Enable fish shell configuration.";
         };
       };
@@ -200,6 +200,13 @@
           type = lib.types.bool;
           default = config.dotfiles.desktop.enable;
           description = "Enable bash shell configuration.";
+        };
+      };
+      tmux = {
+        enable = lib.mkOption {
+          type = lib.types.bool;
+          default = true;
+          description = "Enable tmux terminal multiplexer configuration.";
         };
       };
 

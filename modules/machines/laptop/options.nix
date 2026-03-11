@@ -1,6 +1,7 @@
 { lib, pkgs, ... }:
 {
   dotfiles.desktop.enable = true;
+  dotfiles.programs.tmux.enable = false;
   dotfiles.windowManager.type = "hyprland";
   dotfiles.bluetooth.enable = true;
   dotfiles.bootloader.type = "grub";
