@@ -139,6 +139,25 @@
           description = "Enable fail2ban intrusion prevention.";
         };
       };
+      dockerBackup = {
+        enable = lib.mkOption {
+          type = lib.types.bool;
+          default = false;
+          description = "Enable daily Docker configuration backup to /mnt/docker-backup/<hostname>.";
+        };
+      };
+      jellyfin = {
+        enable = lib.mkOption {
+          type = lib.types.bool;
+          default = false;
+          description = "Enable Jellyfin media server container.";
+        };
+        publishedServerUrl = lib.mkOption {
+          type = lib.types.str;
+          default = "";
+          description = "Published server URL for Jellyfin autodiscovery (JELLYFIN_PublishedServerUrl).";
+        };
+      };
     };
 
     vpn = {
@@ -190,6 +209,11 @@
           type = lib.types.bool;
           default = true;
           description = "Enable Docker virtualisation.";
+        };
+        basePath = lib.mkOption {
+          type = lib.types.str;
+          default = "/home/simon/docker";
+          description = "Base directory for Docker container data volumes.";
         };
       };
       virtualisation = {
