@@ -98,6 +98,28 @@
     };
 
     services = {
+      pangolinNewt = {
+        enable = lib.mkOption {
+          type = lib.types.bool;
+          default = false;
+          description = "Enable Pangolin Newt tunnel client (fosrl-newt).";
+        };
+        endpoint = lib.mkOption {
+          type = lib.types.str;
+          default = "";
+          description = "Pangolin server endpoint URL (e.g. 'https://pangolin.example.com').";
+        };
+        idSecret = lib.mkOption {
+          type = lib.types.str;
+          default = "newt-id";
+          description = "Name of the sops secret containing the Newt ID.";
+        };
+        secretSecret = lib.mkOption {
+          type = lib.types.str;
+          default = "newt-secret";
+          description = "Name of the sops secret containing the Newt secret.";
+        };
+      };
       ssh = {
         enable = lib.mkOption {
           type = lib.types.bool;
