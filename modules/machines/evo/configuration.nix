@@ -15,12 +15,4 @@
 	  rocmPackages.clr.icd
 	];
 
-
-	services.pangolin = {
-    enable = true;
-    baseDomain = "pangolin.local"; 
-    letsEncryptEmail = "non@existent.ch";
-    environmentFile = "/etc/nixos/secrets/pangolin.env";
-    openFirewall = true;
-  };
 }
