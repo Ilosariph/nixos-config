@@ -5,6 +5,12 @@
   dotfiles.services.ssh.enable = true;
   dotfiles.services.ssh.authorizedKeySecret = "nucserver-ssh-public-key";
   dotfiles.services.fail2ban.enable = true;
+  dotfiles.services.pangolinNewt = {
+    enable = true;
+    endpoint = "https://pangolin.simon-wick.ch";
+    idSecret = "evo-newt-id";
+    secretSecret = "evo-newt-secret";
+  };
   dotfiles.shares = [
     {
       mountPoint = "/mnt/projects";
