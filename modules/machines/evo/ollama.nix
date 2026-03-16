@@ -9,7 +9,6 @@
     environmentVariables = {
       HSA_OVERRIDE_GFX_VERSION = "11.5.0";
       OLLAMA_DEBUG = "1";
-      OLLAMA_KEEP_ALIVE = "3m";
     };
   };
 
@@ -43,5 +42,5 @@
     };
   };
 
-  networking.firewall.allowedTCPPorts = [ 11434 ];
+  networking.firewall.allowedTCPPorts = [ 11434 4001 ];
 }
