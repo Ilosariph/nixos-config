@@ -57,7 +57,7 @@
         desktop-file-utils
         libnotify
         material-cursors
-        blueberry
+        blueman
         networkmanagerapplet
         seahorse
 

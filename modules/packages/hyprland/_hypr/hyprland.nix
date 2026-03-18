@@ -56,7 +56,7 @@ in {
 
           "border_size 0, match:class ^(kitty)$"
           "workspace special:pulsemeeter silent, match:class ^(org.pulsemeeter.pulsemeeter)$"
-          "float on, match:class ^(org.pulseaudio.pavucontrol|blueberry.py)$"
+          "float on, match:class ^(org.pulseaudio.pavucontrol|blueman-manager)$"
 
           "no_focus on, match:class ^$, match:title ^$, match:xwayland 1, match:float 1, match:fullscreen 0, match:pin 0"
 

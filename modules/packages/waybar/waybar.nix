@@ -154,7 +154,7 @@
                 format-disabled = "󰂲";
                 format-connected = "";
                 tooltip-format = "Devices connected: {num_connections}";
-                on-click = "blueberry";
+                on-click = "blueman-manager";
               };
 
               wireplumber = {

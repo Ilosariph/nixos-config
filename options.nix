@@ -139,11 +139,46 @@
           description = "Enable fail2ban intrusion prevention.";
         };
       };
-      dockerBackup = {
+      backup = {
         enable = lib.mkOption {
           type = lib.types.bool;
           default = false;
-          description = "Enable daily Docker configuration backup to /mnt/docker-backup/<hostname>.";
+          description = "Enable the generic backup service.";
+        };
+        jobs = lib.mkOption {
+          type = lib.types.listOf (lib.types.submodule {
+            options = {
+              name = lib.mkOption {
+                type = lib.types.str;
+                description = "Unique job identifier, used for systemd unit names (backup-<name>).";
+              };
+              source = lib.mkOption {
+                type = lib.types.str;
+                description = "Source path to back up.";
+              };
+              destination = lib.mkOption {
+                type = lib.types.str;
+                description = "Destination path for the backup.";
+              };
+              calendar = lib.mkOption {
+                type = lib.types.str;
+                default = "*-*-* 03:00:00";
+                description = "systemd OnCalendar expression controlling when the job runs (e.g. '*-*-* 03:00:00', 'weekly').";
+              };
+              mode = lib.mkOption {
+                type = lib.types.enum [ "sync" "snapshot" ];
+                default = "sync";
+                description = "sync: rsync --delete to destination. snapshot: creates a dated subfolder per run.";
+              };
+              keep = lib.mkOption {
+                type = lib.types.nullOr lib.types.int;
+                default = null;
+                description = "snapshot mode only: number of most recent snapshots to retain. null = keep all.";
+              };
+            };
+          });
+          default = [];
+          description = "List of backup jobs to run.";
         };
       };
       jellyfin = {
