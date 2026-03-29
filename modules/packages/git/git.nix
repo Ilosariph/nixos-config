@@ -38,6 +38,7 @@
 
         programs.git = {
           enable = true;
+          signing.format = "openpgp";
           settings = {
             gpg = {
               format = "ssh";

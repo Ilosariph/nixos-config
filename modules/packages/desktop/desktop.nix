@@ -46,7 +46,7 @@
         pavucontrol
         qpwgraph
 
-        protonvpn-gui
+        proton-vpn
 
         spice-gtk
 
