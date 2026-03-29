@@ -26,6 +26,47 @@ sudo nixos-rebuild switch --flake .#mainpc-niri
 sudo nixos-rebuild switch --flake .#nucserver
 ```
 
+### Deploying Remote Machines (deploy-rs)
+
+Remote servers (evo, nucserver) are deployed from mainpc using deploy-rs:
+
+```bash
+deploy .#evo          # Deploy evo
+deploy .#nucserver    # Deploy nucserver
+deploy .              # Deploy all enabled nodes
+```
+
+To add a machine as a deploy target, set `dotfiles.deploy.enable = true` in its options.nix. The hostname is auto-derived from `dotfiles.network.staticIP` or `dotfiles.network.hostname`; set `dotfiles.deploy.hostname` explicitly if neither is set.
+
+The `deploy` binary is installed on mainpc via `dotfiles.deploy.installTool = true`.
+
+#### Nix Store Signing Key Setup
+
+deploy-rs pushes store paths from mainpc to target machines. Target machines reject unsigned paths by default, so mainpc must sign them with a trusted key.
+
+**One-time setup** (run on mainpc):
+
+```bash
+# Generate the signing key pair
+sudo nix-store --generate-binary-cache-key mainpc /tmp/signing-key.sec /tmp/signing-key.pub
+
+# Add both to sops secrets
+sops secrets.yaml
+# Add:
+#   mainpc-nix-signing-key: "<contents of /tmp/signing-key.sec>"
+#   mainpc-nix-signing-key-pub: "trusted-public-keys = <contents of /tmp/signing-key.pub>"
+
+# Clean up plain-text key files
+rm /tmp/signing-key.sec /tmp/signing-key.pub
+```
+
+Note: `mainpc-nix-signing-key-pub` must be in nix.conf format, i.e.:
+```
+trusted-public-keys = mainpc:base64pubkey=
+```
+
+Then rebuild mainpc (loads the signing key) and deploy evo (trusts the public key).
+
 ### Available Flake Configurations
 - **Desktop**: `mainpc`, `mainpc-niri`, `laptop`, `macbook` (aarch64)
 - **Servers**: `nucserver`, `laptopserver`, `evo`
