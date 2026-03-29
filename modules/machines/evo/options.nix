@@ -1,5 +1,9 @@
 { ... }:
 {
+  dotfiles.sops.enable = true;
+  dotfiles.sops.defaultSecretsFile = ../../../secrets.yaml;
+  dotfiles.deploy.enable = true;
+  dotfiles.deploy.trustedPublicKeySecret = "mainpc-nix-signing-key-pub";
   dotfiles.bootloader.type = "systemd";
   dotfiles.programs._1password.sshAgent = false;
   dotfiles.services.ssh.enable = true;

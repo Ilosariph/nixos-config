@@ -441,6 +441,66 @@
       description = "List of CIFS/SMB shares to mount.";
     };
 
+    sops = {
+      enable = lib.mkOption {
+        type = lib.types.bool;
+        default = false;
+        description = "Enable sops-nix secret decryption.";
+      };
+      ageKeyFile = lib.mkOption {
+        type = lib.types.str;
+        default = "/home/${config.dotfiles.user.name}/.config/sops/age/keys.txt";
+        description = "Path to the age private key file used to decrypt sops secrets.";
+      };
+      defaultSecretsFile = lib.mkOption {
+        type = lib.types.path;
+        description = "Default sops secrets file. Must be set to the absolute path of secrets.yaml in the flake.";
+      };
+    };
+
+    deploy = {
+      enable = lib.mkOption {
+        type = lib.types.bool;
+        default = false;
+        description = "Include this machine as a deploy-rs target in the flake output.";
+      };
+      installTool = lib.mkOption {
+        type = lib.types.bool;
+        default = false;
+        description = "Install the deploy-rs binary on this machine (set on the deploying machine, e.g. mainpc).";
+      };
+      user = lib.mkOption {
+        type = lib.types.str;
+        default = config.dotfiles.user.name;
+        description = "User that the deployed profile activates as. Defaults to dotfiles.user.name.";
+      };
+      sshUser = lib.mkOption {
+        type = lib.types.nullOr lib.types.str;
+        default = null;
+        description = "SSH user for connecting. Defaults to deploy.user when null.";
+      };
+      hostname = lib.mkOption {
+        type = lib.types.nullOr lib.types.str;
+        default = null;
+        description = "Hostname or IP for deploy-rs. When null, derived from dotfiles.network.staticIP or dotfiles.network.hostname.";
+      };
+      remoteBuild = lib.mkOption {
+        type = lib.types.bool;
+        default = false;
+        description = "Build the system on the remote machine instead of pushing from the deploying machine.";
+      };
+      signingKeySecret = lib.mkOption {
+        type = lib.types.nullOr lib.types.str;
+        default = null;
+        description = "Name of the sops secret containing the nix store private signing key. Set on the deploying machine to sign store paths before pushing.";
+      };
+      trustedPublicKeySecret = lib.mkOption {
+        type = lib.types.nullOr lib.types.str;
+        default = null;
+        description = "Name of the sops secret containing the deploying machine's nix store public key. Loaded and added to nix.settings.trusted-public-keys at activation time.";
+      };
+    };
+
     network = {
       wakeOnLan = lib.mkOption {
         type = lib.types.bool;

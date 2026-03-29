@@ -9,7 +9,7 @@
               wm = config.dotfiles.windowManager.type;
               cmd = if wm == "hyprland" then "start-hyprland" else "niri --session";
             in
-            "${pkgs.greetd.tuigreet}/bin/tuigreet --time --remember --cmd ${cmd}";
+            "${pkgs.tuigreet}/bin/tuigreet --time --remember --cmd ${cmd}";
           user = "greeter";
         };
       };

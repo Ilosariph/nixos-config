@@ -5,8 +5,6 @@
     in
     lib.mkIf cfg.enable {
       sops = {
-        age.keyFile = "/home/${config.dotfiles.user.name}/.config/sops/age/keys.txt";
-        defaultSopsFile = lib.mkDefault ../../../secrets.yaml;
         secrets.${cfg.idSecret} = { };
         secrets.${cfg.secretSecret} = { };
         templates."newt-env".content = ''
