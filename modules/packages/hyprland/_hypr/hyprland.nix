@@ -6,6 +6,13 @@ in {
   programs.kitty.enable = true;
   wayland.windowManager.hyprland.enable = true;
 
+  # ── Passthrough submap (for VMs / nested compositors) ────────────────────
+  wayland.windowManager.hyprland.extraConfig = ''
+    bind = $mainMod SHIFT, P, submap, passthrough
+    submap = passthrough
+    bind = $mainMod SHIFT, P, submap, reset
+    submap = reset
+  '';
 
   wayland.windowManager.hyprland.settings = lib.mkMerge [
     (let
@@ -206,10 +213,10 @@ in {
           "$mainMod SHIFT, down, swapwindow, d"
 
           # ── Move windows (my custom keys) ──────────────────────────────
-          "$mainMod SHIFT, N, movewindow, l"
-          "$mainMod SHIFT, I, movewindow, r"
-          "$mainMod SHIFT, U, movewindow, u"
-          "$mainMod SHIFT, comma, movewindow, d"
+          "$mainMod SHIFT, left, movewindow, l"
+          "$mainMod SHIFT, right, movewindow, r"
+          "$mainMod SHIFT, up, movewindow, u"
+          "$mainMod SHIFT, down, movewindow, d"
 
           # ── Workspace shortcuts ────────────────────────────────────────
           "$mainMod, mouse_down, workspace, e+1"

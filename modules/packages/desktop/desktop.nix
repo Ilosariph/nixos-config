@@ -102,6 +102,9 @@
 
       # VM test variant
       virtualisation.vmVariant = {
+        virtualisation.cores = 8;
+        virtualisation.memorySize = 16384;
+        virtualisation.resolution = { x = 1920; y = 1080; };
         users.users.${config.dotfiles.user.name} = {
           isNormalUser = true;
           password = "test";
