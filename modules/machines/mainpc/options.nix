@@ -10,6 +10,7 @@
   dotfiles.windowManager.displayManager = "greetd";
   dotfiles.programs.vr.enable = true;
   dotfiles.programs.steam.enable = true;
+  dotfiles.programs.blog.enable = true;
   dotfiles.bluetooth.enable = true;
   dotfiles.windowManager.mainMonitor = "DP-3";
 	dotfiles.windowManager.statusbar = "noctalia";

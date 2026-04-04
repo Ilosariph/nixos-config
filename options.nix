@@ -366,6 +366,13 @@
           description = "Enable Steam gaming platform.";
         };
       };
+      blog = {
+        enable = lib.mkOption {
+          type = lib.types.bool;
+          default = false;
+          description = "Enable Hugo blog development environment (hugo + direnv shell in ~/blog).";
+        };
+      };
     };
     locale = {
       timeZone = lib.mkOption {
@@ -399,6 +406,25 @@
         description = "X keyboard variant.";
       };
     };
+    direnv = {
+      shells = lib.mkOption {
+        type = lib.types.listOf (lib.types.submodule {
+          options = {
+            dir = lib.mkOption {
+              type = lib.types.str;
+              description = "Directory relative to home to set up the direnv shell in (e.g. 'blog').";
+            };
+            packages = lib.mkOption {
+              type = lib.types.listOf lib.types.package;
+              description = "Packages to make available in the shell.";
+            };
+          };
+        });
+        default = [];
+        description = "List of directories to set up nix-direnv shells in.";
+      };
+    };
+
     sharesDefaultServer = lib.mkOption {
       type = lib.types.str;
       default = "192.168.1.148";
