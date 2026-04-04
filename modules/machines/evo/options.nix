@@ -47,6 +47,10 @@
       credentials = "/etc/nixos/smb-docker-backup";
     }
   ];
+  dotfiles.direnv.shells = [{
+    dir = "comfyui";
+    shellFile = ../../../shells/comfyui-rocm-gfx1151.nix;
+  }];
 	dotfiles.network = {
 		hostname = "evo";
 		interface = "eno1";

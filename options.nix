@@ -416,7 +416,13 @@
             };
             packages = lib.mkOption {
               type = lib.types.listOf lib.types.package;
-              description = "Packages to make available in the shell.";
+              default = [];
+              description = "Packages to make available in the shell (used when shellFile is null).";
+            };
+            shellFile = lib.mkOption {
+              type = lib.types.nullOr lib.types.path;
+              default = null;
+              description = "Path to a shell.nix to use directly instead of generating one from packages.";
             };
           };
         });

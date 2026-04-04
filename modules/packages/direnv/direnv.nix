@@ -13,12 +13,15 @@
         home.file = lib.listToAttrs (map (shell:
           lib.nameValuePair "${shell.dir}/.envrc" {
             text = ''
-              use nix ${pkgs.writeText "shell.nix" ''
-                with import <nixpkgs> {};
-                mkShell {
-                  buildInputs = [ ${lib.concatStringsSep " " (map toString shell.packages)} ];
-                }
-              ''}
+              use nix ${
+                if shell.shellFile != null then shell.shellFile
+                else pkgs.writeText "shell.nix" ''
+                  with import <nixpkgs> {};
+                  mkShell {
+                    buildInputs = [ ${lib.concatStringsSep " " (map toString shell.packages)} ];
+                  }
+                ''
+              }
             '';
           }
         ) shells);
