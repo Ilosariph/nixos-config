@@ -45,6 +45,7 @@
         pulseaudio
         pavucontrol
         qpwgraph
+				audacity
 
         proton-vpn
 
