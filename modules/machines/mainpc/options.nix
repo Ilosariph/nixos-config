@@ -27,6 +27,13 @@
   dotfiles.windowManager.settings.execOnce = [
     "streamcontroller"
   ];
+  dotfiles.direnv.shells = [
+    {
+      dir = "PycharmProjects";
+      shellFile = ../../../shells/pycharm-python312.nix;
+    }
+  ];
+
   dotfiles.shares = [
     {
       mountPoint = "/mnt/projects";
