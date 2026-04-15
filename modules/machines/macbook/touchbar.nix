@@ -36,16 +36,16 @@
 				{
 					Time = "%H:%M %-e.%m.%Y";
 					Action = "Time";
-					Stretch = 2;
+					Stretch = 3;
 				}
 
 				{ Icon = "fast_rewind";    Action = "PreviousSong"; }
 				{ Icon = "play_pause";     Action = "PlayPause";    }
 				{ Icon = "fast_forward";   Action = "NextSong";     }
-				{ Icon = "backlight_low";  Action = "IllumDown";    }
-				{ Icon = "backlight_high"; Action = "IllumUp";      }
+				# { Icon = "backlight_low";  Action = "IllumDown";    }
+				# { Icon = "backlight_high"; Action = "IllumUp";      }
 
-				# { Battery = "percentage"; Action = "Battery"; }
+				{ Battery = "percentage"; Action = "Battery"; }
 			];
 		};
   };
