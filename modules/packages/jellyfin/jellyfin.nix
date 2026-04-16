@@ -25,6 +25,7 @@
         };
         extraOptions = [
           "--add-host=host.docker.internal:host-gateway"
+          "--no-healthcheck"
         ];
       };
     };
