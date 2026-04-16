@@ -1,12 +1,12 @@
 { inputs, config, lib, ... }:
 let
   mkMainpc = wmOverride: inputs.nixpkgs.lib.nixosSystem {
-    system = "x86_64-linux";
     pkgs = import inputs.nixpkgs {
       system = "x86_64-linux";
       config.allowUnfree = true;
     };
     modules = [
+      { nixpkgs.hostPlatform = "x86_64-linux"; }
       inputs.sops-nix.nixosModules.sops
       inputs.nixpkgs-xr.nixosModules.nixpkgs-xr
       inputs.home-manager.nixosModules.home-manager

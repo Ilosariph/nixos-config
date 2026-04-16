@@ -18,7 +18,7 @@ let
   mkNode = name: nixosCfg:
     let
       d = nixosCfg.config.dotfiles;
-      system = nixosCfg.pkgs.system;
+      system = nixosCfg.pkgs.stdenv.hostPlatform.system;
       activationUser = d.deploy.user;
       sshUser = if d.deploy.sshUser != null then d.deploy.sshUser else activationUser;
     in {
@@ -84,4 +84,8 @@ in {
     ];
 
   flake.deploy.nodes = deployNodes;
+
+  flake.checks = lib.mapAttrs
+    (_system: deployLib: deployLib.deployChecks { nodes = deployNodes; })
+    inputs.deploy-rs.lib;
 }

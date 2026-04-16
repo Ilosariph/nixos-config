@@ -1,11 +1,11 @@
 { inputs, config, ... }: {
   flake.nixosConfigurations.macbook = inputs.nixpkgs.lib.nixosSystem {
-    system = "aarch64-linux";
     pkgs = import inputs.nixpkgs {
       system = "aarch64-linux";
       config.allowUnfree = true;
     };
     modules = [
+      { nixpkgs.hostPlatform = "aarch64-linux"; }
       inputs.apple-silicon.nixosModules.apple-silicon-support
       inputs.sops-nix.nixosModules.sops
       inputs.home-manager.nixosModules.home-manager
