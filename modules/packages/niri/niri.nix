@@ -75,14 +75,31 @@
               }
             '') monitors;
 
-          generateSpawnCommands = commands:
-            lib.concatMapStringsSep "\n" (cmd: ''spawn-at-startup "${cmd}"'') commands;
+          spawnLine = cmd:
+            let parts = lib.splitString " " cmd;
+            in "spawn-at-startup ${lib.concatMapStringsSep " " (p: ''"${p}"'') parts}";
 
-          baseSpawnCommands = if osConfig.dotfiles.windowManager.statusbar == "waybar"
-            then [ "waybar" ]
-            else [];
+          baseSpawnCommands =
+            [
+              "clipse -listen"
+              "wl-clip-persist --clipboard regular"
+              "nm-applet --indicator"
+              "1password --silent"
+            ]
+            ++ lib.optionals (osConfig.dotfiles.windowManager.statusbar == "waybar") [
+              "waybar"
+              "hyprpaper"
+            ]
+            ++ lib.optionals (osConfig.dotfiles.windowManager.statusbar == "noctalia") [
+              "noctalia-shell"
+            ];
 
           allSpawnCommands = baseSpawnCommands ++ cfg.execOnce;
+
+          spawnLines = lib.concatMapStringsSep "\n" spawnLine allSpawnCommands;
+
+          swayidleLine = ''spawn-at-startup "swayidle" "-w" "timeout" "300" "swaylock -f" "timeout" "330" "niri msg action power-off-monitors" "resume" "niri msg action power-on-monitors" "before-sleep" "swaylock -f"'';
+
         in lib.mkIf isNiri {
           xdg.configFile."niri/config.kdl".text = ''
             // Generated from NixOS configuration
@@ -133,12 +150,27 @@
               }
             }
 
-            ${lib.optionalString (allSpawnCommands != []) (generateSpawnCommands allSpawnCommands)}
+            ${swayidleLine}
+            ${spawnLines}
 
             screenshot-path "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"
 
-            animations {
-              // enabled by default
+            animations {}
+
+            window-rule {
+              match app-id="org.pulseaudio.pavucontrol"
+              open-floating true
+            }
+
+            window-rule {
+              match app-id="blueman-manager"
+              open-floating true
+            }
+
+            window-rule {
+              match app-id="clipse"
+              open-floating true
+              default-column-width { fixed 622; }
             }
 
             binds {
@@ -146,12 +178,21 @@
 
               // Core bindings
               Mod+Q hotkey-overlay-title="Open a Terminal: kitty" { spawn "kitty"; }
-              Mod+SPACE hotkey-overlay-title="Menu" {
+              Mod+E hotkey-overlay-title="File Manager: yazi" { spawn "kitty" "-e" "yazi"; }
+              Mod+Space hotkey-overlay-title="Menu" {
                 ${if osConfig.dotfiles.windowManager.statusbar == "noctalia"
-                  then ''spawn-sh "noctalia-shell ipc call launcher toggle"''
+                  then ''spawn "sh" "-c" "noctalia-shell ipc call launcher toggle"''
                   else ''spawn "wofi" "--show" "drun" "--sort-order=alphabetical"''}
               }
-              Super+Alt+L hotkey-overlay-title="Lock the Screen: swaylock" { spawn "swaylock"; }
+
+              // Lock / session
+              Mod+Alt+L hotkey-overlay-title="Lock: swaylock" { spawn "swaylock"; }
+              Mod+Escape { spawn "swaylock"; }
+              Mod+Shift+Escape repeat=false { quit; }
+              Mod+Shift+E repeat=false { quit; }
+              Mod+Ctrl+Escape repeat=false { spawn "sh" "-c" "reboot"; }
+              Mod+Shift+Ctrl+Escape repeat=false { spawn "sh" "-c" "systemctl poweroff"; }
+              Mod+Ctrl+Slash allow-inhibiting=false { toggle-keyboard-shortcuts-inhibit; }
 
               Mod+C repeat=false { close-window; }
               Mod+V { toggle-window-floating; }
@@ -169,28 +210,28 @@
               Mod+Right { focus-column-right; }
 
               // Move windows
-              Mod+Ctrl+${leftKey} { move-column-left; }
-              Mod+Ctrl+${rightKey} { move-column-right; }
-              Mod+Ctrl+${upKey} { move-window-up; }
-              Mod+Ctrl+${downKey} { move-window-down; }
+              Mod+Shift+${leftKey} { move-column-left; }
+              Mod+Shift+${rightKey} { move-column-right; }
+              Mod+Shift+${upKey} { move-window-up; }
+              Mod+Shift+${downKey} { move-window-down; }
 
-              Mod+Ctrl+Left { move-column-left; }
-              Mod+Ctrl+Down { move-window-down; }
-              Mod+Ctrl+Up { move-window-up; }
-              Mod+Ctrl+Right { move-column-right; }
+              Mod+Shift+Left { move-column-left; }
+              Mod+Shift+Down { move-window-down; }
+              Mod+Shift+Up { move-window-up; }
+              Mod+Shift+Right { move-column-right; }
 
               // Focus monitors
-              Mod+Shift+${leftKey} { focus-monitor-left; }
-              Mod+Shift+${rightKey} { focus-monitor-right; }
-              Mod+Shift+${upKey} { focus-monitor-up; }
-              Mod+Shift+${downKey} { focus-monitor-down; }
+              Mod+Ctrl+${leftKey} { focus-monitor-left; }
+              Mod+Ctrl+${rightKey} { focus-monitor-right; }
+              Mod+Ctrl+${upKey} { focus-monitor-up; }
+              Mod+Ctrl+${downKey} { focus-monitor-down; }
 
-              Mod+Shift+Left { focus-monitor-left; }
-              Mod+Shift+Down { focus-monitor-down; }
-              Mod+Shift+Up { focus-monitor-up; }
-              Mod+Shift+Right { focus-monitor-right; }
+              Mod+Ctrl+Left { focus-monitor-left; }
+              Mod+Ctrl+Down { focus-monitor-down; }
+              Mod+Ctrl+Up { focus-monitor-up; }
+              Mod+Ctrl+Right { focus-monitor-right; }
 
-              // Move to monitors
+              // Move column to monitor
               Mod+Shift+Ctrl+${leftKey} { move-column-to-monitor-left; }
               Mod+Shift+Ctrl+${rightKey} { move-column-to-monitor-right; }
               Mod+Shift+Ctrl+${upKey} { move-column-to-monitor-up; }
@@ -212,17 +253,17 @@
               Mod+8 { focus-workspace 8; }
               Mod+9 { focus-workspace 9; }
 
-              Mod+Ctrl+1 { move-column-to-workspace 1; }
-              Mod+Ctrl+2 { move-column-to-workspace 2; }
-              Mod+Ctrl+3 { move-column-to-workspace 3; }
-              Mod+Ctrl+4 { move-column-to-workspace 4; }
-              Mod+Ctrl+5 { move-column-to-workspace 5; }
-              Mod+Ctrl+6 { move-column-to-workspace 6; }
-              Mod+Ctrl+7 { move-column-to-workspace 7; }
-              Mod+Ctrl+8 { move-column-to-workspace 8; }
-              Mod+Ctrl+9 { move-column-to-workspace 9; }
+              Mod+Shift+1 { move-column-to-workspace 1; }
+              Mod+Shift+2 { move-column-to-workspace 2; }
+              Mod+Shift+3 { move-column-to-workspace 3; }
+              Mod+Shift+4 { move-column-to-workspace 4; }
+              Mod+Shift+5 { move-column-to-workspace 5; }
+              Mod+Shift+6 { move-column-to-workspace 6; }
+              Mod+Shift+7 { move-column-to-workspace 7; }
+              Mod+Shift+8 { move-column-to-workspace 8; }
+              Mod+Shift+9 { move-column-to-workspace 9; }
 
-              // Window management
+              // Window sizing
               Mod+R { switch-preset-column-width; }
               Mod+Shift+R { switch-preset-window-height; }
               Mod+Ctrl+R { reset-window-height; }
@@ -231,17 +272,30 @@
 
               // Screenshots
               Print { screenshot; }
-              Ctrl+Print { screenshot-screen; }
-              Alt+Print { screenshot-window; }
+              Shift+Print { screenshot-screen; }
+              Ctrl+Print { screenshot-window; }
 
-              // Session
-              Mod+Escape allow-inhibiting=false { toggle-keyboard-shortcuts-inhibit; }
-              Mod+Shift+E { quit; }
-              Ctrl+Alt+Delete { quit; }
+              // Clipboard manager (clipse)
+              Mod+Shift+V { spawn "kitty" "--class" "clipse" "-e" "clipse"; }
 
-              // Mouse wheel scrolling
+              ${lib.optionalString (osConfig.dotfiles.windowManager.statusbar == "waybar")
+                ''Mod+Shift+Space { spawn "sh" "-c" "pkill -SIGUSR1 waybar"; }''}
+
+              // Mouse wheel workspace switching
               Mod+WheelScrollDown cooldown-ms=150 { focus-workspace-down; }
               Mod+WheelScrollUp cooldown-ms=150 { focus-workspace-up; }
+
+              // Media keys
+              XF86AudioRaiseVolume allow-when-locked=true { spawn "wpctl" "set-volume" "-l" "1" "@DEFAULT_AUDIO_SINK@" "5%+"; }
+              XF86AudioLowerVolume allow-when-locked=true { spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "5%-"; }
+              XF86AudioMute allow-when-locked=true { spawn "wpctl" "set-mute" "@DEFAULT_AUDIO_SINK@" "toggle"; }
+              XF86AudioMicMute allow-when-locked=true { spawn "wpctl" "set-mute" "@DEFAULT_AUDIO_SOURCE@" "toggle"; }
+              XF86MonBrightnessUp { spawn "brightnessctl" "-e4" "-n2" "set" "5%+"; }
+              XF86MonBrightnessDown { spawn "brightnessctl" "-e4" "-n2" "set" "5%-"; }
+              XF86AudioNext allow-when-locked=true { spawn "playerctl" "next"; }
+              XF86AudioPrev allow-when-locked=true { spawn "playerctl" "previous"; }
+              XF86AudioPlay allow-when-locked=true { spawn "playerctl" "play-pause"; }
+              XF86AudioPause allow-when-locked=true { spawn "playerctl" "play-pause"; }
             }
           '';
         };

@@ -191,8 +191,6 @@ in {
           ", Print, exec, $screenshotUtil"
           "SHIFT, Print, exec, grimblast -f save screen - | swappy -f -"
           "CTRL, Print, exec, grimblast -f save active - | swappy -f -"
-          "$mainMod, Print, exec, hyprpicker -a"
-
           # ── Clipboard manager (clipse) ─────────────────────────────────
           "SHIFT $mainMod, V, exec, kitty --class clipse -e clipse"
 
