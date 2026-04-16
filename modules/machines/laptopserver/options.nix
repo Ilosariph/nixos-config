@@ -2,6 +2,7 @@
 {
   dotfiles.sops.enable = true;
   dotfiles.sops.defaultSecretsFile = ../../../secrets.yaml;
+  dotfiles.kernel = "stable";
   dotfiles.bootloader.type = "grub";
   dotfiles.bootloader.grubDevice = "/dev/nvme0n1";
   dotfiles.programs._1password.sshAgent = false;

@@ -28,6 +28,24 @@
     };
     console.keyMap = config.dotfiles.locale.keyMap;
 
+    boot.kernelPackages = lib.mkIf (config.dotfiles.kernel != "none") (
+      {
+        default = pkgs.linuxPackages_latest;
+        stable = pkgs.linuxPackages_6_6;
+        gaming = pkgs.linuxPackages_xanmod_latest;
+      }.${config.dotfiles.kernel}
+    );
+
+    boot.kernelModules = lib.mkIf (config.dotfiles.kernel == "gaming") [ "ntsync" ];
+
+    services.udev.extraRules = lib.mkIf (config.dotfiles.kernel == "gaming") ''
+      KERNEL=="ntsync", GROUP="users", MODE="0660"
+    '';
+
+    environment.sessionVariables = lib.mkIf (config.dotfiles.kernel == "gaming") {
+      PROTON_USE_NTSYNC = "1";
+    };
+
     hardware.enableAllFirmware = true;
 
     environment.systemPackages = with pkgs; [

@@ -2,6 +2,7 @@
 {
   dotfiles.sops.enable = true;
   dotfiles.sops.defaultSecretsFile = ../../../secrets.yaml;
+  dotfiles.kernel = "stable";
   dotfiles.bootloader.type = "systemd";
   dotfiles.programs._1password.sshAgent = false;
   dotfiles.services.ssh.enable = true;

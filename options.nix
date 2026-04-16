@@ -490,6 +490,18 @@
       };
     };
 
+    kernel = lib.mkOption {
+      type = lib.types.enum [ "default" "stable" "gaming" "none" ];
+      default = "default";
+      description = ''
+        Kernel variant to use.
+        default: linuxPackages_latest (upstream latest)
+        stable: linuxPackages_6_6 (6.6 LTS, for servers)
+        gaming: linuxPackages_xanmod_latest (XanMod gaming kernel)
+        none: do not set boot.kernelPackages (for machines with special kernels, e.g. macbook)
+      '';
+    };
+
     deploy = {
       enable = lib.mkOption {
         type = lib.types.bool;

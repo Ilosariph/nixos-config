@@ -5,10 +5,11 @@
     package = pkgs.ollama-rocm;
     host = "127.0.0.1";
     port = 11435;  # internal; nginx proxies port 11434 with API key auth
-    rocmOverrideGfx = "11.5.0";  # Radeon 8060S (Strix Halo - RDNA 3.5)
+    rocmOverrideGfx = "11.5.1";  # Radeon 8060S (Strix Halo / gfx1151 - RDNA 3.5)
     environmentVariables = {
-      HSA_OVERRIDE_GFX_VERSION = "11.5.0";
-      OLLAMA_DEBUG = "1";
+      HSA_OVERRIDE_GFX_VERSION = "11.5.1";
+      OLLAMA_FLASH_ATTENTION = "1";
+      OLLAMA_KV_CACHE_TYPE = "q8_0";
     };
   };
 

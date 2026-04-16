@@ -9,6 +9,7 @@
   dotfiles.windowManager.type = "hyprland";
   dotfiles.windowManager.displayManager = "greetd";
   dotfiles.programs.vr.enable = true;
+  dotfiles.kernel = "gaming";
   dotfiles.programs.steam.enable = true;
   dotfiles.programs.blog.enable = true;
   dotfiles.bluetooth.enable = true;

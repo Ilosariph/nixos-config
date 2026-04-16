@@ -1,5 +1,6 @@
 { lib, pkgs, ... }:
 {
+  dotfiles.kernel = "none";
   dotfiles.desktop.enable = true;
   dotfiles.programs.tmux.enable = false;
   dotfiles.windowManager.type = "hyprland";
