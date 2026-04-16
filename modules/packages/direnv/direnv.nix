@@ -13,7 +13,7 @@
         home.file = lib.listToAttrs (map (shell:
           lib.nameValuePair "${shell.dir}/.envrc" {
             text = ''
-              use nix ${
+              if output=$(use nix ${
                 if shell.shellFile != null then shell.shellFile
                 else pkgs.writeText "shell.nix" ''
                   with import <nixpkgs> {};
@@ -21,7 +21,12 @@
                     buildInputs = [ ${lib.concatStringsSep " " (map toString shell.packages)} ];
                   }
                 ''
-              }
+              } 2>&1); then
+                log_status "devenv ${shell.dir} loaded successfully"
+              else
+                echo "$output" >&2
+                false
+              fi
             '';
           }
         ) shells);
