@@ -62,7 +62,8 @@ in {
           "opacity 1 1, match:class ^(cef)$, match:title ^(Grayjay)$"
 
           "border_size 0, match:class ^(kitty)$"
-          "workspace special:pulsemeeter silent, match:class ^(org.pulsemeeter.pulsemeeter)$"
+          "workspace special:tools silent, match:class ^(org.pulsemeeter.pulsemeeter)$"
+          "workspace special:tools silent, match:class ^(com.core447.StreamController)$"
           "float on, match:class ^(org.pulseaudio.pavucontrol|blueman-manager)$"
 
           "no_focus on, match:class ^$, match:title ^$, match:xwayland 1, match:float 1, match:fullscreen 0, match:pin 0"
@@ -198,7 +199,7 @@ in {
           # ── Special workspace ──────────────────────────────────────────
           "$mainMod, S, togglespecialworkspace, magic"
           "$mainMod SHIFT, S, movetoworkspace, special:magic"
-          "$mainMod, F1, togglespecialworkspace, pulsemeeter"
+          "$mainMod, F1, togglespecialworkspace, tools"
 
           # ── Focus movement (machine-specific $left/$right/$up/$down) ───
           "$mainMod, $left, movefocus, l"
