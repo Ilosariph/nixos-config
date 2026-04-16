@@ -206,17 +206,11 @@ in {
           "$mainMod, $up, movefocus, u"
           "$mainMod, $down, movefocus, d"
 
-          # ── Swap windows ────────────────────────────────────────────────
-          "$mainMod SHIFT, left, swapwindow, l"
-          "$mainMod SHIFT, right, swapwindow, r"
-          "$mainMod SHIFT, up, swapwindow, u"
-          "$mainMod SHIFT, down, swapwindow, d"
-
-          # ── Move windows (my custom keys) ──────────────────────────────
-          "$mainMod SHIFT, left, movewindow, l"
-          "$mainMod SHIFT, right, movewindow, r"
-          "$mainMod SHIFT, up, movewindow, u"
-          "$mainMod SHIFT, down, movewindow, d"
+          # ── Move windows ───────────────────────────────────────────────
+          "$mainMod SHIFT, $left, movewindow, l"
+          "$mainMod SHIFT, $right, movewindow, r"
+          "$mainMod SHIFT, $up, movewindow, u"
+          "$mainMod SHIFT, $down, movewindow, d"
 
           # ── Workspace shortcuts ────────────────────────────────────────
           "$mainMod, mouse_down, workspace, e+1"
