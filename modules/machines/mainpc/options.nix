@@ -2,8 +2,8 @@
 {
   dotfiles.sops.enable = true;
   dotfiles.sops.defaultSecretsFile = ../../../secrets.yaml;
-  dotfiles.deploy.installTool = true;
-  dotfiles.deploy.signingKeySecret = "mainpc-nix-signing-key";
+  dotfiles.deploy.deployer.installTool = true;
+  dotfiles.deploy.deployer.signingKeySecret = "mainpc-nix-signing-key";
   dotfiles.desktop.enable = true;
   dotfiles.programs.tmux.enable = false;
   dotfiles.windowManager.type = "hyprland";

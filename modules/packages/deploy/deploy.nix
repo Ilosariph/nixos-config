@@ -5,25 +5,25 @@ let
   allConfigs = config.flake.nixosConfigurations;
 
   deployableConfigs = lib.filterAttrs
-    (_: nixosCfg: nixosCfg.config.dotfiles.deploy.enable)
+    (_: nixosCfg: nixosCfg.config.dotfiles.deploy.target.enable)
     allConfigs;
 
   resolveHostname = name: nixosCfg:
     let d = nixosCfg.config.dotfiles; in
-      if d.deploy.hostname != null then d.deploy.hostname
+      if d.deploy.target.hostname != null then d.deploy.target.hostname
       else if d.network.staticIP != null then lib.head (lib.splitString "/" d.network.staticIP)
       else if d.network.hostname != null then d.network.hostname
-      else throw "deploy: ${name} has deploy.enable but no resolvable hostname";
+      else throw "deploy: ${name} has deploy.target.enable but no resolvable hostname";
 
   mkNode = name: nixosCfg:
     let
       d = nixosCfg.config.dotfiles;
       system = nixosCfg.pkgs.stdenv.hostPlatform.system;
-      activationUser = d.deploy.user;
-      sshUser = if d.deploy.sshUser != null then d.deploy.sshUser else activationUser;
+      activationUser = d.deploy.target.user;
+      sshUser = if d.deploy.target.sshUser != null then d.deploy.target.sshUser else activationUser;
     in {
       hostname = resolveHostname name nixosCfg;
-      remoteBuild = d.deploy.remoteBuild;
+      remoteBuild = d.deploy.target.remoteBuild;
       inherit sshUser;
       profiles.system = {
         user = "root";
@@ -34,24 +34,27 @@ let
   deployNodes = lib.mapAttrs mkNode deployableConfigs;
 in {
   flake.nixosModules.deploy = { config, lib, pkgs, ... }:
-    let d = config.dotfiles.deploy; in
+    let
+      t = config.dotfiles.deploy.target;
+      dep = config.dotfiles.deploy.deployer;
+    in
     lib.mkMerge [
-      (lib.mkIf d.installTool {
+      (lib.mkIf dep.installTool {
         environment.systemPackages = [ pkgs.deploy-rs ];
 
-        sops = lib.mkIf (d.signingKeySecret != null) {
-          secrets.${d.signingKeySecret} = {
+        sops = lib.mkIf (dep.signingKeySecret != null) {
+          secrets.${dep.signingKeySecret} = {
             path = "/etc/nix/signing-key.sec";
             owner = "root";
             mode = "0400";
           };
         };
 
-        nix.settings.secret-key-files = lib.mkIf (d.signingKeySecret != null)
+        nix.settings.secret-key-files = lib.mkIf (dep.signingKeySecret != null)
           [ "/etc/nix/signing-key.sec" ];
       })
 
-      (lib.mkIf d.enable {
+      (lib.mkIf t.enable {
         security.sudo.extraRules = [{
           users = [ config.dotfiles.user.name ];
           commands = [
@@ -66,8 +69,8 @@ in {
         }];
       })
 
-      (lib.mkIf (d.trustedPublicKeySecret != null) {
-        sops.secrets.${d.trustedPublicKeySecret} = {
+      (lib.mkIf (t.trustedPublicKeySecret != null) {
+        sops.secrets.${t.trustedPublicKeySecret} = {
           path = "/etc/nix/trusted-public-key";
           owner = "root";
           mode = "0444";
