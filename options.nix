@@ -193,6 +193,18 @@
           description = "Published server URL for Jellyfin autodiscovery (JELLYFIN_PublishedServerUrl).";
         };
       };
+      openclaw = {
+        enable = lib.mkOption {
+          type    = lib.types.bool;
+          default = false;
+          description = "Enable OpenClaw autonomous AI agent (sandboxed via bwrap).";
+        };
+        rootPaths = lib.mkOption {
+          type        = lib.types.listOf lib.types.package;
+          default     = [];
+          description = "Packages to include in the OpenClaw bwrap sandbox (on top of openclaw itself).";
+        };
+      };
     };
 
     vpn = {

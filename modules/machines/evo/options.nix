@@ -1,4 +1,4 @@
-{ ... }:
+{ pkgs, ... }:
 {
   dotfiles.sops.enable = true;
   dotfiles.sops.defaultSecretsFile = ../../../secrets.yaml;
@@ -52,6 +52,11 @@
     dir = "comfyui";
     shellFile = ../../../shells/comfyui-rocm-gfx1151.nix;
   }];
+  dotfiles.services.openclaw = {
+    enable = true;
+    rootPaths = with pkgs; [ git curl coreutils ];
+  };
+
 	dotfiles.network = {
 		hostname = "evo";
 		interface = "eno1";

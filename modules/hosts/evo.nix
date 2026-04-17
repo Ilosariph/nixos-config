@@ -11,9 +11,11 @@
       inputs.nix-index-database.nixosModules.nix-index
       (inputs.import-tree ../machines/evo)
     ] ++ (builtins.attrValues config.flake.nixosModules) ++ [
+      { _module.args.openclawPkg = inputs.nix-openclaw.packages.x86_64-linux.default; }
       {
         home-manager.users.simon.imports = [
           ../machines/evo/_home.nix
+          inputs.nix-openclaw.homeManagerModules.default
         ];
       }
     ];
