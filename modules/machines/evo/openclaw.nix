@@ -35,6 +35,7 @@ lib.mkIf cfg.enable {
               baseUrl: "http://127.0.0.1:11434",
               api: "ollama",
               models: [
+                { id: "qwen3:8b",           name: "qwen3:8b",           reasoning: true,  input: ["text"], cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 }, contextWindow: 262144, maxTokens: 32768 },
                 { id: "qwen3.5:122b",           name: "qwen3.5:122b",           reasoning: true,  input: ["text"], cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 }, contextWindow: 262144, maxTokens: 32768 },
                 { id: "qwen3-coder-next:latest", name: "qwen3-coder-next:latest", reasoning: false, input: ["text"], cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 }, contextWindow: 262144, maxTokens: 32768 },
                 { id: "qwen3.5:27b",             name: "qwen3.5:27b",             reasoning: true,  input: ["text"], cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 }, contextWindow: 262144, maxTokens: 32768 },
@@ -46,7 +47,7 @@ lib.mkIf cfg.enable {
         },
         agents: {
           defaults: {
-            model: "ollama/qwen3.5:27b",
+            model: "ollama/qwen3:8b",
           },
         },
         channels: {
