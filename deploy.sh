@@ -24,7 +24,7 @@ FLAKE_PART="${TARGET##*#}"   # evo
 
 echo "Building closure for ${TARGET}..."
 TOPLEVEL=$(nix build "${FLAKE_URL}#nixosConfigurations.${FLAKE_PART}.config.system.build.toplevel" \
-  --no-link --print-out-paths)
+  --no-link --print-out-paths --accept-flake-config)
 
 echo "Signing store paths..."
 sudo nix store sign --key-file "$SIGNING_KEY" --recursive "$TOPLEVEL"

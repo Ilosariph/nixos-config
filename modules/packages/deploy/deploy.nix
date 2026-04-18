@@ -52,6 +52,7 @@ in {
 
         nix.settings.secret-key-files = lib.mkIf (dep.signingKeySecret != null)
           [ "/etc/nix/signing-key.sec" ];
+
       })
 
       (lib.mkIf t.enable {

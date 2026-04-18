@@ -9,10 +9,8 @@
       inputs.sops-nix.nixosModules.sops
       inputs.home-manager.nixosModules.home-manager
       inputs.nix-index-database.nixosModules.nix-index
-      inputs.nix-openclaw.nixosModules.openclaw-gateway
       (inputs.import-tree ../machines/evo)
     ] ++ (builtins.attrValues config.flake.nixosModules) ++ [
-      { _module.args.openclawPkg = inputs.nix-openclaw.packages.x86_64-linux.openclaw-gateway; }
       {
         home-manager.users.simon.imports = [
           ../machines/evo/_home.nix

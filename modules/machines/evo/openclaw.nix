@@ -1,92 +1,104 @@
-{ pkgs, config, lib, openclawPkg, ... }:
+{ config, lib, ... }:
 
 let
   cfg        = config.dotfiles.services.openclaw;
   user       = config.dotfiles.user.name;
-  ollamaUrl  = "http://127.0.0.1:11435";
-  configDir  = "/etc/openclaw";
-  configPath = "${configDir}/config.json5";
-
-  # Only the openclaw-gateway closure + cfg.rootPaths are visible in the sandbox.
-  sandboxClosure = pkgs.closureInfo {
-    rootPaths = [ openclawPkg ] ++ cfg.rootPaths;
-  };
-
-  sandboxPath = lib.makeBinPath cfg.rootPaths;
-
-  openclawBwrap = pkgs.writeShellScript "openclaw-bwrap" ''
-    set -euo pipefail
-    OPENCLAW_BIN="''${1:?Usage: openclaw-bwrap <binary> [args...]}"
-    shift
-
-    STORE_ARGS=()
-    while IFS= read -r p; do
-      STORE_ARGS+=(--ro-bind "$p" "$p")
-    done < ${sandboxClosure}/store-paths
-
-    exec ${pkgs.bubblewrap}/bin/bwrap \
-      "''${STORE_ARGS[@]}"                                            \
-      --ro-bind-try /etc/resolv.conf          /etc/resolv.conf        \
-      --ro-bind-try /etc/ssl/certs            /etc/ssl/certs          \
-      --ro-bind     "${configDir}"            "${configDir}"          \
-      --ro-bind     /home/${user}/data        /home/${user}/data      \
-      --bind        /mnt/projects             /mnt/projects           \
-      --bind        /tmp                      /tmp                    \
-      --proc        /proc                                             \
-      --dev         /dev                                              \
-      --unshare-all                                                   \
-      --share-net                                                     \
-      --new-session                                                   \
-      --die-with-parent                                               \
-      --setenv PATH "${sandboxPath}"                                  \
-      --setenv OPENCLAW_CONFIG_PATH "${configPath}"                   \
-      -- "$OPENCLAW_BIN" "$@"
-  '';
+  configDir  = "/home/${user}/openclaw";
+  secretPath = config.sops.templates."openclaw-config".path;
 in
 lib.mkIf cfg.enable {
   sops.secrets."openclaw-discord-token" = {
     mode = "0400";
   };
 
-  # Write config.json5 with the Discord token injected at activation time.
+  sops.secrets."ollama-bearer-token" = {
+    mode = "0400";
+  };
+
+  sops.templates."openclaw-discord-env" = {
+    mode    = "0400";
+    content = "DISCORD_BOT_TOKEN=${config.sops.placeholder."openclaw-discord-token"}";
+  };
+
   sops.templates."openclaw-config" = {
-    mode  = "0400";
-    path  = configPath;
+    mode  = "0444";
     content = ''
       // OpenClaw config — managed by NixOS/sops-nix. Do not edit on disk.
       {
-        llm: {
-          provider: "ollama",
-          baseUrl: "${ollamaUrl}",
-          model: "llama3.1:8b",
+        gateway: {
+          mode: "local",
         },
-        channels: [
-          {
-            type: "discord",
-            token: "${config.sops.placeholder."openclaw-discord-token"}",
-            // After creating the bot in the Discord developer portal, set:
-            // guildId:   "YOUR_GUILD_ID",
-            // channelId: "YOUR_CHANNEL_ID",
+        models: {
+          providers: {
+            ollama: {
+              apiKey: "${config.sops.placeholder."ollama-bearer-token"}",
+              baseUrl: "http://127.0.0.1:11434",
+              api: "ollama",
+              models: [
+                { id: "qwen3.5:122b",           name: "qwen3.5:122b",           reasoning: true,  input: ["text"], cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 }, contextWindow: 262144, maxTokens: 32768 },
+                { id: "qwen3-coder-next:latest", name: "qwen3-coder-next:latest", reasoning: false, input: ["text"], cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 }, contextWindow: 262144, maxTokens: 32768 },
+                { id: "qwen3.5:27b",             name: "qwen3.5:27b",             reasoning: true,  input: ["text"], cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 }, contextWindow: 262144, maxTokens: 32768 },
+                { id: "qwen2.5:72b",             name: "qwen2.5:72b",             reasoning: false, input: ["text"], cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 }, contextWindow: 131072, maxTokens: 32768 },
+                { id: "gpt-oss:120b",            name: "gpt-oss:120b",            reasoning: true,  input: ["text"], cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 }, contextWindow: 131072, maxTokens: 32768 },
+              ],
+            },
           },
-        ],
-        agent: {
-          name: "openclaw-evo",
-          workdir: "/mnt/projects",
+        },
+        agents: {
+          defaults: {
+            model: "ollama/qwen3.5:27b",
+          },
+        },
+        channels: {
+          discord: {
+            enabled: true,
+            token: {
+              source: "env",
+              provider: "default",
+              id: "DISCORD_BOT_TOKEN",
+            },
+            groupPolicy: "allowlist",
+            guilds: {
+              "1097230214758666281": {
+                requireMention: false,
+                channels: {
+                  "1494767063179198734": {
+                    enabled: true,
+                  },
+                },
+              },
+            },
+          },
         },
       }
     '';
   };
 
-  # Configure the openclaw-gateway NixOS module (imported in evo.nix).
-  services.openclaw = {
-    enable      = true;
-    configFile  = configPath;
+  # Copy the sops-rendered config into the writable config dir before container starts.
+  systemd.services.openclaw-config-sync = {
+    description = "Sync openclaw sops config to config dir";
+    before   = [ "podman-openclaw-gateway.service" ];
+    wantedBy = [ "podman-openclaw-gateway.service" ];
+    after    = [ "sops-nix.service" ];
+    serviceConfig = {
+      Type      = "oneshot";
+      ExecStart = "/bin/sh -c 'cp ${secretPath} ${configDir}/config.json5 && chmod 644 ${configDir}/config.json5'";
+    };
   };
 
-  # Wrap the gateway system service in bubblewrap.
-  systemd.services.openclaw-gateway.serviceConfig = {
-    ExecStart = lib.mkForce
-      "${openclawBwrap} ${openclawPkg}/bin/openclaw-gateway";
-    NoNewPrivileges = true;
+  virtualisation.oci-containers.containers.openclaw-gateway = {
+    image   = "ghcr.io/openclaw/openclaw:latest";
+    cmd     = [ "node" "dist/index.js" "gateway" ];
+    environment    = { OPENCLAW_CONFIG_PATH = "/home/node/.openclaw/config.json5"; };
+    environmentFiles = [ config.sops.templates."openclaw-discord-env".path ];
+    volumes = [
+      "${configDir}:/home/node/.openclaw"
+      "/mnt/projects/openclaw:/mnt/projects"
+      "/home/${user}/data:/data"
+    ];
+    extraOptions = [
+      "--network=host"
+      "--no-healthcheck"
+    ];
   };
 }
