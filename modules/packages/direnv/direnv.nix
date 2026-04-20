@@ -10,26 +10,24 @@
           nix-direnv.enable = true;
         };
 
-        home.file = lib.listToAttrs (map (shell:
-          lib.nameValuePair "${shell.dir}/.envrc" {
-            text = ''
-              if output=$(use nix ${
-                if shell.shellFile != null then shell.shellFile
-                else pkgs.writeText "shell.nix" ''
-                  with import <nixpkgs> {};
-                  mkShell {
-                    buildInputs = [ ${lib.concatStringsSep " " (map toString shell.packages)} ];
-                  }
-                ''
-              } 2>&1); then
-                log_status "devenv ${shell.dir} loaded successfully"
-              else
-                echo "$output" >&2
-                false
-              fi
+        home.file = lib.foldl' (acc: shell:
+          acc //
+          {
+            "${shell.dir}/.envrc".text = ''
+              use nix && log_status "devenv ${shell.dir} loaded successfully"
             '';
-          }
-        ) shells);
+          } //
+          (if shell.shellFile != null then {
+            "${shell.dir}/shell.nix".source = shell.shellFile;
+          } else {
+            "${shell.dir}/shell.nix".text = ''
+              with import <nixpkgs> {};
+              mkShell {
+                buildInputs = [ ${lib.concatStringsSep " " (map toString shell.packages)} ];
+              }
+            '';
+          })
+        ) {} shells;
       };
     };
 }
