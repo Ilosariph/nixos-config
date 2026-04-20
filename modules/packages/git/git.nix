@@ -54,6 +54,9 @@
               email = "71074737+Ilosariph@users.noreply.github.com";
               signingKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDk/LW0RX25BW64tJrsU7VFMqlSPR6zto9lAYghBLvie";
             };
+            init = {
+              defaultBranch = "main";
+            };
           };
         };
       };
