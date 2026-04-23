@@ -11,6 +11,7 @@
   dotfiles.programs.vr.enable = true;
   dotfiles.kernel = "gaming";
   dotfiles.programs.steam.enable = true;
+  dotfiles.programs.thonny.enable = true;
   dotfiles.programs.blog.enable = true;
   dotfiles.bluetooth.enable = true;
   dotfiles.windowManager.mainMonitor = "DP-3";

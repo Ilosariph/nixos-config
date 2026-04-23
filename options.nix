@@ -359,6 +359,13 @@
           description = "Enable VR support (WiVRn / WayVR). Requires nixpkgs-xr.";
         };
       };
+      thonny = {
+        enable = lib.mkOption {
+          type = lib.types.bool;
+          default = false;
+          description = "Enable Thonny Python IDE (includes dialout group for MicroPython board access).";
+        };
+      };
       steam = {
         enable = lib.mkOption {
           type = lib.types.bool;
