@@ -34,6 +34,10 @@
       dir = "PycharmProjects";
       shellFile = ../../../shells/pycharm-python312.nix;
     }
+    {
+      dir = "PycharmProjects/motorized-faders";
+      shellFile = ../../../shells/motorized-faders.nix;
+    }
   ];
 
   dotfiles.shares = [
