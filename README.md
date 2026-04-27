@@ -62,6 +62,61 @@ Test:
 curl http://localhost:11434/api/tags -H "Authorization: Bearer YOUR_API_KEY_HERE"
 ```
 
+# YubiKey
+
+## sudo / polkit (system auth prompts)
+
+Keys are stored as `yubikey-u2f-keys` in `secrets.yaml` and deployed to
+`/etc/u2f_keys` automatically on rebuild.
+
+### Adding a key
+
+1. Generate the key entry (touch YubiKey when prompted):
+   ```bash
+   # First key for a user:
+   pamu2fcfg -u simon
+
+   # Additional key (produces a bare entry to append):
+   pamu2fcfg -n
+   ```
+
+2. Add/append the output to `yubikey-u2f-keys` in secrets:
+   ```bash
+   sops secrets.yaml
+   ```
+   Each line is one user; multiple keys for the same user are separated by `:`.
+
+3. Rebuild affected machines:
+   ```bash
+   ./build.sh mainpc nix
+   ```
+
+### Removing a key
+
+Edit `yubikey-u2f-keys` in `secrets.yaml` via `sops secrets.yaml`, delete the
+relevant entry, then rebuild.
+
+## LUKS (disk unlock at boot)
+
+Enroll a key (run once per physical key):
+```bash
+systemd-cryptenroll --fido2-device=auto /dev/<partition>
+```
+
+List enrolled tokens and their slot numbers:
+```bash
+systemd-cryptenroll /dev/<partition>
+```
+
+Remove a specific key by its slot number:
+```bash
+systemd-cryptenroll --wipe-slot=<N> /dev/<partition>
+```
+
+Also add the partition to `boot.initrd.luks.devices` in `hardware-configuration.nix` and set `dotfiles.security.yubikey.luks.enable = true`.
+
+---
+
 # Pangolin (evo)
 Create `/etc/nixos/secrets/pangolin.env`:
 ```bash

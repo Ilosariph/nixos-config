@@ -14,6 +14,9 @@
   dotfiles.programs.thonny.enable = true;
   dotfiles.programs.blog.enable = true;
   dotfiles.bluetooth.enable = true;
+  dotfiles.security.yubikey.enable = true;
+  dotfiles.security.yubikey.sudo.enable = true;
+  dotfiles.security.yubikey.systemAuth.enable = true;
   dotfiles.windowManager.mainMonitor = "DP-3";
 	dotfiles.windowManager.statusbar = "noctalia";
   dotfiles.windowManager.settings = {

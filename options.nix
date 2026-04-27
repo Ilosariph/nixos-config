@@ -214,6 +214,73 @@
         description = "Enable bluetooth.";
       };
     };
+    security = {
+      yubikey = {
+        enable = lib.mkOption {
+          type = lib.types.bool;
+          default = false;
+          description = "Enable YubiKey support (management tools, udev rules, pcscd).";
+        };
+        luks = {
+          enable = lib.mkOption {
+            type = lib.types.bool;
+            default = false;
+            description = ''
+              Enable YubiKey FIDO2 LUKS disk unlocking via systemd stage-1 initrd.
+              Requires LUKS2 (not LUKS1). The partition must already be LUKS2-formatted
+              with a password slot before enrolling keys.
+
+              After enabling and rebuilding, enroll each YubiKey (swap physical key between runs):
+                systemd-cryptenroll --fido2-device=auto /dev/<partition>   # key 1
+                systemd-cryptenroll --fido2-device=auto /dev/<partition>   # key 2
+                systemd-cryptenroll --fido2-device=auto /dev/<partition>   # key 3
+
+              List enrolled tokens and their slot numbers:
+                systemd-cryptenroll /dev/<partition>
+
+              Remove a specific key by its LUKS keyslot number:
+                systemd-cryptenroll --wipe-slot=<N> /dev/<partition>
+
+              The FIDO2 metadata is stored in the LUKS2 header; no extra NixOS device
+              config is needed — just add the partition to boot.initrd.luks.devices
+              in hardware-configuration.nix as normal.
+            '';
+          };
+        };
+        sudo = {
+          enable = lib.mkOption {
+            type = lib.types.bool;
+            default = false;
+            description = ''
+              Enable YubiKey (FIDO2/U2F) as an alternative to password for sudo.
+              Login authentication is unaffected.
+
+              After enabling, register the YubiKey:
+                pamu2fcfg -u <username> | sudo tee -a /etc/u2f_keys
+                (touch the YubiKey when prompted)
+
+              To remove a key, edit /etc/u2f_keys and delete the line for the user.
+              To register a second key, run pamu2fcfg -n then append its output.
+            '';
+          };
+        };
+        systemAuth = {
+          enable = lib.mkOption {
+            type = lib.types.bool;
+            default = false;
+            description = ''
+              Enable YubiKey (FIDO2/U2F) as an alternative to password for polkit
+              system-authentication prompts (e.g. 1Password re-auth, any privilege dialog).
+              Login and screen-unlock are unaffected.
+
+              Requires dotfiles.security.yubikey.sudo.enable = true (key registration
+              and the pam_u2f module are shared — same /etc/u2f_keys file).
+            '';
+          };
+        };
+      };
+    };
+
     bootloader = {
       type = lib.mkOption {
         type = lib.types.enum [ "systemd" "grub" ];
