@@ -1,7 +1,7 @@
 { ... }:
 {
   dotfiles.sops.enable = true;
-  dotfiles.sops.defaultSecretsFile = ../../../secrets.yaml;
+  dotfiles.sops.defaultSecretsFile = ../../../secrets/secrets.yaml;
   dotfiles.deploy.target.enable = true;
   dotfiles.deploy.target.trustedPublicKeySecret = "mainpc-nix-signing-key-pub";
   dotfiles.kernel = "default";

@@ -1,7 +1,7 @@
 { lib, pkgs, ... }:
 {
   dotfiles.sops.enable = true;
-  dotfiles.sops.defaultSecretsFile = ../../../secrets.yaml;
+  dotfiles.sops.defaultSecretsFile = ../../../secrets/secrets.yaml;
   dotfiles.deploy.deployer.installTool = true;
   dotfiles.deploy.deployer.signingKeySecret = "mainpc-nix-signing-key";
   dotfiles.desktop.enable = true;
@@ -42,6 +42,11 @@
       shellFile = ../../../shells/motorized-faders.nix;
     }
   ];
+
+  dotfiles.network = {
+    hostname = "simon-mainpc";
+    interface = "eno1";
+  };
 
   dotfiles.shares = [
     {

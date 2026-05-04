@@ -1,7 +1,7 @@
 { ... }:
 {
   dotfiles.sops.enable = true;
-  dotfiles.sops.defaultSecretsFile = ../../../secrets.yaml;
+  dotfiles.sops.defaultSecretsFile = ../../../secrets/secrets.yaml;
   dotfiles.kernel = "stable";
   dotfiles.bootloader.type = "grub";
   dotfiles.bootloader.grubDevice = "/dev/nvme0n1";

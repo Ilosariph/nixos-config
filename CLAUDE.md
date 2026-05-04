@@ -51,7 +51,7 @@ deploy-rs pushes store paths from mainpc to target machines. Target machines rej
 sudo nix-store --generate-binary-cache-key mainpc /tmp/signing-key.sec /tmp/signing-key.pub
 
 # Add both to sops secrets
-sops secrets.yaml
+sops secrets/secrets.yaml
 # Add:
 #   mainpc-nix-signing-key: "<contents of /tmp/signing-key.sec>"
 #   mainpc-nix-signing-key-pub: "trusted-public-keys = <contents of /tmp/signing-key.pub>"
@@ -205,7 +205,11 @@ Machine-specific settings are defined via custom `dotfiles.*` options in `option
 
 ### Secrets Management
 
-Uses `sops-nix` with age encryption. Configuration is in `.sops.yaml`. Age keys must be placed at `/home/simon/.config/sops/age/keys.txt`.
+Uses `sops-nix` with age encryption. All secrets live in the `secrets/` folder:
+- `secrets/.sops.yaml` — sops config (age key, path rules)
+- `secrets/secrets.yaml` — general secrets (SSH keys, signing keys, VPN, etc.)
+
+Age keys must be placed at `/home/simon/.config/sops/age/keys.txt`.
 
 ## Special Machines
 

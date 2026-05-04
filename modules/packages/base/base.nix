@@ -79,6 +79,8 @@
 
     nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
+    environment.etc."machine-name".text = config.networking.hostName + "\n";
+
     system.stateVersion = "23.11";
 
     documentation.nixos.enable = false;
