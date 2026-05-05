@@ -11,6 +11,8 @@
   dotfiles.programs.vr.enable = true;
   dotfiles.kernel = "gaming";
   dotfiles.programs.steam.enable = true;
+  dotfiles.audio.routing = "pipewire-virtual";
+  dotfiles.audio.outputSink = "alsa_output.usb-Focusrite_Scarlett_2i2_USB_Y8PC38G1576D2F-00.Direct__Direct__sink";
   dotfiles.programs.thonny.enable = true;
   dotfiles.programs.blog.enable = true;
   dotfiles.bluetooth.enable = true;

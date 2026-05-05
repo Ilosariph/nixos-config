@@ -379,15 +379,6 @@
         };
       };
 
-      # Audio
-      easyeffects = {
-        enable = lib.mkOption {
-          type = lib.types.bool;
-          default = config.dotfiles.desktop.enable;
-          description = "Enable EasyEffects audio processor.";
-        };
-      };
-
       # Utilities
       swappy = {
         enable = lib.mkOption {
@@ -448,6 +439,43 @@
         };
       };
     };
+    audio = {
+      routing = lib.mkOption {
+        type = lib.types.enum [ "pipewire-virtual" "pulsemeeter" "none" ];
+        default = "none";
+        description = ''
+          Audio routing mode.
+          pipewire-virtual: three PipeWire null sinks (apps/music/comms) looped back to the
+            physical output, with WirePlumber rules auto-routing apps to their sink.
+          pulsemeeter: install pulsemeeter + qpwgraph for manual GUI routing.
+          none: no routing tools installed.
+        '';
+      };
+      easyeffects = {
+        enable = lib.mkOption {
+          type = lib.types.bool;
+          default = false;
+          description = "Enable EasyEffects audio processor. Enabled automatically by the audio-routing module for pipewire-virtual and pulsemeeter modes.";
+        };
+      };
+      outputSink = lib.mkOption {
+        type = lib.types.str;
+        default = "";
+        description = ''
+          PipeWire node name of the physical output sink the virtual loopbacks route into
+          (e.g. "alsa_output.usb-Focusrite_Scarlett_2i2_USB_..."). Run
+          `pw-cli ls Node | grep alsa_output` to find the exact name.
+          Leave empty to fall back to WirePlumber's default output selection.
+        '';
+      };
+      volumeLimit = lib.mkOption {
+        type = lib.types.float;
+        default = 1.0;
+        # set to 1.5 for 150% — raises the ceiling exposed through the PulseAudio compat layer
+        description = "Maximum volume scalar exposed through the PulseAudio compat layer. 1.0 = 100%, 1.5 = 150%.";
+      };
+    };
+
     locale = {
       timeZone = lib.mkOption {
         type = lib.types.str;
