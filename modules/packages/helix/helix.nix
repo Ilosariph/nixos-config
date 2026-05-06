@@ -100,16 +100,13 @@
                   "=" = ":format";
                   # Diagnostics list (mirrors <leader>q in nvim)
                   "q" = "diagnostics_picker";
-                  # Rename (mirrors <leader>rn / IdeaVim <leader>rn)
-                  # Already default: space r = rename_symbol
-                  # Code action (mirrors <leader>rf / IdeaVim <leader>rf)
-                  # Already default: space a = code_action
-                  # Symbol picker (mirrors <leader>sm / IdeaVim <leader>sm)
-                  # Already default: space s = symbol_picker
-                  # Workspace symbol (mirrors <leader>sp / IdeaVim <leader>sp)
-                  # Already default: space S = workspace_symbol_picker
-                  # Global grep (mirrors <leader>sg / IdeaVim <leader>sg)
-                  # Already default: space / = global_search
+                  # Defaults already cover:
+                  #   space r  = rename_symbol      (<leader>rn / IdeaVim <leader>rn)
+                  #   space a  = code_action         (<leader>rf / IdeaVim <leader>rf)
+                  #   space s  = symbol_picker       (<leader>sm / IdeaVim <leader>sm)
+                  #   space S  = workspace_symbol    (<leader>sp / IdeaVim <leader>sp)
+                  #   space /  = global_search       (<leader>sg / IdeaVim <leader>sg)
+                  #   space f  = file_picker         (<leader>sf)
                 };
               };
             };
@@ -160,6 +157,92 @@
               }
             ];
           };
+        };
+
+        # Desktop entry: launches helix inside a new kitty window (helix is a TUI)
+        xdg.desktopEntries.helix-kitty = {
+          name = "Helix";
+          genericName = "Text Editor";
+          comment = "A post-modern modal text editor";
+          exec = "kitty hx %F";
+          terminal = false;
+          categories = [ "Utility" "TextEditor" ];
+          icon = "helix";
+          startupNotify = false;
+          mimeType = [
+            "text/plain"
+            "text/markdown"
+            "text/x-markdown"
+            "text/css"
+            "text/javascript"
+            "text/x-shellscript"
+            "text/x-python"
+            "text/x-script.python"
+            "text/x-nix"
+            "text/x-toml"
+            "text/x-yaml"
+            "text/x-lua"
+            "text/x-c"
+            "text/x-csrc"
+            "text/x-c++src"
+            "text/x-java"
+            "text/x-makefile"
+            "text/x-rust"
+            "application/json"
+            "application/toml"
+            "application/xml"
+            "application/x-yaml"
+            "text/xml"
+          ];
+        };
+
+        # Set helix-kitty as default handler for text files in Dolphin and other XDG apps
+        xdg.mimeApps =
+          let
+            d = "helix-kitty.desktop";
+          in
+          {
+            enable = true;
+            defaultApplications = {
+              "text/plain" = d;
+              "text/markdown" = d;
+              "text/x-markdown" = d;
+              "text/css" = d;
+              "text/javascript" = d;
+              "text/x-shellscript" = d;
+              "text/x-python" = d;
+              "text/x-script.python" = d;
+              "text/x-nix" = d;
+              "text/x-toml" = d;
+              "text/x-yaml" = d;
+              "text/x-lua" = d;
+              "text/x-c" = d;
+              "text/x-csrc" = d;
+              "text/x-c++src" = d;
+              "text/x-java" = d;
+              "text/x-makefile" = d;
+              "text/x-rust" = d;
+              "application/json" = d;
+              "application/toml" = d;
+              "application/xml" = d;
+              "application/x-yaml" = d;
+              "text/xml" = d;
+            };
+          };
+
+        # Yazi: open text files in helix via a new kitty window
+        programs.yazi.settings = {
+          opener.edit = [
+            { run = ''kitty hx "$@"''; desc = "Helix"; }
+          ];
+          open.prepend_rules = [
+            { mime = "text/*"; use = "edit"; }
+            { mime = "application/json"; use = "edit"; }
+            { mime = "application/toml"; use = "edit"; }
+            { mime = "application/xml"; use = "edit"; }
+            { mime = "text/xml"; use = "edit"; }
+            { mime = "application/x-yaml"; use = "edit"; }
+          ];
         };
       };
   };
