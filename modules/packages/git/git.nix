@@ -40,6 +40,11 @@
           enable = true;
           signing.format = "openpgp";
           settings = {
+            core.editor = {
+              helix  = "hx";
+              neovim = "nvim";
+              zed    = "zed --wait";
+            }.${osConfig.dotfiles.programs.defaultEditor};
             gpg = {
               format = "ssh";
             };
