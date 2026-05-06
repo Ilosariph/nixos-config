@@ -332,6 +332,13 @@
           description = "Enable neovim with dotfiles configuration.";
         };
       };
+      helix = {
+        enable = lib.mkOption {
+          type = lib.types.bool;
+          default = false;
+          description = "Enable Helix editor with dotfiles configuration.";
+        };
+      };
 
       # Terminal & Shell
       kitty = {
