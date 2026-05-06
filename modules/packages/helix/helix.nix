@@ -196,54 +196,6 @@
           ];
         };
 
-        # Set helix-kitty as default handler for text files in Dolphin and other XDG apps
-        xdg.mimeApps =
-          let
-            d = "helix-kitty.desktop";
-          in
-          {
-            enable = true;
-            defaultApplications = {
-              "text/plain" = d;
-              "text/markdown" = d;
-              "text/x-markdown" = d;
-              "text/css" = d;
-              "text/javascript" = d;
-              "text/x-shellscript" = d;
-              "text/x-python" = d;
-              "text/x-script.python" = d;
-              "text/x-nix" = d;
-              "text/x-toml" = d;
-              "text/x-yaml" = d;
-              "text/x-lua" = d;
-              "text/x-c" = d;
-              "text/x-csrc" = d;
-              "text/x-c++src" = d;
-              "text/x-java" = d;
-              "text/x-makefile" = d;
-              "text/x-rust" = d;
-              "application/json" = d;
-              "application/toml" = d;
-              "application/xml" = d;
-              "application/x-yaml" = d;
-              "text/xml" = d;
-            };
-          };
-
-        # Yazi: open text files in helix via a new kitty window
-        programs.yazi.settings = {
-          opener.edit = [
-            { run = ''kitty hx "$@"''; desc = "Helix"; }
-          ];
-          open.prepend_rules = [
-            { mime = "text/*"; use = "edit"; }
-            { mime = "application/json"; use = "edit"; }
-            { mime = "application/toml"; use = "edit"; }
-            { mime = "application/xml"; use = "edit"; }
-            { mime = "text/xml"; use = "edit"; }
-            { mime = "application/x-yaml"; use = "edit"; }
-          ];
-        };
       };
   };
 }

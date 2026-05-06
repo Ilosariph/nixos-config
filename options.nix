@@ -339,6 +339,11 @@
           description = "Enable Helix editor with dotfiles configuration.";
         };
       };
+      defaultEditor = lib.mkOption {
+        type = lib.types.enum [ "helix" "neovim" "zed" ];
+        default = "zed";
+        description = "Default text editor used for MIME type associations (Dolphin etc.) and the yazi file opener. The chosen editor must also be enabled via its own option.";
+      };
 
       # Terminal & Shell
       kitty = {
