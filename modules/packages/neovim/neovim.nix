@@ -1,7 +1,7 @@
 { ... }: {
   flake.nixosModules.neovim = { config, lib, ... }: {
     home-manager.users.${config.dotfiles.user.name} = { lib, osConfig, ... }:
-      lib.mkIf osConfig.dotfiles.programs.neovim.enable {
+      lib.mkIf osConfig.dotfiles.programs.nvim.enable {
         programs.neovim = {
           enable = true;
           withRuby = false;

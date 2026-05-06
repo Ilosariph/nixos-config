@@ -134,7 +134,7 @@
               audioPlayer = [ "mpv.desktop" ];
               textEditor = {
                 helix  = [ "helix-kitty.desktop" ];
-                neovim = [ "nvim-kitty.desktop" ];
+                nvim = [ "nvim-kitty.desktop" ];
                 zed    = [ "zed.desktop" ];
               }.${osConfig.dotfiles.programs.defaultEditor};
               archiveManager = [ "org.kde.dolphin.desktop" ];

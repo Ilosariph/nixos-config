@@ -42,7 +42,7 @@
           settings = {
             core.editor = {
               helix  = "hx";
-              neovim = "nvim";
+              nvim = "nvim";
               zed    = "zed --wait";
             }.${osConfig.dotfiles.programs.defaultEditor};
             gpg = {

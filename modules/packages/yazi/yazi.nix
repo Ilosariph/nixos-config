@@ -4,9 +4,9 @@
       home-manager.users.${config.dotfiles.user.name} = { config, osConfig, ... }:
         let
           editor = osConfig.dotfiles.programs.defaultEditor;
-          isTui = editor == "helix" || editor == "neovim";
-          editorRun = { helix = ''hx "$@"''; neovim = ''nvim "$@"''; zed = ''zed "$@"''; }.${editor};
-          editorDesc = { helix = "Helix"; neovim = "Neovim"; zed = "Zed"; }.${editor};
+          isTui = editor == "helix" || editor == "nvim";
+          editorRun = { helix = ''hx "$@"''; nvim = ''nvim "$@"''; zed = ''zed "$@"''; }.${editor};
+          editorDesc = { helix = "Helix"; nvim = "Neovim"; zed = "Zed"; }.${editor};
         in
         {
           programs.yazi.enable = true;
