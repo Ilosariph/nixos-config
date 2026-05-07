@@ -1,6 +1,6 @@
 { ... }: {
   flake.nixosModules.easyeffects = { config, pkgs, lib, ... }:
-    lib.mkIf config.dotfiles.programs.easyeffects.enable {
+    lib.mkIf config.dotfiles.audio.easyeffects.enable {
       home-manager.users.${config.dotfiles.user.name} = { pkgs, ... }: {
         services.easyeffects.enable = true;
 

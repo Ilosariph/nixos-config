@@ -41,10 +41,8 @@
         razergenie
 
         libsecret
-        pulsemeeter
         pulseaudio
         pavucontrol
-        qpwgraph
 				audacity
 
         proton-vpn
