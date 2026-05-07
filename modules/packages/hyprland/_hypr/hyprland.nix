@@ -129,7 +129,7 @@ in {
         dwindle = {
           "pseudotile" = true;
           "preserve_split" = true;
-          "force_split" = 2;
+          "force_split" = 0;
         };
 
         master.new_status = "master";
@@ -185,7 +185,8 @@ in {
 
           # ── Tiling helpers ─────────────────────────────────────────────
           "$mainMod, P, pseudo"
-          "$mainMod SHIFT, Plus, fullscreen,"
+          "$mainMod, F, fullscreen,"
+          "$mainMod SHIFT, F, fullscreen, 1"
 
           # ── Screenshots ────────────────────────────────────────────────
           ", Print, exec, $screenshotUtil"
