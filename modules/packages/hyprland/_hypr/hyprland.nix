@@ -129,7 +129,7 @@ in {
         dwindle = {
           "pseudotile" = true;
           "preserve_split" = true;
-          "force_split" = 2;
+          "force_split" = 0;
         };
 
         master.new_status = "master";
