@@ -1,6 +1,15 @@
 { ... }: {
   flake.nixosModules.helix = { config, lib, pkgs, ... }: {
     home-manager.users.${config.dotfiles.user.name} = { lib, osConfig, ... }:
+      let
+        wm = osConfig.dotfiles.windowManager.settings;
+        # WM option values ("H","N","comma"…) → helix key names
+        toKey   = k: { H="h"; L="l"; K="k"; J="j"; N="n"; I="i"; U="u"; comma=","; }.${k};
+        # Shift variant: uppercase letter = Alt+Shift+letter; comma → < (Alt+Shift+,)
+        toShift = k: { H="H"; L="L"; K="K"; J="J"; N="N"; I="I"; U="U"; comma="<"; }.${k};
+        lk = toKey   wm.left;  rk = toKey   wm.right;  uk = toKey   wm.up;  dk = toKey   wm.down;
+        ls = toShift wm.left;  rs = toShift wm.right;  us = toShift wm.up;  ds = toShift wm.down;
+      in
       lib.mkIf osConfig.dotfiles.programs.helix.enable {
         programs.helix = {
           enable = true;
@@ -94,6 +103,22 @@
                 # Git hunk navigation: add ]c/[c aliases alongside helix defaults ]g/[g
                 "]" = { c = "goto_next_change"; };
                 "[" = { c = "goto_prev_change"; };
+
+                # Alt+Left/Right: buffer (tab) navigation
+                "A-left"  = ":buffer-previous";
+                "A-right" = ":buffer-next";
+
+                # Alt+WM-move: split navigation
+                "A-${lk}" = "jump_view_left";
+                "A-${rk}" = "jump_view_right";
+                "A-${uk}" = "jump_view_up";
+                "A-${dk}" = "jump_view_down";
+
+                # Alt+Shift+WM-move: swap current split with the one in that direction
+                "A-${ls}" = "swap_view_left";
+                "A-${rs}" = "swap_view_right";
+                "A-${us}" = "swap_view_up";
+                "A-${ds}" = "swap_view_down";
 
                 space = {
                   # Manual format (auto-format on save handles the common case)
