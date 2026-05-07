@@ -186,6 +186,7 @@ in {
           # ── Tiling helpers ─────────────────────────────────────────────
           "$mainMod, P, pseudo"
           "$mainMod, F, fullscreen,"
+          "$mainMod SHIFT, F, fullscreen, 1"
 
           # ── Screenshots ────────────────────────────────────────────────
           ", Print, exec, $screenshotUtil"
