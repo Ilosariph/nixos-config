@@ -220,6 +220,10 @@
           };
         };
 
+        dconf.settings."com/github/wwmm/easyeffects" = {
+          process-all-outputs = true;
+        };
+
         systemd.user.services.easyeffects = {
           Service = {
             Environment = [

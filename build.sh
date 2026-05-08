@@ -52,4 +52,4 @@ else
 fi
 
 echo $FULL_COMMAND
-$FULL_COMMAND
+eval "$FULL_COMMAND"

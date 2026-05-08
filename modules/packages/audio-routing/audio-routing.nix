@@ -84,14 +84,18 @@
           # Redirect specific applications to their designated sinks.
           # Add further entries here to route additional programs.
           # target.object must match node.name of the null sink above.
-          "wireplumber.rules" = [
+          "stream.rules" = [
             {
               matches = [
-                # Spotify uses both these identifiers depending on the version/launch method.
-                { "application.process.binary" = "spotify"; }
-                { "application.name" = "Spotify"; }
+                { "application.process.binary" = ".spotify-wrapped"; }
+                { "application.name" = "spotify"; }
+                { "node.name" = "spotify"; }
               ];
-              actions.update-props."target.object" = "sink-music";
+              actions.update-props = {
+                "target.object" = "sink-music";
+                "state.restore-target" = "false";
+                "node.dont-move" = "true";
+              };
             }
             {
               matches = [
@@ -109,6 +113,23 @@
             }
             # Discord and games select the comms sink directly in their settings;
             # no rule needed here unless you want to force it.
+          ];
+        };
+
+        # Route Spotify to sink-music via pulse.rules (fires before WirePlumber
+        # session item creation, so target.object is set in time for linking).
+        services.pipewire.extraConfig.pipewire-pulse."10-spotify-routing" = {
+          "pulse.rules" = [
+            {
+              matches = [
+                { "application.process.binary" = ".spotify-wrapped"; }
+                { "application.name" = "spotify"; }
+              ];
+              actions.update-props = {
+                "target.object" = "sink-music";
+                "node.dont-move" = true;
+              };
+            }
           ];
         };
 
