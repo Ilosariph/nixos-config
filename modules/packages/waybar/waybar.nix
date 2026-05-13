@@ -1,7 +1,8 @@
 { ... }: {
   flake.nixosModules.waybar = { config, pkgs, lib, ... }:
     lib.mkIf (config.dotfiles.desktop.enable && config.dotfiles.windowManager.statusbar == "waybar") {
-      home-manager.users.${config.dotfiles.user.name} = { lib, pkgs, osConfig, ... }: {
+      home-manager.users.${config.dotfiles.user.name} = { lib, pkgs, osConfig, config, ... }:
+        let c = config.lib.stylix.colors.withHashtag; in {
         programs.waybar = {
           enable = true;
 
@@ -11,9 +12,9 @@
           };
 
           style = ''
-            /* ── Tokyo Night colour palette ─────────────────────────────────── */
-            @define-color background #1a1b26;
-            @define-color foreground #a9b1d6;
+            /* ── Stylix palette ──────────────────────────────────────────────── */
+            @define-color background ${c.base00};
+            @define-color foreground ${c.base05};
 
             * {
               color: @foreground;
@@ -41,11 +42,11 @@
 
             #workspaces button.active,
             #workspaces button.focused {
-              color: #7aa2f7;
+              color: ${c.base0D};
             }
 
             #workspaces button:hover {
-              color: #c0caf5;
+              color: ${c.base06};
             }
 
             #custom-dropbox,
@@ -64,7 +65,7 @@
 
             tooltip {
               background-color: @background;
-              border: 1px solid #414868;
+              border: 1px solid ${c.base02};
               padding: 2px;
             }
 
@@ -207,9 +208,9 @@
           enable = true;
           settings = {
             font = "JetBrainsMono Nerd Font 12";
-            background-color = "#1a1b26";
-            text-color = "#a9b1d6";
-            border-color = "#3b4261";
+            background-color = "${c.base00}";
+            text-color = "${c.base05}";
+            border-color = "${c.base02}";
             border-radius = 8;
             border-size = 1;
             padding = "12,16";
@@ -222,16 +223,16 @@
             default-timeout = 5000;
 
             "urgency=low" = {
-              border-color = "#3b4261";
+              border-color = "${c.base02}";
               default-timeout = 3000;
             };
             "urgency=normal" = {
-              border-color = "#3b4261";
+              border-color = "${c.base02}";
               default-timeout = 5000;
             };
             "urgency=high" = {
-              border-color = "#f7768e";
-              text-color = "#f7768e";
+              border-color = "${c.base08}";
+              text-color = "${c.base08}";
               default-timeout = 0;
             };
           };
@@ -258,16 +259,16 @@
         '';
 
         xdg.configFile."wofi/style.css".text = ''
-          /* ── Tokyo Night palette ─────────────────────────────────────────── */
-          @define-color background  #1a1b26;
-          @define-color surface     #24283b;
-          @define-color overlay     #2a2b3d;
-          @define-color muted       #595959;
-          @define-color subtle      #414868;
-          @define-color text        #a9b1d6;
-          @define-color text-bright #c0caf5;
-          @define-color accent-blue #33ccff;
-          @define-color accent-green #00ff99;
+          /* ── Stylix palette ──────────────────────────────────────────────── */
+          @define-color background  ${c.base00};
+          @define-color surface     ${c.base01};
+          @define-color overlay     ${c.base01};
+          @define-color muted       ${c.base03};
+          @define-color subtle      ${c.base02};
+          @define-color text        ${c.base05};
+          @define-color text-bright ${c.base06};
+          @define-color accent-blue ${c.base0C};
+          @define-color accent-green ${c.base0B};
 
           * {
             font-family: JetBrainsMono Nerd Font, JetBrains Mono, monospace;

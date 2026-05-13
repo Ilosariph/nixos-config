@@ -97,6 +97,26 @@
       };
     };
 
+    theme = {
+      enable = lib.mkEnableOption "Stylix palette theming" // { default = true; };
+
+      scheme = lib.mkOption {
+        type = lib.types.str;
+        default = "tokyo-night-dark";
+        description = ''
+          base16 scheme name from pkgs.base16-schemes.
+          List available names: nix eval 'nixpkgs#base16-schemes' --apply builtins.attrNames
+          Examples: "gruvbox-dark-hard", "catppuccin-mocha", "nord", "dracula"
+        '';
+      };
+
+      neovimScheme = lib.mkOption {
+        type = lib.types.str;
+        default = "tokyonight-night";
+        description = "Neovim colorscheme string passed to vim.cmd.colorscheme. Other tokyonight variants: tokyonight-storm, tokyonight-moon, tokyonight-day.";
+      };
+    };
+
     services = {
       pangolinNewt = {
         enable = lib.mkOption {

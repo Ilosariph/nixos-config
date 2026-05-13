@@ -8,7 +8,6 @@
             "git-firefly"
             "lua"
             "nix"
-            "tokyo-night"
           ];
 
           userSettings = {
@@ -56,7 +55,6 @@
             icon_theme = "Zed (Default)";
             ui_font_size = 16;
             buffer_font_size = 15;
-            theme = "Tokyo Night Moon";
           };
 
           userKeymaps = [

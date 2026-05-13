@@ -9,7 +9,11 @@
         };
         xdg.configFile."nvim" = {
           source = ./nvim;
+          recursive = true;
         };
+        xdg.configFile."nvim/scheme.lua".text = ''
+          vim.cmd.colorscheme '${osConfig.dotfiles.theme.neovimScheme}'
+        '';
       };
   };
 }

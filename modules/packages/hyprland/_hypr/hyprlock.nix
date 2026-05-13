@@ -1,19 +1,20 @@
 { config, osConfig, ... }:
 let
   mainMonitor = osConfig.dotfiles.windowManager.mainMonitor;
+  s = config.lib.stylix.colors;
 in {
   programs.hyprlock.enable = true;
 
   programs.hyprlock.settings = {
-    "$base" = "rgb(1e1e2e)";
-    "$font" = "JetBrainsMono Nerd Font";
-    "$accent" = "rgb(cba6f7)";
-    "$accentAlpha" = "cba6f7";
-    "$surface0" = "rgb(313244)";
-    "$text" = "rgb(cdd6f4)";
-    "$textAlpha" = "cdd6f4";
-    "$red" = "rgb(f38ba8)";
-    "$yellow" = "rgb(f9e2af)";
+    "$base"        = "rgb(${s.base00})";
+    "$accent"      = "rgb(${s.base0E})";
+    "$accentAlpha" = s.base0E;
+    "$surface0"    = "rgb(${s.base01})";
+    "$text"        = "rgb(${s.base05})";
+    "$textAlpha"   = s.base05;
+    "$red"         = "rgb(${s.base08})";
+    "$yellow"      = "rgb(${s.base0A})";
+    "$font"        = "JetBrainsMono Nerd Font";
 
     general = {
       "disable_loading_bar" = true;
@@ -61,7 +62,7 @@ in {
       "inner_color" = "$surface0";
       "font_color" = "$text";
       "fade_on_empty" = false;
-      "placeholder_text" = "<span foreground=\"##$textAlpha\">󰌾  Logged in as <span foreground=\"##$accentAlpha\">$USER</span></span>";
+      "placeholder_text" = "<span foreground=\"##$accentAlpha\">󰌾  Logged in as <span foreground=\"##$accentAlpha\">$USER</span></span>";
       "hide_input" = false;
       "check_color" = "$accent";
       "fail_color" = "$red";

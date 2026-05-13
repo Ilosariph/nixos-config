@@ -22,7 +22,7 @@
       ]);
 
       # Home-manager config
-      home-manager.users.${config.dotfiles.user.name} = { lib, pkgs, osConfig, ... }:
+      home-manager.users.${config.dotfiles.user.name} = { lib, pkgs, osConfig, config, ... }:
         let
           cfg = osConfig.dotfiles.windowManager.settings;
           mainMonitor = osConfig.dotfiles.windowManager.mainMonitor;
@@ -124,8 +124,8 @@
 
               focus-ring {
                 width 4
-                active-color "#7fc8ff"
-                inactive-color "#505050"
+                active-color "#${config.lib.stylix.colors.base0D}"
+                inactive-color "#${config.lib.stylix.colors.base03}"
               }
 
               border {
