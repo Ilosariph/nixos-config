@@ -11,7 +11,7 @@
           mgr.prepend_keymap = [
             {
               on = "M";
-              run = "plugin sshfs";
+              run = "plugin sshfs -- menu";
               desc = "SSHFS menu";
             }
             {
