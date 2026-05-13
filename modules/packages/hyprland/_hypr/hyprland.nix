@@ -71,6 +71,9 @@ in {
           "float on, match:class (clipse)"
           "size 622 652, match:class (clipse)"
           "stay_focused on, match:class (clipse)"
+
+          "float on, match:class ^(net.sapples.LiveCaptions)$"
+          "pin on, match:class ^(net.sapples.LiveCaptions)$"
         ];
 
         layerrule = lib.optionals (osConfig.dotfiles.windowManager.statusbar == "waybar") [

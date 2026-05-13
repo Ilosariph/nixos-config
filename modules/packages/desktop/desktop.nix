@@ -250,6 +250,7 @@
           ] ++ lib.optionals (pkgs.stdenv.hostPlatform.system == "x86_64-linux") [
             "app.grayjay.Grayjay"
             "page.codeberg.libre_menu_editor.LibreMenuEditor"
+						"net.sapples.LiveCaptions"
           ];
         };
 
