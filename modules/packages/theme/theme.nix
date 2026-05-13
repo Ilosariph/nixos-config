@@ -18,13 +18,16 @@
       # Terminal opacity (kitty target picks this up)
       stylix.opacity.terminal = 0.9;
 
-      # Targets handled manually or kept as-is
-      stylix.targets.waybar.enable = false;
-      stylix.targets.mako.enable = false;
-      stylix.targets.wofi.enable = false;
-      stylix.targets.hyprlock.enable = false;
-      stylix.targets.hyprpaper.enable = false;
-      stylix.targets.gtk.enable = false;
-      stylix.targets.neovim.enable = false;
+      # Disable HM-level targets we handle manually or keep as-is.
+      # These are home-manager options so they must be set via sharedModules.
+      home-manager.sharedModules = [{
+        stylix.targets.waybar.enable = false;
+        stylix.targets.mako.enable = false;
+        stylix.targets.wofi.enable = false;
+        stylix.targets.hyprlock.enable = false;
+        stylix.targets.hyprpaper.enable = false;
+        stylix.targets.gtk.enable = false;
+        stylix.targets.neovim.enable = false;
+      }];
     };
 }
