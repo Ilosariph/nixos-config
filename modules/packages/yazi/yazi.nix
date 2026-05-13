@@ -1,11 +1,19 @@
 { ... }: {
-  flake.nixosModules.yazi = { config, lib, ... }:
+  flake.nixosModules.yazi = { config, lib, pkgs, ... }:
     lib.mkIf config.dotfiles.programs.yazi.enable {
       home-manager.users.${config.dotfiles.user.name} = { config, ... }: {
         programs.yazi.enable = true;
         programs.yazi.shellWrapperName = "yy";
+        programs.yazi.plugins = {
+          sshfs = pkgs.yaziPlugins.sshfs;
+        };
         programs.yazi.keymap = {
           mgr.prepend_keymap = [
+            {
+              on = "M";
+              run = "plugin sshfs";
+              desc = "SSHFS menu";
+            }
             {
               run = [
                 ''shell -- for path in "$@"; do echo "file://$path"; done | wl-copy -t text/uri-list''
