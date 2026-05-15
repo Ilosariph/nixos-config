@@ -4,7 +4,9 @@
       home-manager.users.${config.dotfiles.user.name} = { pkgs, ... }: {
         programs.kitty = {
           enable = true;
-          settings.shell = "${pkgs.fish}/bin/fish";
+          settings = {
+            shell = "${pkgs.fish}/bin/fish";
+          };
           shellIntegration = {
             mode = "enabled";
             enableFishIntegration = true;

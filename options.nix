@@ -102,7 +102,7 @@
 
       scheme = lib.mkOption {
         type = lib.types.str;
-        default = "tokyo-night-dark";
+        default = "tokyo-night-storm";
         description = ''
           base16 scheme name from pkgs.base16-schemes.
           List available names: nix eval 'nixpkgs#base16-schemes' --apply builtins.attrNames
