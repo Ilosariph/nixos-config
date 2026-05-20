@@ -55,5 +55,13 @@
         (inputs.import-tree ./modules/hosts)
       ];
       systems = [ "x86_64-linux" "aarch64-linux" ];
+      perSystem = { pkgs, ... }: {
+        devShells.default = pkgs.mkShell {
+          shellHook = ''
+            export NIX_CONFIG="plugin-files=${pkgs.nix-plugins}/lib/libnix_plugins.so
+extra-builtins-file=$HOME/.dotfiles/nix/extra-builtins.nix"
+          '';
+        };
+      };
     };
 }

@@ -1,4 +1,4 @@
-{ ... }:
+{ evalSecrets, ... }:
 {
   dotfiles.sops.enable = true;
   dotfiles.sops.defaultSecretsFile = ../../../secrets/secrets.yaml;
@@ -10,9 +10,9 @@
   dotfiles.services.ssh.enable = true;
   dotfiles.services.ssh.authorizedKeySecret = "nucserver-ssh-public-key";
   dotfiles.services.jellyfin = {
-		enable = true;
-		publishedServerUrl = "https://jellyfin.simon-wick.ch";
-	};
+    enable = true;
+    publishedServerUrl = evalSecrets.evo.jellyfinUrl;
+  };
   dotfiles.services.fail2ban.enable = true;
   dotfiles.services.backup.enable = true;
   dotfiles.services.backup.jobs = [
@@ -27,10 +27,11 @@
   ];
   dotfiles.services.pangolinNewt = {
     enable = true;
-    endpoint = "https://pangolin.simon-wick.ch";
+    endpoint = evalSecrets.evo.pangolinEndpoint;
     idSecret = "evo-newt-id";
     secretSecret = "evo-newt-secret";
   };
+  dotfiles.sharesDefaultServer = evalSecrets.nasServerIP;
   dotfiles.shares = [
     {
       mountPoint = "/mnt/projects";
@@ -52,11 +53,19 @@
     dir = "comfyui";
     shellFile = ../../../shells/comfyui-rocm-gfx1151.nix;
   }];
-	dotfiles.network = {
-		hostname = "evo";
-		interface = "eno1";
-		staticIP = "192.168.1.105/24";
-		gateway = "192.168.1.1";
-		wakeOnLan = true;
-	};
+  dotfiles.network = {
+    hostname = "evo";
+    interface = "eno1";
+    staticIP = evalSecrets.evo.staticIP;
+    gateway = evalSecrets.defaultGateway;
+    wakeOnLan = true;
+    nameservers = [
+      evalSecrets.privateDnsIPv4
+      evalSecrets.privateDnsIPv6
+      "1.1.1.1"
+      "2606:4700:4700::1111"
+      "1.0.0.1"
+      "2606:4700:4700::1001"
+    ];
+  };
 }

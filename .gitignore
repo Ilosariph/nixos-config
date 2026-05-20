@@ -2,3 +2,5 @@
 /result-*
 
 *.qcow2
+
+secrets/eval-secrets.nix

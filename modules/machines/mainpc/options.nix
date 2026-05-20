@@ -1,4 +1,4 @@
-{ lib, pkgs, ... }:
+{ lib, pkgs, evalSecrets, ... }:
 {
   dotfiles.sops.enable = true;
   dotfiles.sops.defaultSecretsFile = ../../../secrets/secrets.yaml;
@@ -20,7 +20,7 @@
   dotfiles.security.yubikey.sudo.enable = true;
   dotfiles.security.yubikey.systemAuth.enable = true;
   dotfiles.windowManager.mainMonitor = "DP-3";
-	dotfiles.windowManager.statusbar = "noctalia";
+  dotfiles.windowManager.statusbar = "noctalia";
   dotfiles.windowManager.settings = {
     monitors = [
       "DP-3, 3440x1440@120, 0x0, 1"
@@ -48,8 +48,17 @@
   dotfiles.network = {
     hostname = "simon-mainpc";
     interface = "eno1";
+    nameservers = [
+      evalSecrets.privateDnsIPv4
+      evalSecrets.privateDnsIPv6
+      "1.1.1.1"
+      "2606:4700:4700::1111"
+      "1.0.0.1"
+      "2606:4700:4700::1001"
+    ];
   };
 
+  dotfiles.sharesDefaultServer = evalSecrets.nasServerIP;
   dotfiles.shares = [
     {
       mountPoint = "/mnt/projects";
@@ -64,7 +73,7 @@
     {
       mountPoint = "/mnt/scan";
       share = "ScansLaserjet";
-      server = "192.168.1.95";
+      server = evalSecrets.mainpc.scannerIP;
       credentials = "/etc/nixos/smb-scan";
     }
   ];

@@ -535,8 +535,8 @@
 
     sharesDefaultServer = lib.mkOption {
       type = lib.types.str;
-      default = "192.168.1.148";
-      description = "Default SMB server IP used when a share does not specify its own server.";
+      default = "";
+      description = "Default SMB server IP used when a share does not specify its own server. Must be set explicitly per machine.";
     };
 
     shares = lib.mkOption {
@@ -680,8 +680,6 @@
       nameservers = lib.mkOption {
         type = lib.types.listOf lib.types.str;
         default = [
-          "192.168.1.148"
-          "fd32:9975:719f:0:7a55:36ff:fe02:15f3"
           "1.1.1.1"
           "2606:4700:4700::1111"
           "1.0.0.1"
