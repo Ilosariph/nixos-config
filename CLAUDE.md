@@ -205,11 +205,49 @@ Machine-specific settings are defined via custom `dotfiles.*` options in `option
 
 ### Secrets Management
 
-Uses `sops-nix` with age encryption. All secrets live in the `secrets/` folder:
-- `secrets/.sops.yaml` — sops config (age key, path rules)
-- `secrets/secrets.yaml` — general secrets (SSH keys, signing keys, VPN, etc.)
+Two complementary systems, both using the same age private key at `/home/simon/.config/sops/age/keys.txt`.
 
-Age keys must be placed at `/home/simon/.config/sops/age/keys.txt`.
+#### sops-nix (activation-time secrets)
+
+For secrets consumed at service runtime (SSH keys, WireGuard keys, API tokens, etc.):
+
+- `secrets/.sops.yaml` — sops config (age key, path rules)
+- `secrets/secrets.yaml` — edit with `sops secrets/secrets.yaml`
+
+#### eval-secrets (evaluation-time secrets)
+
+For values the Nix evaluator needs directly — network config, IPs, URLs — which sops-nix can't reach because it runs after evaluation.
+
+The encrypted file `secrets/eval-secrets.nix.age` is committed to git. The plaintext `secrets/eval-secrets.nix` is gitignored and only exists locally while editing.
+
+**Encryption note:** age encryption only requires the public key, which is already in `.sops.yaml`. Anyone can encrypt; only the private key holder can decrypt.
+
+**To edit eval-secrets:**
+```bash
+# 1. Decrypt to plaintext (gitignored)
+age --decrypt -i ~/.config/sops/age/keys.txt \
+  secrets/eval-secrets.nix.age > secrets/eval-secrets.nix
+
+# 2. Edit secrets/eval-secrets.nix
+#    Structure: { defaultGateway, privateDnsIPv4, privateDnsIPv6,
+#                 nasServerIP, evo.{staticIP,jellyfinUrl,pangolinEndpoint},
+#                 mainpc.scannerIP }
+
+# 3. Re-encrypt
+age --encrypt \
+  -r age1mnvkxazrt2lrpwvj3lycyvazenx90lxdj8jxeukyulkxhg797gzq5pv27j \
+  -o secrets/eval-secrets.nix.age secrets/eval-secrets.nix
+
+# 4. Commit the .age file (leave or delete the plaintext — it's gitignored)
+git add secrets/eval-secrets.nix.age && git commit
+```
+
+**How it reaches all machines:**
+- The `.age` file travels with the repo via git
+- Remote servers (evo, nucserver) are built from mainpc, so mainpc's key decrypts during evaluation
+- Self-building machines (laptop) need their own copy of the age private key — same requirement as sops-nix
+
+**How it works under the hood:** `modules/packages/eval-secrets/eval-secrets.nix` is auto-discovered and adds `evalSecrets` to `_module.args` for every system. Machine `options.nix` files destructure it as `{ evalSecrets, ... }`. The devshell (entered via direnv or `nix develop`) sets `NIX_CONFIG` with the `nix-plugins` path so `builtins.extraBuiltins.importEncrypted` is available during evaluation.
 
 ## Special Machines
 
