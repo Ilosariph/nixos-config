@@ -86,6 +86,17 @@
             iifname "${cfg.interface}" drop
             oifname "${cfg.interface}" drop
           }
+
+          # Block SSH on ALL interfaces while the AP is active.
+          # Running at priority filter - 10 means this executes before the NixOS
+          # firewall (priority filter = 0), so the DROP is terminal even if
+          # services.openssh has added an ACCEPT rule in nixos-fw.
+          # You should not be SSH-reachable while broadcasting a bait network
+          # in public.
+          chain block-ssh {
+            type filter hook input priority filter - 10;
+            tcp dport 22 drop
+          }
         '';
       };
 
