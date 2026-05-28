@@ -3,6 +3,7 @@
     let
       cfg = config.dotfiles.programs.evilAp;
       apIp = "10.6.6.1";
+      portalContent = if cfg.portalHtml != null then cfg.portalHtml else builtins.readFile ./portal.html;
     in
     lib.mkIf cfg.enable {
       # Create the WiFi access point
@@ -49,7 +50,7 @@
         virtualHosts.captive = {
           default = true;
           listen = [{ addr = apIp; port = 80; ssl = false; }];
-          root = pkgs.writeTextDir "index.html" cfg.portalHtml;
+          root = pkgs.writeTextDir "index.html" portalContent;
           locations."/" = {
             index = "index.html";
             extraConfig = ''
