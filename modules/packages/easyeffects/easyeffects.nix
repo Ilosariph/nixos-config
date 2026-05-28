@@ -229,6 +229,7 @@
             ExecStartPre = [
               "${pkgs.bash}/bin/bash -c 'rm -f /tmp/EasyEffectsServer /tmp/easyeffects.lock'"
             ];
+            Restart = "on-failure";
           };
         };
       };

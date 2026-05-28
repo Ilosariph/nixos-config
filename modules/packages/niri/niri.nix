@@ -1,24 +1,29 @@
 { ... }: {
   flake.nixosModules.niri = { config, pkgs, lib, ... }:
     let
-      isNiri = config.dotfiles.desktop.enable && config.dotfiles.windowManager.type == "niri";
+      isDesktop = config.dotfiles.desktop.enable;
+      isNiriPrimary = isDesktop && config.dotfiles.windowManager.type == "niri";
     in {
-      # System config
-      programs.niri.enable = lib.mkIf isNiri true;
+      # Always install niri on desktop so it appears in greetd session list
+      programs.niri.enable = lib.mkIf isDesktop true;
 
-      xdg.portal = lib.mkIf isNiri {
+      programs.xwayland.enable = lib.mkIf isNiriPrimary true;
+
+      xdg.portal = lib.mkIf isNiriPrimary {
         enable = true;
         extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
         config.common.default = [ "niri" "gtk" ];
       };
 
-      security.polkit.enable = lib.mkIf isNiri true;
-      services.gnome.gnome-keyring.enable = lib.mkIf isNiri true;
-      security.pam.services.swaylock = lib.mkIf isNiri {};
+      security.polkit.enable = lib.mkIf isDesktop true;
+      services.gnome.gnome-keyring.enable = lib.mkIf isDesktop true;
+      security.pam.services.swaylock = lib.mkIf isDesktop {};
 
-      environment.systemPackages = lib.optionals isNiri (with pkgs; [
+      environment.systemPackages = lib.optionals isDesktop (with pkgs; [
         swaylock
         swayidle
+      ]) ++ lib.optionals isNiriPrimary (with pkgs; [
+        xwayland-satellite
       ]);
 
       # Home-manager config
@@ -78,12 +83,26 @@
           generateSpawnCommands = commands:
             lib.concatMapStringsSep "\n" (cmd: ''spawn-at-startup "${cmd}"'') commands;
 
-          baseSpawnCommands = if osConfig.dotfiles.windowManager.statusbar == "waybar"
-            then [ "waybar" ]
-            else [];
+          baseSpawnCommands =
+            (if osConfig.dotfiles.windowManager.statusbar == "waybar" then [ "waybar" ]
+            else if osConfig.dotfiles.windowManager.statusbar == "noctalia" then [ "noctalia-shell" ]
+            else [])
+            ++ [ "pulsemeeter" ];
 
           allSpawnCommands = baseSpawnCommands ++ cfg.execOnce;
-        in lib.mkIf isNiri {
+        in lib.mkIf isDesktop {
+          home.packages = with pkgs; [ grim slurp ];
+
+          home.sessionVariables = {
+            QT_QPA_PLATFORM = "wayland";
+            QT_WAYLAND_DISABLE_WINDOWDECORATION = "1";
+            GDK_BACKEND = "wayland";
+          };
+
+          systemd.user.sessionVariables = {
+            GDK_BACKEND = "wayland";
+          };
+
           xdg.configFile."niri/config.kdl".text = ''
             // Generated from NixOS configuration
             // Based on dotfiles.windowManager options
@@ -133,6 +152,12 @@
               }
             }
 
+            ${lib.optionalString (mainMonitor != "") ''
+            workspace "tools" {
+              open-on-output "${mainMonitor}"
+            }
+            ''}
+
             ${lib.optionalString (allSpawnCommands != []) (generateSpawnCommands allSpawnCommands)}
 
             screenshot-path "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"
@@ -141,11 +166,21 @@
               // enabled by default
             }
 
+            window-rule {
+              match app-id="org.pulsemeeter.pulsemeeter"
+              open-on-workspace "tools"
+            }
+            window-rule {
+              match app-id="com.core447.StreamController"
+              open-on-workspace "tools"
+            }
+
             binds {
               Mod+Shift+Slash { show-hotkey-overlay; }
 
               // Core bindings
               Mod+Q hotkey-overlay-title="Open a Terminal: kitty" { spawn "kitty"; }
+              Mod+E hotkey-overlay-title="Yazi file manager" { spawn "kitty" "-e" "yazi"; }
               Mod+SPACE hotkey-overlay-title="Menu" {
                 ${if osConfig.dotfiles.windowManager.statusbar == "noctalia"
                   then ''spawn-sh "noctalia-shell ipc call launcher toggle"''
@@ -169,26 +204,26 @@
               Mod+Right { focus-column-right; }
 
               // Move windows
-              Mod+Ctrl+${leftKey} { move-column-left; }
-              Mod+Ctrl+${rightKey} { move-column-right; }
-              Mod+Ctrl+${upKey} { move-window-up; }
-              Mod+Ctrl+${downKey} { move-window-down; }
+              Mod+Shift+${leftKey} { move-column-left; }
+              Mod+Shift+${rightKey} { move-column-right; }
+              Mod+Shift+${upKey} { move-window-up; }
+              Mod+Shift+${downKey} { move-window-down; }
 
-              Mod+Ctrl+Left { move-column-left; }
-              Mod+Ctrl+Down { move-window-down; }
-              Mod+Ctrl+Up { move-window-up; }
-              Mod+Ctrl+Right { move-column-right; }
+              Mod+Shift+Left { move-column-left; }
+              Mod+Shift+Down { move-window-down; }
+              Mod+Shift+Up { move-window-up; }
+              Mod+Shift+Right { move-column-right; }
 
               // Focus monitors
-              Mod+Shift+${leftKey} { focus-monitor-left; }
-              Mod+Shift+${rightKey} { focus-monitor-right; }
-              Mod+Shift+${upKey} { focus-monitor-up; }
-              Mod+Shift+${downKey} { focus-monitor-down; }
+              Mod+Ctrl+${leftKey} { focus-monitor-left; }
+              Mod+Ctrl+${rightKey} { focus-monitor-right; }
+              Mod+Ctrl+${upKey} { focus-monitor-up; }
+              Mod+Ctrl+${downKey} { focus-monitor-down; }
 
-              Mod+Shift+Left { focus-monitor-left; }
-              Mod+Shift+Down { focus-monitor-down; }
-              Mod+Shift+Up { focus-monitor-up; }
-              Mod+Shift+Right { focus-monitor-right; }
+              Mod+Ctrl+Left { focus-monitor-left; }
+              Mod+Ctrl+Down { focus-monitor-down; }
+              Mod+Ctrl+Up { focus-monitor-up; }
+              Mod+Ctrl+Right { focus-monitor-right; }
 
               // Move to monitors
               Mod+Shift+Ctrl+${leftKey} { move-column-to-monitor-left; }
@@ -202,25 +237,12 @@
               Mod+Shift+Ctrl+Right { move-column-to-monitor-right; }
 
               // Workspaces
-              Mod+1 { focus-workspace 1; }
-              Mod+2 { focus-workspace 2; }
-              Mod+3 { focus-workspace 3; }
-              Mod+4 { focus-workspace 4; }
-              Mod+5 { focus-workspace 5; }
-              Mod+6 { focus-workspace 6; }
-              Mod+7 { focus-workspace 7; }
-              Mod+8 { focus-workspace 8; }
-              Mod+9 { focus-workspace 9; }
+              ${builtins.concatStringsSep "\n              " (builtins.genList (i: let ws = i + 1; in "Mod+${toString ws} { focus-workspace ${toString ws}; }") 9)}
 
-              Mod+Ctrl+1 { move-column-to-workspace 1; }
-              Mod+Ctrl+2 { move-column-to-workspace 2; }
-              Mod+Ctrl+3 { move-column-to-workspace 3; }
-              Mod+Ctrl+4 { move-column-to-workspace 4; }
-              Mod+Ctrl+5 { move-column-to-workspace 5; }
-              Mod+Ctrl+6 { move-column-to-workspace 6; }
-              Mod+Ctrl+7 { move-column-to-workspace 7; }
-              Mod+Ctrl+8 { move-column-to-workspace 8; }
-              Mod+Ctrl+9 { move-column-to-workspace 9; }
+              ${builtins.concatStringsSep "\n              " (builtins.genList (i: let ws = i + 1; in "Mod+Shift+${toString ws} { move-column-to-workspace ${toString ws}; }") 9)}
+
+              Mod+F1 { focus-workspace "tools"; }
+              Mod+Shift+F1 { move-column-to-workspace "tools"; }
 
               // Window management
               Mod+R { switch-preset-column-width; }
@@ -230,9 +252,9 @@
               Mod+Shift+F { fullscreen-window; }
 
               // Screenshots
-              Print { screenshot; }
-              Ctrl+Print { screenshot-screen; }
-              Alt+Print { screenshot-window; }
+              Print { spawn "sh" "-c" "grim -g \"$(slurp)\" - | swappy -f -"; }
+              Shift+Print { spawn "sh" "-c" "grim - | swappy -f -"; }
+              Ctrl+Print { spawn "sh" "-c" "grim -g \"$(slurp -o)\" - | swappy -f -"; }
 
               // Session
               Mod+Escape allow-inhibiting=false { toggle-keyboard-shortcuts-inhibit; }

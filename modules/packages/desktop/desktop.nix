@@ -210,7 +210,10 @@
           ];
           config = {
             common = {
-              default = [ "hyprland" "gtk" ];
+              default =
+                if osConfig.dotfiles.windowManager.type == "niri"
+                then [ "gtk" ]
+                else [ "hyprland" "gtk" ];
               "org.freedesktop.impl.portal.FileChooser" = [ "gtk" ];
               "org.freedesktop.impl.portal.OpenURI" = [ "gtk" ];
             };
@@ -232,7 +235,7 @@
 
         qt = {
           enable = true;
-          platformTheme.name = "gtk";
+          platformTheme.name = "adwaita-dark";
         };
 
         home.pointerCursor = {
@@ -268,6 +271,7 @@
           GTK_USE_PORTAL = "1";
           XCURSOR_SIZE = 35;
           GTK_THEME = "Tokyonight-Dark";
+          NIXOS_OZONE_WL = "1";
         };
       };
     };
