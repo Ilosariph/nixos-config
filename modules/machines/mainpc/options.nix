@@ -33,6 +33,7 @@
   dotfiles.windowManager.keyboardLayout = "colemak";
   dotfiles.windowManager.settings.execOnce = [
     "streamcontroller"
+    "xrandr --output DP-3 --primary"
   ];
   dotfiles.direnv.shells = [
     {
