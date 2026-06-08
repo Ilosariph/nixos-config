@@ -7,7 +7,9 @@
       # Always install niri on desktop so it appears in greetd session list
       programs.niri.enable = lib.mkIf isDesktop true;
 
-      programs.xwayland.enable = lib.mkIf isNiriPrimary true;
+      # Always enable xwayland on desktop — needed by xwayland-satellite under niri
+      # regardless of which WM is configured as primary
+      programs.xwayland.enable = lib.mkIf isDesktop true;
 
       xdg.portal = lib.mkIf isNiriPrimary {
         enable = true;
@@ -22,7 +24,8 @@
       environment.systemPackages = lib.optionals isDesktop (with pkgs; [
         swaylock
         swayidle
-      ]) ++ lib.optionals isNiriPrimary (with pkgs; [
+        # xwayland-satellite provides X11 support under niri; always install on
+        # desktop since either WM can be selected at the display manager
         xwayland-satellite
       ]);
 
@@ -87,7 +90,7 @@
             (if osConfig.dotfiles.windowManager.statusbar == "waybar" then [ "waybar" ]
             else if osConfig.dotfiles.windowManager.statusbar == "noctalia" then [ "noctalia-shell" ]
             else [])
-            ++ [ "pulsemeeter" ];
+            ++ [ "pulsemeeter" "xwayland-satellite" ];
 
           allSpawnCommands = baseSpawnCommands ++ cfg.execOnce;
         in lib.mkIf isDesktop {

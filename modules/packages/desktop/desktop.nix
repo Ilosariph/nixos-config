@@ -210,10 +210,10 @@
           ];
           config = {
             common = {
-              default =
-                if osConfig.dotfiles.windowManager.type == "niri"
-                then [ "gtk" ]
-                else [ "hyprland" "gtk" ];
+              # Use gtk as the safe default for all portal interfaces — it works
+              # under both Hyprland and Niri (hyprland portal requires a live
+              # Hyprland socket and hangs when niri is selected at the DM)
+              default = [ "gtk" ];
               "org.freedesktop.impl.portal.FileChooser" = [ "gtk" ];
               "org.freedesktop.impl.portal.OpenURI" = [ "gtk" ];
             };
