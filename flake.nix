@@ -42,6 +42,8 @@
       url = "github:nix-community/nix-index-database";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    yeetmouse.url = "github:AndyFilter/YeetMouse?dir=nix";
   };
 
   outputs = inputs:

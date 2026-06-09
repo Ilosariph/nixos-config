@@ -64,12 +64,6 @@
           upKey = keyToNiri up;
           downKey = keyToNiri down;
 
-          mouseAccelSpeed = if cfg.sensitivity != null then cfg.sensitivity else 0.0;
-          mouseAccelProfile = if cfg.accel_profile != null
-            then if lib.hasPrefix "custom" cfg.accel_profile
-              then "adaptive"
-              else cfg.accel_profile
-            else null;
 
           generateOutputs = monitors:
             lib.concatMapStringsSep "\n" (mon: ''
@@ -147,8 +141,8 @@
               }
 
               mouse {
-                ${lib.optionalString (mouseAccelSpeed != 0.0) "accel-speed ${toString mouseAccelSpeed}"}
-                ${lib.optionalString (mouseAccelProfile != null) "accel-profile \"${mouseAccelProfile}\""}
+                ${lib.optionalString osConfig.dotfiles.programs.yeetmouse.enable ''accel-speed 0
+                accel-profile "flat"''}
               }
 
               focus-follows-mouse max-scroll-amount="0%"

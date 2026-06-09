@@ -11,6 +11,7 @@ let
       inputs.nixpkgs-xr.nixosModules.nixpkgs-xr
       inputs.home-manager.nixosModules.home-manager
       inputs.nix-index-database.nixosModules.nix-index
+      inputs.yeetmouse.nixosModules.default
       (inputs.import-tree ../machines/mainpc)
     ] ++ lib.optional (wmOverride != null) { dotfiles.windowManager.type = lib.mkForce wmOverride; }
       ++ (builtins.attrValues config.flake.nixosModules) ++ [

@@ -79,16 +79,6 @@
           default = if config.dotfiles.windowManager.keyboardLayout == "qwerty" then "J" else "comma";
           description = "Keybinding for down.";
         };
-        sensitivity = lib.mkOption {
-          type = lib.types.nullOr lib.types.float;
-          default = null;
-          description = "Mouse sensitivity.";
-        };
-        accel_profile = lib.mkOption {
-          type = lib.types.nullOr lib.types.str;
-          default = null;
-          description = "Mouse acceleration profile.";
-        };
         execOnce = lib.mkOption {
           type = lib.types.listOf lib.types.str;
           default = [];
@@ -436,6 +426,13 @@
           type = lib.types.bool;
           default = false;
           description = "Enable Hugo blog development environment (hugo + direnv shell in ~/blog).";
+        };
+      };
+      yeetmouse = {
+        enable = lib.mkOption {
+          type = lib.types.bool;
+          default = false;
+          description = "Enable YeetMouse kernel-level mouse acceleration (compositor-agnostic).";
         };
       };
     };

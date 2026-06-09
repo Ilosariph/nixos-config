@@ -282,9 +282,9 @@ in {
           allWorkspaces = mainWorkspace ++ cfg.workspaces;
         in
           lib.mkIf (allWorkspaces != []) allWorkspaces;
-      input = {
-        sensitivity = lib.mkIf (cfg.sensitivity != null) cfg.sensitivity;
-        accel_profile = lib.mkIf (cfg.accel_profile != null) cfg.accel_profile;
+      input = lib.mkIf osConfig.dotfiles.programs.yeetmouse.enable {
+        sensitivity = 0;
+        accel_profile = "flat";
       };
       "$left" = cfg.left;
       "$right" = cfg.right;
