@@ -10,9 +10,10 @@
   #   ACTION=="add", SUBSYSTEM=="hwmon", KERNELS=="nct6774.656", DRIVERS=="nct6775", RUN+="/bin/sh -c 'ln -s /sys$devpath/pwm6_input /dev/case_fan_input'"
   '';
 
-	services.udev.packages = [
-		pkgs.qmk-udev-rules
-		pkgs.vial
+	services.udev.packages = with pkgs; [
+		qmk-udev-rules
+		vial
+		via
 	];
 
   systemd.services.fancontrol.enable = true;
@@ -21,6 +22,7 @@
 		qmk
 		qmk_hid
 		qmk-udev-rules
+		via
 		vial
 		losslesscut-bin
 		musescore
