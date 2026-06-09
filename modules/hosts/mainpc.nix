@@ -14,7 +14,8 @@ let
       (inputs.import-tree ../machines/mainpc)
     ] ++ lib.optional (wmOverride != null) { dotfiles.windowManager.type = lib.mkForce wmOverride; }
       ++ (builtins.attrValues config.flake.nixosModules) ++ [
-      {
+      ({ pkgs, ... }: {
+        services.udev.packages = [ pkgs.streamcontroller ];
         home-manager.users.simon = { pkgs, config, ... }: {
           home.packages = with pkgs; [ streamcontroller ];
           home.file.data = {
@@ -22,7 +23,7 @@ let
             target = "data";
           };
         };
-      }
+      })
     ];
   };
 in {

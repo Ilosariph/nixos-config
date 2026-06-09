@@ -297,7 +297,7 @@
       _1password = {
         enable = lib.mkOption {
           type = lib.types.bool;
-          default = true;
+          default = config.dotfiles.desktop.enable;
           description = "Enable 1Password CLI and GUI integration.";
         };
         sshAgent = lib.mkOption {

@@ -1,4 +1,4 @@
-{ pkgs, config, ... }:
+{ pkgs, config, lib, ... }:
 {
   boot.kernelModules = [ "coretemp" "nct6775" ];
 
@@ -41,4 +41,8 @@
 		open = false;
 		package = config.boot.kernelPackages.nvidiaPackages.stable;
 	};
+
+  specialisation.niri.configuration = {
+    dotfiles.windowManager.type = lib.mkForce "niri";
+  };
 }
