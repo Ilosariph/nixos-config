@@ -1,5 +1,5 @@
 { inputs, ... }: {
-  flake.nixosModules.noctalia = { config, lib, ... }:
+  flake.nixosModules.noctalia = { config, lib, pkgs, ... }:
     lib.mkIf (config.dotfiles.desktop.enable && config.dotfiles.windowManager.statusbar == "noctalia") {
       home-manager.sharedModules = [ inputs.noctalia-shell.homeModules.default ];
       home-manager.users.${config.dotfiles.user.name} = { lib, config, osConfig, ... }:
@@ -22,6 +22,8 @@
           }
 
           (lib.mkIf obsidianSearch.enable {
+            home.packages = with pkgs; [ fd ripgrep ];
+
             home.file.".config/noctalia/plugins/obsidian-notes".source =
               ./obsidian-notes;
 
