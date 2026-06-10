@@ -16,6 +16,11 @@
   dotfiles.programs.thonny.enable = true;
   dotfiles.programs.blog.enable = true;
   dotfiles.programs.yeetmouse.enable = true;
+  dotfiles.programs.noctaliaObsidianSearch = {
+    enable = true;
+    vaultPath = "~/Documents/obsidian/Nexus";
+    downrankedFolders = [ "archive" "templates" ];
+  };
   dotfiles.bluetooth.enable = true;
   dotfiles.security.yubikey.enable = true;
   dotfiles.security.yubikey.sudo.enable = true;
