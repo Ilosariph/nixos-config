@@ -435,6 +435,24 @@
           description = "Enable YeetMouse kernel-level mouse acceleration (compositor-agnostic).";
         };
       };
+      noctaliaObsidianSearch = {
+        enable = lib.mkOption {
+          type = lib.types.bool;
+          default = false;
+          description = "Enable Obsidian notes search in the noctalia launcher.";
+        };
+        vaultPath = lib.mkOption {
+          type = lib.types.str;
+          default = "~/Documents";
+          description = "Absolute or ~-prefixed path to the Obsidian vault to search.";
+        };
+        downrankedFolders = lib.mkOption {
+          type = lib.types.listOf lib.types.str;
+          default = [ "archive" ];
+          example = [ "archive" "templates" "inbox" ];
+          description = "Folder names whose notes are sorted to the bottom of search results.";
+        };
+      };
     };
     audio = {
       routing = lib.mkOption {

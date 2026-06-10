@@ -8,15 +8,37 @@
           wallpaperFiles = builtins.attrNames (builtins.readDir wallpaperDir);
           wallpaperPaths = map (name: "${wallpaperDir}/${name}") wallpaperFiles;
           defaultWallpaper = if wallpaperPaths != [] then builtins.head wallpaperPaths else "";
-        in {
-          programs.noctalia-shell.enable = true;
+          obsidianSearch = osConfig.dotfiles.programs.noctaliaObsidianSearch;
+        in lib.mkMerge [
+          {
+            programs.noctalia-shell.enable = true;
 
-          home.file.".cache/noctalia/wallpapers.json" = {
-            text = builtins.toJSON {
-              inherit defaultWallpaper;
-              wallpapers = wallpaperPaths;
+            home.file.".cache/noctalia/wallpapers.json" = {
+              text = builtins.toJSON {
+                inherit defaultWallpaper;
+                wallpapers = wallpaperPaths;
+              };
             };
-          };
-        };
+          }
+
+          (lib.mkIf obsidianSearch.enable {
+            home.file.".config/noctalia/plugins/obsidian-notes".source =
+              ./obsidian-notes;
+
+            programs.noctalia-shell.plugins = {
+              states."obsidian-notes" = {
+                enabled = true;
+                sourceUrl = "local";
+              };
+              version = 2;
+            };
+
+            programs.noctalia-shell.pluginSettings."obsidian-notes" = {
+              vaultPath = obsidianSearch.vaultPath;
+              downrankedFolders = obsidianSearch.downrankedFolders;
+              maxResults = 50;
+            };
+          })
+        ];
     };
 }
