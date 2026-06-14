@@ -11,5 +11,17 @@
       programs.gamescope.enable = true;
       hardware.graphics.enable32Bit = true;
       environment.systemPackages = [ pkgs.protonup-qt ];
+
+      home-manager.users.${config.dotfiles.user.name} = { ... }: {
+        xdg.desktopEntries.steam = {
+          name = "Steam";
+          exec = "steam";
+          icon = "steam";
+          terminal = false;
+          type = "Application";
+          categories = [ "Network" "FileTransfer" "Game" ];
+          mimeType = [ "x-scheme-handler/steam" "x-scheme-handler/steamlink" ];
+        };
+      };
     };
 }
