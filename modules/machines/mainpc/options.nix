@@ -6,7 +6,7 @@
   dotfiles.deploy.deployer.signingKeySecret = "mainpc-nix-signing-key";
   dotfiles.desktop.enable = true;
   dotfiles.programs.tmux.enable = false;
-  dotfiles.windowManager.type = "hyprland";
+  dotfiles.windowManager.type = "niri";
   dotfiles.windowManager.displayManager = "greetd";
   dotfiles.programs.vr.enable = true;
   dotfiles.kernel = "gaming";

@@ -106,6 +106,9 @@
           systemd.user.sessionVariables = {
             GDK_BACKEND = "wayland";
             GSK_RENDERER = "ngl";
+            XDG_SESSION_TYPE = "wayland";
+            XDG_CURRENT_DESKTOP = "niri";
+            NIXOS_OZONE_WL = "1";
           };
 
           systemd.user.services.xwayland-satellite = lib.mkIf isNiriPrimary {
@@ -183,6 +186,9 @@
 
             environment {
               DISPLAY ":0"
+              XDG_SESSION_TYPE "wayland"
+              XDG_CURRENT_DESKTOP "niri"
+              NIXOS_OZONE_WL "1"
             }
 
             screenshot-path "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"
@@ -224,6 +230,8 @@
               }
               Super+Alt+L hotkey-overlay-title="Lock the Screen" { ${lockCmd}; }
               Super+Escape hotkey-overlay-title="Lock the Screen" { ${lockCmd}; }
+              ${lib.optionalString (osConfig.dotfiles.windowManager.statusbar == "noctalia")
+                ''Mod+Slash hotkey-overlay-title="Keybind Cheatsheet" { spawn-sh "noctalia-shell ipc call plugin:keybind-cheatsheet toggle"; }''}
 
               Mod+C repeat=false { close-window; }
               Mod+V { toggle-window-floating; }
