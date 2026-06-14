@@ -230,6 +230,8 @@
               }
               Super+Alt+L hotkey-overlay-title="Lock the Screen" { ${lockCmd}; }
               Super+Escape hotkey-overlay-title="Lock the Screen" { ${lockCmd}; }
+              ${lib.optionalString (osConfig.dotfiles.windowManager.statusbar == "noctalia")
+                ''Mod+Slash hotkey-overlay-title="Keybind Cheatsheet" { spawn-sh "noctalia-shell ipc call plugin:keybind-cheatsheet toggle"; }''}
 
               Mod+C repeat=false { close-window; }
               Mod+V { toggle-window-floating; }
