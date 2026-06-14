@@ -9,6 +9,7 @@
         gamescopeSession.enable = true;
       };
       programs.gamescope.enable = true;
+      hardware.graphics.enable32Bit = true;
       environment.systemPackages = [ pkgs.protonup-qt ];
     };
 }
