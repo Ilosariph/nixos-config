@@ -24,8 +24,9 @@
           (lib.mkIf obsidianSearch.enable {
             home.packages = with pkgs; [ fd ripgrep ];
 
-            home.file.".config/noctalia/plugins/obsidian-notes".source =
-              ./obsidian-notes;
+            xdg.configFile."noctalia/plugins/obsidian-notes/LauncherProvider.qml".source = ./obsidian-notes/LauncherProvider.qml;
+            xdg.configFile."noctalia/plugins/obsidian-notes/Main.qml".source = ./obsidian-notes/Main.qml;
+            xdg.configFile."noctalia/plugins/obsidian-notes/manifest.json".source = ./obsidian-notes/manifest.json;
 
             programs.noctalia-shell.plugins = {
               states."obsidian-notes" = {
