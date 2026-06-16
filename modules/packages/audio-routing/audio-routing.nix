@@ -10,27 +10,20 @@
 
       anyEffects = lib.any (s: s.effects) cfg.sinks;
 
-      # Streams that actually reach the physical device (everything else targets an internal
-      # virtual sink). These are the nodes the output switcher re-points at runtime.
-      hwExitNodes =
-        (lib.optional anyEffects "fx-lim-out")
-        ++ map (s: "loopback-${s.name}-play") (lib.filter (s: !s.effects) cfg.sinks);
-
-      # Manual output-device switcher: pick a physical sink from a wofi menu and move every
-      # hardware-facing stream onto it via per-node target.object metadata (the same mechanism
-      # pavucontrol uses). Not persisted — a reboot restores the module's outputSink target.
+      # Manual output-device switcher: pick a physical sink from a wofi menu and make it the
+      # default. Everything hardware-facing (the effects output + direct loopbacks) follows the
+      # default, so this one action moves all audio. wpctl persists the choice across reboots,
+      # and falls back to another connected device if the chosen one is missing.
       audioOutputScript = pkgs.writeShellApplication {
         name = "audio-output";
-        runtimeInputs = [ pkgs.jq pkgs.wofi pkgs.pipewire pkgs.libnotify ];
+        runtimeInputs = [ pkgs.jq pkgs.wofi pkgs.pipewire pkgs.wireplumber pkgs.libnotify ];
         text = ''
-          exits=(${lib.concatStringsSep " " hwExitNodes})
-
-          # Physical output sinks as "node.name<TAB>description" (exclude our sink-* virtuals).
+          # Physical output sinks as "id<TAB>description" (exclude our sink-* virtuals).
           mapfile -t entries < <(pw-dump | jq -r '
-            .[] | select(.type=="PipeWire:Interface:Node") | .info.props
-                | select(."media.class"=="Audio/Sink")
-                | select(."node.name" | test("^(alsa_output|bluez_output)"))
-                | "\(."node.name")\t\(."node.description" // ."node.name")"')
+            .[] | select(.type=="PipeWire:Interface:Node")
+                | select(.info.props."media.class"=="Audio/Sink")
+                | select(.info.props."node.name" | test("^(alsa_output|bluez_output)"))
+                | "\(.id)\t\(.info.props."node.description" // .info.props."node.name")"')
 
           if [ "''${#entries[@]}" -eq 0 ]; then
             notify-send "Audio output" "No physical output devices found"
@@ -39,17 +32,10 @@
 
           choice=$(printf '%s\n' "''${entries[@]}" | cut -f2- | wofi --dmenu -p "Output device") || exit 0
           [ -n "$choice" ] || exit 0
-          target=$(printf '%s\n' "''${entries[@]}" | awk -F'\t' -v d="$choice" '$2==d{print $1; exit}')
-          [ -n "$target" ] || exit 1
+          id=$(printf '%s\n' "''${entries[@]}" | awk -F'\t' -v d="$choice" '$2==d{print $1; exit}')
+          [ -n "$id" ] || exit 1
 
-          for n in "''${exits[@]}"; do
-            id=$(pw-dump | jq -r --arg n "$n" \
-              '.[] | select(.type=="PipeWire:Interface:Node") | select(.info.props."node.name"==$n) | .id' \
-              | head -n1)
-            [ -n "$id" ] || continue
-            pw-metadata -n default "$id" target.object "\"$target\"" >/dev/null
-          done
-
+          wpctl set-default "$id"
           notify-send "Audio output" "→ $choice"
         '';
       };
@@ -65,16 +51,18 @@
           # Monitor output respects sink volume/mute, so vol ctrl on the sink
           # propagates through the loopback to the physical output.
           "monitor.channel-volumes" = true;
+          # Keep virtual sinks out of automatic default-device selection so a real
+          # output device is always chosen as the default (apps reach these via rules).
+          "priority.session" = 100;
+          "priority.driver" = 100;
         };
       };
 
-      # Capture from the monitor of a null sink and play it back to its target.
+      # Capture from the monitor of a null sink and play it back.
       # stream.capture.sink = true connects the capture side to the sink's monitor output.
-      # Effected sinks target the effects bus (fxSink); the rest target the physical output.
+      # Effected sinks are pinned into the internal effects bus (fxSink). Direct sinks are
+      # left unpinned so they follow the current default device (and thus the output switcher).
       mkLoopback = { name, description, effects, ... }:
-        let
-          target = if effects then fxSink else cfg.outputSink;
-        in
         {
           name = "libpipewire-module-loopback";
           args = {
@@ -88,20 +76,20 @@
             "playback.props" = {
               "node.name" = "loopback-${name}-play";
               "audio.position" = [ "FL" "FR" ];
-            } // lib.optionalAttrs (!effects) {
-              # Hardware-facing stream: friendly name for pavucontrol / the output switcher.
+            } // (if effects then {
+              # Pin into the effects bus (an internal virtual sink that never changes).
+              "target.object" = fxSink;
+            } else {
+              # Direct sink: no target -> follows the default device; friendly name for mixers.
               "node.description" = "${description} (direct)";
-            } // lib.optionalAttrs (target != "") {
-              # Pin to the target so this stream is never re-routed to a virtual sink.
-              # Required because default.audio.sink points at a null sink.
-              "target.object" = target;
-            };
+            });
           };
         };
 
       # A single-plugin filter-chain published as an Audio/Sink. Keeping one plugin per
       # chain means PipeWire derives the chain in/out from the plugin's own ports, so no
-      # inter-node link names are needed. The playback side is pinned to `target`.
+      # inter-node link names are needed. The playback side is pinned to `target` when set;
+      # an empty target lets it follow the default device.
       #
       # LSP plugins are made discoverable to PipeWire via services.pipewire.extraLv2Packages
       # below (LV2 URIs are version-independent, unlike the versioned LADSPA .so filename).
@@ -129,10 +117,12 @@
             "node.name" = sinkNode;
             "media.class" = "Audio/Sink";
             "audio.position" = [ "FL" "FR" ];
+            # Internal bus sink: keep out of default-device selection.
+            "priority.session" = 100;
+            "priority.driver" = 100;
           };
           "playback.props" = {
             "node.name" = outNode;
-            "node.passive" = true;
             "audio.position" = [ "FL" "FR" ];
           } // lib.optionalAttrs (outDescription != null) {
             "node.description" = outDescription;
@@ -165,7 +155,8 @@
         description = "Effects bus: limiter";
         sinkNode = fxLimSink;
         outNode = "fx-lim-out";
-        target = cfg.outputSink;
+        # No target: the effects output follows the default device (output switcher).
+        target = "";
         outDescription = "Effects output";
         uri = "http://lsp-plug.in/plugins/lv2/limiter_stereo";
         control = {
@@ -173,20 +164,30 @@
         };
       };
 
-      # default.audio.sink: the sink flagged `default`, else the first configured sink.
+      # The catch-all sink (flagged `default`, else the first configured sink). Every app lands
+      # here unless a more specific rule or a manual move sends it elsewhere.
       defaultSinks = lib.filter (s: s.default) cfg.sinks;
       defaultSinkName =
         if defaultSinks != [ ] then "sink-${(lib.head defaultSinks).name}"
         else if cfg.sinks != [ ] then "sink-${(lib.head cfg.sinks).name}"
         else null;
 
-      # One WirePlumber rule per sink that declares app matches.
-      routingRules = lib.concatMap
-        (s: lib.optional (s.apps != [ ]) {
-          matches = s.apps;
-          actions.update-props."target.object" = "sink-${s.name}";
+      # PulseAudio-client routing. The catch-all sends every app to the default (effects) sink;
+      # per-sink rules override it for specific apps (e.g. Spotify -> music). pulse.rules only
+      # match real pulse clients, never the internal loopback/filter nodes, so they can't create
+      # a feedback loop. Streams can still be moved at runtime (pavucontrol / in-app), which
+      # overrides these defaults.
+      pulseRules =
+        (lib.optional (defaultSinkName != null) {
+          matches = [ { "application.name" = "~.+"; } ];
+          actions.update-props."target.object" = defaultSinkName;
         })
-        cfg.sinks;
+        ++ lib.concatMap
+          (s: lib.optional (s.apps != [ ]) {
+            matches = s.apps;
+            actions.update-props."target.object" = "sink-${s.name}";
+          })
+          cfg.sinks;
 
     in
     lib.mkIf config.dotfiles.desktop.enable (lib.mkMerge [
@@ -226,12 +227,28 @@
             ++ lib.optionals anyEffects [ fxCompressor fxLimiter ];
         };
 
-        services.pipewire.wireplumber.extraConfig."10-virtual-routing" =
-          lib.optionalAttrs (defaultSinkName != null) {
-            "wireplumber.settings"."default.audio.sink" = defaultSinkName;
-          } // {
-            "wireplumber.rules" = routingRules;
-          };
+        # Route PulseAudio clients to the virtual sinks (see pulseRules above). The default
+        # device is left to WirePlumber's normal selection (a physical device, since the virtual
+        # sinks are deprioritised) and is switchable/persistent via `audio-output` / wpctl.
+        services.pipewire.extraConfig.pipewire-pulse."20-app-routing" = {
+          "pulse.rules" = pulseRules;
+        };
+
+        # Prefer outputSink as the default device so a fresh state picks it over other real
+        # outputs (e.g. HDMI/DP monitor audio). An explicit `wpctl set-default` choice (the
+        # output switcher) still wins and persists; if it disconnects, selection falls back to
+        # this highest-priority device.
+        services.pipewire.wireplumber.extraConfig = lib.mkIf (cfg.outputSink != "") {
+          "51-default-output-priority"."monitor.alsa.rules" = [
+            {
+              matches = [ { "node.name" = cfg.outputSink; } ];
+              actions.update-props = {
+                "priority.session" = 2000;
+                "priority.driver" = 2000;
+              };
+            }
+          ];
+        };
 
         # Expose the configurable volume ceiling through the PulseAudio compat layer.
         # StreamController and pactl honour this limit when setting sink volumes.
