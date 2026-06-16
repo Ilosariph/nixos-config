@@ -21,8 +21,6 @@ in {
           "hypridle"
           "gsettings set org.gnome.desktop.interface cursor-theme '${config.home.pointerCursor.name}'"
           "gsettings set org.gnome.desktop.interface cursor-size ${toString config.home.pointerCursor.size}"
-          "pulsemeeter"
-          "qpwgraph"
           "systemctl --user import-environment WAYLAND_DISPLAY DISPLAY PATH XDG_DATA_DIRS XDG_CURRENT_DESKTOP"
           "systemctl --user stop xdg-desktop-portal xdg-desktop-portal-gtk xdg-desktop-portal-hyprland"
           "systemctl --user start xdg-desktop-portal xdg-desktop-portal-hyprland"
@@ -62,7 +60,6 @@ in {
           "opacity 1 1, match:class ^(cef)$, match:title ^(Grayjay)$"
 
           "border_size 0, match:class ^(kitty)$"
-          "workspace special:tools silent, match:class ^(org.pulsemeeter.pulsemeeter)$"
           "workspace special:tools silent, match:class ^(com.core447.StreamController)$"
           "float on, match:class ^(org.pulseaudio.pavucontrol|blueman-manager)$"
 

@@ -11,8 +11,24 @@
   dotfiles.programs.vr.enable = true;
   dotfiles.kernel = "gaming";
   dotfiles.programs.steam.enable = true;
-  dotfiles.audio.routing = "pulsemeeter";
+  dotfiles.audio.routing = "pipewire-virtual";
   dotfiles.audio.outputSink = "alsa_output.usb-Focusrite_Scarlett_2i2_USB_Y8PC38G1576D2F-00.Direct__Direct__sink";
+  dotfiles.audio.sinks = [
+    # Default catch-all sink, routed through the compressor+limiter effects bus.
+    { name = "apps"; description = "Apps"; effects = true; default = true; }
+    # Music goes straight to the Scarlett (uncompressed). Spotify lands here.
+    {
+      name = "music";
+      description = "Music";
+      effects = false;
+      apps = [
+        { "application.process.binary" = "spotify"; }
+        { "application.name" = "Spotify"; }
+      ];
+    }
+    # Comms through the effects bus; Discord etc. select this sink in-app (no rule).
+    { name = "comms"; description = "Comms"; effects = true; }
+  ];
   dotfiles.programs.thonny.enable = true;
   dotfiles.programs.blog.enable = true;
   dotfiles.programs.yeetmouse.enable = true;

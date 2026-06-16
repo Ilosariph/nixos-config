@@ -442,11 +442,52 @@
         default = "none";
         description = ''
           Audio routing mode.
-          pipewire-virtual: three PipeWire null sinks (apps/music/comms) looped back to the
-            physical output, with WirePlumber rules auto-routing apps to their sink.
+          pipewire-virtual: declarative PipeWire null sinks (see dotfiles.audio.sinks) looped
+            back to the physical output. Sinks flagged effects = true pass through a native
+            PipeWire filter-chain (LSP compressor -> limiter) first; the rest go straight to
+            the output. WirePlumber rules auto-route apps to their sink.
           pulsemeeter: install pulsemeeter + qpwgraph for manual GUI routing.
           none: no routing tools installed.
         '';
+      };
+      sinks = lib.mkOption {
+        default = [ ];
+        description = ''
+          Virtual sinks created in pipewire-virtual mode. Each becomes a PipeWire null sink
+          "sink-<name>" that loops back to dotfiles.audio.outputSink. When effects = true the
+          loopback feeds the shared compressor+limiter bus before reaching the output.
+        '';
+        type = lib.types.listOf (lib.types.submodule {
+          options = {
+            name = lib.mkOption {
+              type = lib.types.str;
+              description = "Short id; the sink node is named sink-<name>.";
+            };
+            description = lib.mkOption {
+              type = lib.types.str;
+              description = "Human-readable description shown in mixers.";
+            };
+            effects = lib.mkOption {
+              type = lib.types.bool;
+              default = false;
+              description = "Route this sink through the compressor+limiter effects bus before the output.";
+            };
+            default = lib.mkOption {
+              type = lib.types.bool;
+              default = false;
+              description = "Make this the default sink (new streams land here unless a rule redirects them).";
+            };
+            apps = lib.mkOption {
+              type = lib.types.listOf (lib.types.attrsOf lib.types.str);
+              default = [ ];
+              example = [ { "application.process.binary" = "spotify"; } ];
+              description = ''
+                WirePlumber match rules; any stream matching an entry is routed to this sink.
+                Each attrset is one match, e.g. { "application.process.binary" = "spotify"; }.
+              '';
+            };
+          };
+        });
       };
       easyeffects = {
         enable = lib.mkOption {

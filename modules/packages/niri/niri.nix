@@ -88,7 +88,6 @@
             (if osConfig.dotfiles.windowManager.statusbar == "waybar" then [ [ "waybar" ] ]
             else if osConfig.dotfiles.windowManager.statusbar == "noctalia" then [ [ "noctalia-shell" ] ]
             else [])
-            ++ [ [ "pulsemeeter" ] ]
             ++ lib.optionals osConfig.dotfiles.programs._1password.enable [ [ "1password" "--silent" ] ];
 
           allSpawnCommands = baseSpawnCommands ++ map (s: lib.splitString " " s) cfg.execOnce;
@@ -207,10 +206,6 @@
             ${lib.optionalString (cfg.monitors != []) (let
               rightMonitor = (lib.last (map parseMonitorConfig cfg.monitors)).name;
             in ''
-            window-rule {
-              match app-id="org.pulsemeeter.pulsemeeter"
-              open-on-output "${rightMonitor}"
-            }
             window-rule {
               match app-id="com.core447.StreamController"
               open-on-output "${rightMonitor}"

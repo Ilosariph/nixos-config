@@ -3,7 +3,14 @@
     let
       cfg = config.dotfiles.audio;
 
-      mkNullSink = { name, description }: {
+      # Entry node of the effects bus (compressor stage). Effected sinks loop back here.
+      fxSink = "sink-fx";
+      # Compressor stage feeds the limiter stage, which feeds the physical output.
+      fxLimSink = "sink-fxlim";
+
+      anyEffects = lib.any (s: s.effects) cfg.sinks;
+
+      mkNullSink = { name, description, ... }: {
         factory = "adapter";
         args = {
           "factory.name" = "support.null-audio-sink";
@@ -17,37 +24,127 @@
         };
       };
 
-      # Capture from the monitor of a null sink and play back to the physical output.
+      # Capture from the monitor of a null sink and play it back to its target.
       # stream.capture.sink = true connects the capture side to the sink's monitor output.
-      mkLoopback = name: {
-        name = "libpipewire-module-loopback";
+      # Effected sinks target the effects bus (fxSink); the rest target the physical output.
+      mkLoopback = { name, effects, ... }:
+        let
+          target = if effects then fxSink else cfg.outputSink;
+        in
+        {
+          name = "libpipewire-module-loopback";
+          args = {
+            "node.name" = "loopback-${name}";
+            "capture.props" = {
+              "node.name" = "loopback-${name}-cap";
+              "node.target" = "sink-${name}";
+              "stream.capture.sink" = true;
+              "audio.position" = [ "FL" "FR" ];
+            };
+            "playback.props" = {
+              "node.name" = "loopback-${name}-play";
+              "audio.position" = [ "FL" "FR" ];
+            } // lib.optionalAttrs (target != "") {
+              # Pin to the target so this stream is never re-routed to a virtual sink.
+              # Required because default.audio.sink points at a null sink.
+              "target.object" = target;
+            };
+          };
+        };
+
+      # A single-plugin filter-chain published as an Audio/Sink. Keeping one plugin per
+      # chain means PipeWire derives the chain in/out from the plugin's own ports, so no
+      # inter-node link names are needed. The playback side is pinned to `target`.
+      #
+      # LSP plugins are made discoverable to PipeWire via services.pipewire.extraLv2Packages
+      # below (LV2 URIs are version-independent, unlike the versioned LADSPA .so filename).
+      #
+      # NOTE: `control` keys are LV2 port names. They could not be introspected in the build
+      # environment; verify them on the target with `lv2info <plugin-uri>` (from pkgs.lilv).
+      # If PipeWire logs "control <name> not found", fix or drop the offending key — the node
+      # still loads (transparently) with an empty control set. Tune values by ear.
+      mkFilter = { mediaName, description, sinkNode, outNode, target, uri, control ? { } }: {
+        name = "libpipewire-module-filter-chain";
         args = {
-          "node.name" = "loopback-${name}";
+          "node.description" = description;
+          "media.name" = mediaName;
+          "filter.graph" = {
+            nodes = [
+              {
+                type = "lv2";
+                name = mediaName;
+                plugin = uri;
+                inherit control;
+              }
+            ];
+          };
           "capture.props" = {
-            "node.name" = "loopback-${name}-cap";
-            "node.target" = "sink-${name}";
-            "stream.capture.sink" = true;
+            "node.name" = sinkNode;
+            "media.class" = "Audio/Sink";
             "audio.position" = [ "FL" "FR" ];
           };
           "playback.props" = {
-            "node.name" = "loopback-${name}-play";
+            "node.name" = outNode;
+            "node.passive" = true;
             "audio.position" = [ "FL" "FR" ];
-          } // lib.optionalAttrs (cfg.outputSink != "") {
-            # Pin to the physical output so this stream is never re-routed to a
-            # virtual sink. Required when default.audio.sink points at a null sink.
-            "target.object" = cfg.outputSink;
+          } // lib.optionalAttrs (target != "") {
+            "target.object" = target;
           };
         };
       };
 
+      # Compressor + limiter effects bus. Values translated from the EasyEffects
+      # `output-comp` preset (downward compressor ~4:1 @ -12 dB, brickwall limiter).
+      # See the NOTE on mkFilter about verifying control names with `lv2info`.
+      fxCompressor = mkFilter {
+        mediaName = "fx-comp";
+        description = "Effects bus: compressor";
+        sinkNode = fxSink;
+        outNode = "fx-comp-out";
+        target = fxLimSink;
+        uri = "http://lsp-plug.in/plugins/lv2/compressor_stereo";
+        control = {
+          "Ratio" = 4.0;
+          "Attack time" = 20.0;
+          "Release time" = 100.0;
+          "Makeup gain" = 2.0;
+        };
+      };
+
+      fxLimiter = mkFilter {
+        mediaName = "fx-lim";
+        description = "Effects bus: limiter";
+        sinkNode = fxLimSink;
+        outNode = "fx-lim-out";
+        target = cfg.outputSink;
+        uri = "http://lsp-plug.in/plugins/lv2/limiter_stereo";
+        control = {
+          "Lookahead" = 5.0;
+        };
+      };
+
+      # default.audio.sink: the sink flagged `default`, else the first configured sink.
+      defaultSinks = lib.filter (s: s.default) cfg.sinks;
+      defaultSinkName =
+        if defaultSinks != [ ] then "sink-${(lib.head defaultSinks).name}"
+        else if cfg.sinks != [ ] then "sink-${(lib.head cfg.sinks).name}"
+        else null;
+
+      # One WirePlumber rule per sink that declares app matches.
+      routingRules = lib.concatMap
+        (s: lib.optional (s.apps != [ ]) {
+          matches = s.apps;
+          actions.update-props."target.object" = "sink-${s.name}";
+        })
+        cfg.sinks;
+
     in
     lib.mkIf config.dotfiles.desktop.enable (lib.mkMerge [
 
-      # EasyEffects is useful in both pulsemeeter and pipewire-virtual modes:
-      # it provides the mic processing chain and virtual source for the Scarlett input.
+      # EasyEffects provides the mic processing chain (and, in pulsemeeter mode, the output
+      # compressor/limiter). The native filter-chain replaces it for output in virtual mode.
       (lib.mkIf (cfg.routing != "none") {
         dotfiles.audio.easyeffects.enable = lib.mkDefault true;
-        environment.systemPackages = [ pkgs.qpwgraph ];
       })
 
       # ── pulsemeeter mode ──────────────────────────────────────────────────────
@@ -61,56 +158,29 @@
       # ── pipewire-virtual mode ─────────────────────────────────────────────────
       (lib.mkIf (cfg.routing == "pipewire-virtual") {
 
-        # Three null sinks + loopbacks from each monitor to the physical output.
-        # Loopback playback nodes are visible as individual streams in volume mixers
-        # (pavucontrol, StreamController) so each virtual sink has its own level.
+        # qpwgraph stays available for manual inspection (not auto-launched).
+        environment.systemPackages = [ pkgs.qpwgraph ];
+
+        # Make LSP's LV2 plugins discoverable to the PipeWire filter-chain. This is the
+        # supported NixOS mechanism and is version-independent (no LADSPA .so path needed).
+        services.pipewire.extraLv2Packages = lib.mkIf anyEffects [ pkgs.lsp-plugins ];
+
+        # Null sinks + their loopbacks, plus the effects-bus filter-chains when any sink
+        # routes through effects. Loopback playback nodes show up as individual streams in
+        # volume mixers (pavucontrol, StreamController) so each virtual sink has its own level.
         services.pipewire.extraConfig.pipewire."10-virtual-sinks" = {
-          "context.objects" = [
-            (mkNullSink { name = "apps";  description = "Apps";  })
-            (mkNullSink { name = "music"; description = "Music"; })
-            (mkNullSink { name = "comms"; description = "Comms"; })
-          ];
-          "context.modules" = [
-            (mkLoopback "apps")
-            (mkLoopback "music")
-            (mkLoopback "comms")
-          ];
+          "context.objects" = map mkNullSink cfg.sinks;
+          "context.modules" =
+            (map mkLoopback cfg.sinks)
+            ++ lib.optionals anyEffects [ fxCompressor fxLimiter ];
         };
 
-        services.pipewire.wireplumber.extraConfig."10-virtual-routing" = {
-          # Make the apps sink the default so new streams land there unless redirected.
-          "wireplumber.settings"."default.audio.sink" = "sink-apps";
-
-          # Redirect specific applications to their designated sinks.
-          # Add further entries here to route additional programs.
-          # target.object must match node.name of the null sink above.
-          "wireplumber.rules" = [
-            {
-              matches = [
-                # Spotify uses both these identifiers depending on the version/launch method.
-                { "application.process.binary" = "spotify"; }
-                { "application.name" = "Spotify"; }
-              ];
-              actions.update-props."target.object" = "sink-music";
-            }
-            {
-              matches = [
-                { "application.process.binary" = "audacity"; }
-              ];
-              actions.update-props."target.object" = "sink-music";
-            }
-            # Pin EasyEffects' output stream to the physical Scarlett sink so it
-            # doesn't follow the default (sink-apps) and create a feedback loop.
-            {
-              matches = [
-                { "node.name" = "ee_soe_output_level"; }
-              ];
-              actions.update-props."target.object" = cfg.outputSink;
-            }
-            # Discord and games select the comms sink directly in their settings;
-            # no rule needed here unless you want to force it.
-          ];
-        };
+        services.pipewire.wireplumber.extraConfig."10-virtual-routing" =
+          lib.optionalAttrs (defaultSinkName != null) {
+            "wireplumber.settings"."default.audio.sink" = defaultSinkName;
+          } // {
+            "wireplumber.rules" = routingRules;
+          };
 
         # Expose the configurable volume ceiling through the PulseAudio compat layer.
         # StreamController and pactl honour this limit when setting sink volumes.
