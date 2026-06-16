@@ -3,7 +3,50 @@
     let
       cfg = config.dotfiles.audio;
 
-      mkNullSink = { name, description }: {
+      # Master mixing point: every sink (effected and direct) converges here, so its volume
+      # is a single global output level independent of the physical device. One loopback
+      # carries the master monitor to the current default (physical) device.
+      masterSink = "sink-master";
+
+      # Each effected sink gets its OWN compressor+limiter chain (independent dynamics, so
+      # e.g. comms compression never ducks app audio). Per-sink stage entry nodes:
+      fxEntryFor = name: "sink-fx-${name}";       # compressor input
+      fxLimEntryFor = name: "sink-fxlim-${name}"; # limiter input
+
+      effectsSinks = lib.filter (s: s.effects) cfg.sinks;
+      anyEffects = effectsSinks != [ ];
+
+      # Manual output-device switcher: pick a physical sink from a wofi menu and make it the
+      # default. Everything hardware-facing (the effects output + direct loopbacks) follows the
+      # default, so this one action moves all audio. wpctl persists the choice across reboots,
+      # and falls back to another connected device if the chosen one is missing.
+      audioOutputScript = pkgs.writeShellApplication {
+        name = "audio-output";
+        runtimeInputs = [ pkgs.jq pkgs.wofi pkgs.pipewire pkgs.wireplumber pkgs.libnotify ];
+        text = ''
+          # Physical output sinks as "id<TAB>description" (exclude our sink-* virtuals).
+          mapfile -t entries < <(pw-dump | jq -r '
+            .[] | select(.type=="PipeWire:Interface:Node")
+                | select(.info.props."media.class"=="Audio/Sink")
+                | select(.info.props."node.name" | test("^(alsa_output|bluez_output)"))
+                | "\(.id)\t\(.info.props."node.description" // .info.props."node.name")"')
+
+          if [ "''${#entries[@]}" -eq 0 ]; then
+            notify-send "Audio output" "No physical output devices found"
+            exit 1
+          fi
+
+          choice=$(printf '%s\n' "''${entries[@]}" | cut -f2- | wofi --dmenu -p "Output device") || exit 0
+          [ -n "$choice" ] || exit 0
+          id=$(printf '%s\n' "''${entries[@]}" | awk -F'\t' -v d="$choice" '$2==d{print $1; exit}')
+          [ -n "$id" ] || exit 1
+
+          wpctl set-default "$id"
+          notify-send "Audio output" "→ $choice"
+        '';
+      };
+
+      mkNullSink = { name, description, ... }: {
         factory = "adapter";
         args = {
           "factory.name" = "support.null-audio-sink";
@@ -14,40 +57,192 @@
           # Monitor output respects sink volume/mute, so vol ctrl on the sink
           # propagates through the loopback to the physical output.
           "monitor.channel-volumes" = true;
+          # Keep virtual sinks out of automatic default-device selection so a real
+          # output device is always chosen as the default (apps reach these via rules).
+          "priority.session" = 100;
+          "priority.driver" = 100;
         };
       };
 
-      # Capture from the monitor of a null sink and play back to the physical output.
+      # Capture from the monitor of a null sink and play it back.
       # stream.capture.sink = true connects the capture side to the sink's monitor output.
-      mkLoopback = name: {
+      # Effected sinks are pinned into their own compressor input; direct sinks go straight to
+      # the master sink. Either way audio converges on the master sink.
+      mkLoopback = { name, description, effects, ... }:
+        {
+          name = "libpipewire-module-loopback";
+          args = {
+            "node.name" = "loopback-${name}";
+            "capture.props" = {
+              "node.name" = "loopback-${name}-cap";
+              "node.target" = "sink-${name}";
+              "stream.capture.sink" = true;
+              "audio.position" = [ "FL" "FR" ];
+            };
+            "playback.props" = {
+              "node.name" = "loopback-${name}-play";
+              "audio.position" = [ "FL" "FR" ];
+            } // (if effects then {
+              # Pin into this sink's own compressor input (an internal virtual sink).
+              "target.object" = fxEntryFor name;
+            } else {
+              # Direct (uncompressed) sink: bypass the effects bus but still converge on the
+              # master sink so the global volume applies. Friendly name for mixers.
+              "target.object" = masterSink;
+              "node.description" = "${description} (direct)";
+            });
+          };
+        };
+
+      # A single-plugin filter-chain published as an Audio/Sink. Keeping one plugin per
+      # chain means PipeWire derives the chain in/out from the plugin's own ports, so no
+      # inter-node link names are needed. The playback side is pinned to `target` when set;
+      # an empty target lets it follow the default device.
+      #
+      # LSP plugins are made discoverable to PipeWire via services.pipewire.extraLv2Packages
+      # below (LV2 URIs are version-independent, unlike the versioned LADSPA .so filename).
+      #
+      # NOTE: `control` keys are LV2 port *symbols* (the short codes from
+      # `lv2info <uri>`, e.g. "at"/"cr"/"mk"), NOT the display names — PipeWire's
+      # filter-chain matches symbols. LSP gain/threshold ports are linear coefficients
+      # (e.g. 0.1259 ≈ -18 dB, 1.585 ≈ +4 dB); times are in ms. A clean run logs no
+      # "control ... can not be set" lines (journalctl --user -u pipewire).
+      mkFilter = { mediaName, description, sinkNode, outNode, target, uri, control ? { }, outDescription ? null }: {
+        name = "libpipewire-module-filter-chain";
+        args = {
+          "node.description" = description;
+          "media.name" = mediaName;
+          "filter.graph" = {
+            nodes = [
+              {
+                type = "lv2";
+                name = mediaName;
+                plugin = uri;
+                inherit control;
+              }
+            ];
+          };
+          "capture.props" = {
+            "node.name" = sinkNode;
+            "media.class" = "Audio/Sink";
+            "audio.position" = [ "FL" "FR" ];
+            # Internal bus sink: keep out of default-device selection.
+            "priority.session" = 100;
+            "priority.driver" = 100;
+          };
+          "playback.props" = {
+            "node.name" = outNode;
+            "audio.position" = [ "FL" "FR" ];
+          } // lib.optionalAttrs (outDescription != null) {
+            "node.description" = outDescription;
+          } // lib.optionalAttrs (target != "") {
+            "target.object" = target;
+          };
+        };
+      };
+
+      # Per-channel compressor+limiter. Each effected sink gets its own pair of LSP filter
+      # chains:  <sink> loopback -> sink-fx-<name> -[compressor]-> sink-fxlim-<name>
+      # -[limiter]-> master. Separate instances keep each channel's dynamics isolated.
+      #
+      # Control values are shared defaults (translated from the EasyEffects output-comp preset:
+      # gentle downward compressor + makeup, brick-wall limiter). See the NOTE on mkFilter for
+      # control symbols/units. To tune a channel differently, give it its own control set here.
+      compressorControl = {
+        "enabled" = 1.0;
+        "cm" = 0.0;     # compression mode: Downward
+        "al" = 0.1259;  # attack threshold ≈ -18 dB
+        "cr" = 2.9;     # ratio
+        "at" = 15.0;    # attack time (ms)
+        "rt" = 250.0;   # release time (ms)
+        "mk" = 2.300;   # makeup gain
+      };
+      limiterControl = {
+        "enabled" = 1.0;
+        "th" = 0.8913;  # threshold ≈ -1 dBFS
+        "lk" = 5.0;     # lookahead (ms)
+      };
+
+      # The two filter-chains (compressor then limiter) for one effected sink.
+      mkEffectsChain = s: [
+        (mkFilter {
+          mediaName = "fx-comp-${s.name}";
+          description = "${s.description} bus: compressor";
+          sinkNode = fxEntryFor s.name;
+          outNode = "fx-comp-${s.name}-out";
+          target = fxLimEntryFor s.name;
+          uri = "http://lsp-plug.in/plugins/lv2/compressor_stereo";
+          control = compressorControl;
+        })
+        (mkFilter {
+          mediaName = "fx-lim-${s.name}";
+          description = "${s.description} bus: limiter";
+          sinkNode = fxLimEntryFor s.name;
+          outNode = "fx-lim-${s.name}-out";
+          # Feed the master sink (which in turn follows the default device).
+          target = masterSink;
+          outDescription = "${s.description} effects output";
+          uri = "http://lsp-plug.in/plugins/lv2/limiter_stereo";
+          control = limiterControl;
+        })
+      ];
+
+      # Master sink + the single hardware-facing loopback. The null sink is the global volume
+      # control (its monitor is volume-scaled); the loopback plays that monitor to the current
+      # default (physical) device, so the output switcher still moves all audio at once. Point
+      # the Streamdeck's output-volume control at "sink-master".
+      masterNullSink = mkNullSink { name = "master"; description = "Master Output"; };
+      masterLoopback = {
         name = "libpipewire-module-loopback";
         args = {
-          "node.name" = "loopback-${name}";
+          "node.name" = "loopback-master";
           "capture.props" = {
-            "node.name" = "loopback-${name}-cap";
-            "node.target" = "sink-${name}";
+            "node.name" = "loopback-master-cap";
+            "node.target" = masterSink;
             "stream.capture.sink" = true;
             "audio.position" = [ "FL" "FR" ];
           };
           "playback.props" = {
-            "node.name" = "loopback-${name}-play";
+            "node.name" = "loopback-master-play";
+            "node.description" = "Master output";
             "audio.position" = [ "FL" "FR" ];
-          } // lib.optionalAttrs (cfg.outputSink != "") {
-            # Pin to the physical output so this stream is never re-routed to a
-            # virtual sink. Required when default.audio.sink points at a null sink.
-            "target.object" = cfg.outputSink;
+            # No target.object -> follows the default (physical) device / output switcher.
           };
         };
       };
 
+      # The catch-all sink (flagged `default`, else the first configured sink). Every app lands
+      # here unless a more specific rule or a manual move sends it elsewhere.
+      defaultSinks = lib.filter (s: s.default) cfg.sinks;
+      defaultSinkName =
+        if defaultSinks != [ ] then "sink-${(lib.head defaultSinks).name}"
+        else if cfg.sinks != [ ] then "sink-${(lib.head cfg.sinks).name}"
+        else null;
+
+      # PulseAudio-client routing. The catch-all sends every app to the default (effects) sink;
+      # per-sink rules override it for specific apps (e.g. Spotify -> music). pulse.rules only
+      # match real pulse clients, never the internal loopback/filter nodes, so they can't create
+      # a feedback loop. Streams can still be moved at runtime (pavucontrol / in-app), which
+      # overrides these defaults.
+      pulseRules =
+        (lib.optional (defaultSinkName != null) {
+          matches = [ { "application.name" = "~.+"; } ];
+          actions.update-props."target.object" = defaultSinkName;
+        })
+        ++ lib.concatMap
+          (s: lib.optional (s.apps != [ ]) {
+            matches = s.apps;
+            actions.update-props."target.object" = "sink-${s.name}";
+          })
+          cfg.sinks;
+
     in
     lib.mkIf config.dotfiles.desktop.enable (lib.mkMerge [
 
-      # EasyEffects is useful in both pulsemeeter and pipewire-virtual modes:
-      # it provides the mic processing chain and virtual source for the Scarlett input.
+      # EasyEffects provides the mic processing chain (and, in pulsemeeter mode, the output
+      # compressor/limiter). The native filter-chain replaces it for output in virtual mode.
       (lib.mkIf (cfg.routing != "none") {
         dotfiles.audio.easyeffects.enable = lib.mkDefault true;
-        environment.systemPackages = [ pkgs.qpwgraph ];
       })
 
       # ── pulsemeeter mode ──────────────────────────────────────────────────────
@@ -61,54 +256,47 @@
       # ── pipewire-virtual mode ─────────────────────────────────────────────────
       (lib.mkIf (cfg.routing == "pipewire-virtual") {
 
-        # Three null sinks + loopbacks from each monitor to the physical output.
-        # Loopback playback nodes are visible as individual streams in volume mixers
-        # (pavucontrol, StreamController) so each virtual sink has its own level.
+        # qpwgraph for manual inspection (not auto-launched); audio-output switcher for
+        # manually moving all outputs to another physical device (e.g. BT headphones).
+        environment.systemPackages = [ pkgs.qpwgraph audioOutputScript ];
+
+        # Make LSP's LV2 plugins discoverable to the PipeWire filter-chain. This is the
+        # supported NixOS mechanism and is version-independent (no LADSPA .so path needed).
+        services.pipewire.extraLv2Packages = lib.mkIf anyEffects [ pkgs.lsp-plugins ];
+
+        # Null sinks + their loopbacks, plus the effects-bus filter-chains when any sink
+        # routes through effects. Loopback playback nodes show up as individual streams in
+        # volume mixers (pavucontrol, StreamController) so each virtual sink has its own level.
         services.pipewire.extraConfig.pipewire."10-virtual-sinks" = {
-          "context.objects" = [
-            (mkNullSink { name = "apps";  description = "Apps";  })
-            (mkNullSink { name = "music"; description = "Music"; })
-            (mkNullSink { name = "comms"; description = "Comms"; })
-          ];
-          "context.modules" = [
-            (mkLoopback "apps")
-            (mkLoopback "music")
-            (mkLoopback "comms")
-          ];
+          "context.objects" =
+            (map mkNullSink cfg.sinks)
+            ++ lib.optional (cfg.sinks != [ ]) masterNullSink;
+          "context.modules" =
+            (map mkLoopback cfg.sinks)
+            ++ lib.optional (cfg.sinks != [ ]) masterLoopback
+            ++ lib.concatMap mkEffectsChain effectsSinks;
         };
 
-        services.pipewire.wireplumber.extraConfig."10-virtual-routing" = {
-          # Make the apps sink the default so new streams land there unless redirected.
-          "wireplumber.settings"."default.audio.sink" = "sink-apps";
+        # Route PulseAudio clients to the virtual sinks (see pulseRules above). The default
+        # device is left to WirePlumber's normal selection (a physical device, since the virtual
+        # sinks are deprioritised) and is switchable/persistent via `audio-output` / wpctl.
+        services.pipewire.extraConfig.pipewire-pulse."20-app-routing" = {
+          "pulse.rules" = pulseRules;
+        };
 
-          # Redirect specific applications to their designated sinks.
-          # Add further entries here to route additional programs.
-          # target.object must match node.name of the null sink above.
-          "wireplumber.rules" = [
+        # Prefer outputSink as the default device so a fresh state picks it over other real
+        # outputs (e.g. HDMI/DP monitor audio). An explicit `wpctl set-default` choice (the
+        # output switcher) still wins and persists; if it disconnects, selection falls back to
+        # this highest-priority device.
+        services.pipewire.wireplumber.extraConfig = lib.mkIf (cfg.outputSink != "") {
+          "51-default-output-priority"."monitor.alsa.rules" = [
             {
-              matches = [
-                # Spotify uses both these identifiers depending on the version/launch method.
-                { "application.process.binary" = "spotify"; }
-                { "application.name" = "Spotify"; }
-              ];
-              actions.update-props."target.object" = "sink-music";
+              matches = [ { "node.name" = cfg.outputSink; } ];
+              actions.update-props = {
+                "priority.session" = 2000;
+                "priority.driver" = 2000;
+              };
             }
-            {
-              matches = [
-                { "application.process.binary" = "audacity"; }
-              ];
-              actions.update-props."target.object" = "sink-music";
-            }
-            # Pin EasyEffects' output stream to the physical Scarlett sink so it
-            # doesn't follow the default (sink-apps) and create a feedback loop.
-            {
-              matches = [
-                { "node.name" = "ee_soe_output_level"; }
-              ];
-              actions.update-props."target.object" = cfg.outputSink;
-            }
-            # Discord and games select the comms sink directly in their settings;
-            # no rule needed here unless you want to force it.
           ];
         };
 

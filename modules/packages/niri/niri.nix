@@ -88,7 +88,6 @@
             (if osConfig.dotfiles.windowManager.statusbar == "waybar" then [ [ "waybar" ] ]
             else if osConfig.dotfiles.windowManager.statusbar == "noctalia" then [ [ "noctalia-shell" ] ]
             else [])
-            ++ [ [ "pulsemeeter" ] ]
             ++ lib.optionals osConfig.dotfiles.programs._1password.enable [ [ "1password" "--silent" ] ];
 
           allSpawnCommands = baseSpawnCommands ++ map (s: lib.splitString " " s) cfg.execOnce;
@@ -208,10 +207,6 @@
               rightMonitor = (lib.last (map parseMonitorConfig cfg.monitors)).name;
             in ''
             window-rule {
-              match app-id="org.pulsemeeter.pulsemeeter"
-              open-on-output "${rightMonitor}"
-            }
-            window-rule {
               match app-id="com.core447.StreamController"
               open-on-output "${rightMonitor}"
             }
@@ -235,6 +230,9 @@
 
               Mod+C repeat=false { close-window; }
               Mod+V { toggle-window-floating; }
+${lib.optionalString (osConfig.dotfiles.audio.routing == "pipewire-virtual") ''
+              Mod+Shift+O hotkey-overlay-title="Switch audio output" { spawn "audio-output"; }
+''}
 
               // Focus movement with custom keybindings
               Mod+${leftKey} { focus-column-left; }

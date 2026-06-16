@@ -142,7 +142,8 @@ Each aspect in `modules/packages/<aspect>/<aspect>.nix` is a **flake-parts modul
 │       │       ├── hyprlock.nix
 │       │       └── hyprpaper/
 │       ├── niri/niri.nix
-│       ├── waybar/waybar.nix        # Waybar + mako + wofi
+│       ├── waybar/waybar.nix        # Waybar + mako
+│       ├── wofi/wofi.nix            # Wofi launcher/menu styling (WM/statusbar-independent)
 │       ├── noctalia/noctalia.nix
 │       └── vr/vr.nix
 │
@@ -237,5 +238,6 @@ Age keys must be placed at `/home/simon/.config/sops/age/keys.txt`.
 - Config generated from `dotfiles.windowManager` options
 
 ### Status Bars & Notifications
-- Waybar + mako + wofi: `modules/packages/waybar/waybar.nix` (guarded by `statusbar == "waybar"`)
+- Waybar + mako: `modules/packages/waybar/waybar.nix` (guarded by `statusbar == "waybar"`)
+- Wofi launcher/menu styling: `modules/packages/wofi/wofi.nix` (guarded by `desktop.enable`, so it applies under any WM/statusbar — used by the launcher and the audio-output switcher)
 - Noctalia: `modules/packages/noctalia/noctalia.nix` (guarded by `statusbar == "noctalia"`)

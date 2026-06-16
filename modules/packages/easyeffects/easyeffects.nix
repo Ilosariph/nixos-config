@@ -168,6 +168,10 @@
               };
             };
           };
+          # The output compressor/limiter is only needed in pulsemeeter mode. In
+          # pipewire-virtual mode the native PipeWire filter-chain handles output effects,
+          # so this preset is not emitted (only the mic-input chain loads).
+        } // lib.optionalAttrs (config.dotfiles.audio.routing == "pulsemeeter") {
 
           output-comp = {
             "output" = {
