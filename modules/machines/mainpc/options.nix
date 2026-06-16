@@ -22,8 +22,10 @@
       description = "Music";
       effects = false;
       apps = [
-        { "application.process.binary" = "spotify"; }
-        { "application.name" = "Spotify"; }
+        # Regex (~ prefix) so it matches regardless of case or Nix binary wrapping
+        # (e.g. ".spotify-wrapped"). Either matcher routes the stream to music.
+        { "application.name" = "~[Ss]potify"; }
+        { "application.process.binary" = "~[Ss]potify"; }
       ];
     }
     # Comms through the effects bus; Discord etc. select this sink in-app (no rule).
