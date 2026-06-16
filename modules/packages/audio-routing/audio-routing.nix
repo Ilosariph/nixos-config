@@ -94,10 +94,11 @@
       # LSP plugins are made discoverable to PipeWire via services.pipewire.extraLv2Packages
       # below (LV2 URIs are version-independent, unlike the versioned LADSPA .so filename).
       #
-      # NOTE: `control` keys are LV2 port names. They could not be introspected in the build
-      # environment; verify them on the target with `lv2info <plugin-uri>` (from pkgs.lilv).
-      # If PipeWire logs "control <name> not found", fix or drop the offending key — the node
-      # still loads (transparently) with an empty control set. Tune values by ear.
+      # NOTE: `control` keys are LV2 port *symbols* (the short codes from
+      # `lv2info <uri>`, e.g. "at"/"cr"/"mk"), NOT the display names — PipeWire's
+      # filter-chain matches symbols. LSP gain/threshold ports are linear coefficients
+      # (e.g. 0.1259 ≈ -18 dB, 1.585 ≈ +4 dB); times are in ms. A clean run logs no
+      # "control ... can not be set" lines (journalctl --user -u pipewire).
       mkFilter = { mediaName, description, sinkNode, outNode, target, uri, control ? { }, outDescription ? null }: {
         name = "libpipewire-module-filter-chain";
         args = {
@@ -142,11 +143,16 @@
         outNode = "fx-comp-out";
         target = fxLimSink;
         uri = "http://lsp-plug.in/plugins/lv2/compressor_stereo";
+        # Gentle downward leveling to even out loudness across apps, with makeup to
+        # restore unity (no upward stage — that caused the start-spike in EasyEffects).
         control = {
-          "Ratio" = 4.0;
-          "Attack time" = 20.0;
-          "Release time" = 100.0;
-          "Makeup gain" = 2.0;
+          "enabled" = 1.0;
+          "cm" = 0.0;     # compression mode: Downward
+          "al" = 0.1259;  # attack threshold ≈ -18 dB
+          "cr" = 2.5;     # ratio 2.5:1
+          "at" = 15.0;    # attack time (ms)
+          "rt" = 250.0;   # release time (ms)
+          "mk" = 1.585;   # makeup gain ≈ +4 dB
         };
       };
 
@@ -159,8 +165,11 @@
         target = "";
         outDescription = "Effects output";
         uri = "http://lsp-plug.in/plugins/lv2/limiter_stereo";
+        # Brick-wall safety limiter just below 0 dBFS to catch peaks.
         control = {
-          "Lookahead" = 5.0;
+          "enabled" = 1.0;
+          "th" = 0.8913;  # threshold ≈ -1 dBFS
+          "lk" = 5.0;     # lookahead (ms)
         };
       };
 
