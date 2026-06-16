@@ -149,10 +149,10 @@
           "enabled" = 1.0;
           "cm" = 0.0;     # compression mode: Downward
           "al" = 0.1259;  # attack threshold ≈ -18 dB
-          "cr" = 2.5;     # ratio 2.5:1
+          "cr" = 2.9;     # ratio 2.5:1
           "at" = 15.0;    # attack time (ms)
           "rt" = 250.0;   # release time (ms)
-          "mk" = 1.585;   # makeup gain ≈ +4 dB
+          "mk" = 2.300;   # makeup gain ≈ +4 dB
         };
       };
 
