@@ -222,6 +222,10 @@ in {
           # ── Waybar toggle ──────────────────────────────────────────────
           "$mainMod SHIFT, SPACE, exec, pkill -SIGUSR1 waybar"
         ])
+        ++ (lib.optionals (osConfig.dotfiles.audio.routing == "pipewire-virtual") [
+          # ── Audio output switcher (wofi menu of physical devices) ───────
+          "$mainMod SHIFT, O, exec, audio-output"
+        ])
         ++ (
           # workspaces – binds $mod + [shift +] {1..9} to [move to] workspace {1..9}
           builtins.concatLists (

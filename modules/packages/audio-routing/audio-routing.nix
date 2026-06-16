@@ -10,6 +10,50 @@
 
       anyEffects = lib.any (s: s.effects) cfg.sinks;
 
+      # Streams that actually reach the physical device (everything else targets an internal
+      # virtual sink). These are the nodes the output switcher re-points at runtime.
+      hwExitNodes =
+        (lib.optional anyEffects "fx-lim-out")
+        ++ map (s: "loopback-${s.name}-play") (lib.filter (s: !s.effects) cfg.sinks);
+
+      # Manual output-device switcher: pick a physical sink from a wofi menu and move every
+      # hardware-facing stream onto it via per-node target.object metadata (the same mechanism
+      # pavucontrol uses). Not persisted — a reboot restores the module's outputSink target.
+      audioOutputScript = pkgs.writeShellApplication {
+        name = "audio-output";
+        runtimeInputs = [ pkgs.jq pkgs.wofi pkgs.pipewire pkgs.libnotify ];
+        text = ''
+          exits=(${lib.concatStringsSep " " hwExitNodes})
+
+          # Physical output sinks as "node.name<TAB>description" (exclude our sink-* virtuals).
+          mapfile -t entries < <(pw-dump | jq -r '
+            .[] | select(.type=="PipeWire:Interface:Node") | .info.props
+                | select(."media.class"=="Audio/Sink")
+                | select(."node.name" | test("^(alsa_output|bluez_output)"))
+                | "\(."node.name")\t\(."node.description" // ."node.name")"')
+
+          if [ "''${#entries[@]}" -eq 0 ]; then
+            notify-send "Audio output" "No physical output devices found"
+            exit 1
+          fi
+
+          choice=$(printf '%s\n' "''${entries[@]}" | cut -f2- | wofi --dmenu -p "Output device") || exit 0
+          [ -n "$choice" ] || exit 0
+          target=$(printf '%s\n' "''${entries[@]}" | awk -F'\t' -v d="$choice" '$2==d{print $1; exit}')
+          [ -n "$target" ] || exit 1
+
+          for n in "''${exits[@]}"; do
+            id=$(pw-dump | jq -r --arg n "$n" \
+              '.[] | select(.type=="PipeWire:Interface:Node") | select(.info.props."node.name"==$n) | .id' \
+              | head -n1)
+            [ -n "$id" ] || continue
+            pw-metadata -n default "$id" target.object "\"$target\"" >/dev/null
+          done
+
+          notify-send "Audio output" "→ $choice"
+        '';
+      };
+
       mkNullSink = { name, description, ... }: {
         factory = "adapter";
         args = {
@@ -27,7 +71,7 @@
       # Capture from the monitor of a null sink and play it back to its target.
       # stream.capture.sink = true connects the capture side to the sink's monitor output.
       # Effected sinks target the effects bus (fxSink); the rest target the physical output.
-      mkLoopback = { name, effects, ... }:
+      mkLoopback = { name, description, effects, ... }:
         let
           target = if effects then fxSink else cfg.outputSink;
         in
@@ -44,6 +88,9 @@
             "playback.props" = {
               "node.name" = "loopback-${name}-play";
               "audio.position" = [ "FL" "FR" ];
+            } // lib.optionalAttrs (!effects) {
+              # Hardware-facing stream: friendly name for pavucontrol / the output switcher.
+              "node.description" = "${description} (direct)";
             } // lib.optionalAttrs (target != "") {
               # Pin to the target so this stream is never re-routed to a virtual sink.
               # Required because default.audio.sink points at a null sink.
@@ -63,7 +110,7 @@
       # environment; verify them on the target with `lv2info <plugin-uri>` (from pkgs.lilv).
       # If PipeWire logs "control <name> not found", fix or drop the offending key — the node
       # still loads (transparently) with an empty control set. Tune values by ear.
-      mkFilter = { mediaName, description, sinkNode, outNode, target, uri, control ? { } }: {
+      mkFilter = { mediaName, description, sinkNode, outNode, target, uri, control ? { }, outDescription ? null }: {
         name = "libpipewire-module-filter-chain";
         args = {
           "node.description" = description;
@@ -87,6 +134,8 @@
             "node.name" = outNode;
             "node.passive" = true;
             "audio.position" = [ "FL" "FR" ];
+          } // lib.optionalAttrs (outDescription != null) {
+            "node.description" = outDescription;
           } // lib.optionalAttrs (target != "") {
             "target.object" = target;
           };
@@ -117,6 +166,7 @@
         sinkNode = fxLimSink;
         outNode = "fx-lim-out";
         target = cfg.outputSink;
+        outDescription = "Effects output";
         uri = "http://lsp-plug.in/plugins/lv2/limiter_stereo";
         control = {
           "Lookahead" = 5.0;
@@ -158,8 +208,9 @@
       # ── pipewire-virtual mode ─────────────────────────────────────────────────
       (lib.mkIf (cfg.routing == "pipewire-virtual") {
 
-        # qpwgraph stays available for manual inspection (not auto-launched).
-        environment.systemPackages = [ pkgs.qpwgraph ];
+        # qpwgraph for manual inspection (not auto-launched); audio-output switcher for
+        # manually moving all outputs to another physical device (e.g. BT headphones).
+        environment.systemPackages = [ pkgs.qpwgraph audioOutputScript ];
 
         # Make LSP's LV2 plugins discoverable to the PipeWire filter-chain. This is the
         # supported NixOS mechanism and is version-independent (no LADSPA .so path needed).

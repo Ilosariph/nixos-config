@@ -192,6 +192,7 @@
 | `XF86AudioLowerVolume` | Volume –5% |
 | `XF86AudioMute` | Toggle mute (output) |
 | `XF86AudioMicMute` | Toggle mute (microphone) |
+| `$mod + Shift + O` | Switch audio output device (wofi menu) |
 | `XF86MonBrightnessUp` | Brightness +5% |
 | `XF86MonBrightnessDown` | Brightness –5% |
 | `XF86AudioNext` | Next track |

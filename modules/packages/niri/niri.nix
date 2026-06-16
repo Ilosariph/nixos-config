@@ -230,6 +230,9 @@
 
               Mod+C repeat=false { close-window; }
               Mod+V { toggle-window-floating; }
+${lib.optionalString (osConfig.dotfiles.audio.routing == "pipewire-virtual") ''
+              Mod+Shift+O hotkey-overlay-title="Switch audio output" { spawn "audio-output"; }
+''}
 
               // Focus movement with custom keybindings
               Mod+${leftKey} { focus-column-left; }
