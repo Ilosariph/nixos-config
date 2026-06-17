@@ -204,6 +204,17 @@
         description = "Enable bluetooth.";
       };
     };
+    wallpapers = {
+      directory = lib.mkOption {
+        type = lib.types.path;
+        default = ./modules/packages/wallpapers/wallpapers;
+        description = ''
+          Directory containing wallpaper image files. Imported into the nix store
+          so all consumers (hyprpaper, noctalia, the random-wallpaper script, etc.)
+          read from the same store path.
+        '';
+      };
+    };
     security = {
       yubikey = {
         enable = lib.mkOption {

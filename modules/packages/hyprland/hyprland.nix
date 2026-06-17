@@ -4,11 +4,6 @@
       isDesktop = config.dotfiles.desktop.enable;
       isHyprlandPrimary = isDesktop && config.dotfiles.windowManager.type == "hyprland";
       isWaybar = config.dotfiles.windowManager.statusbar == "waybar";
-      wallpaperDir = pkgs.stdenv.mkDerivation {
-        name = "wallpapers";
-        src = ./_hypr/hyprpaper/wallpapers;
-        installPhase = "mkdir -p $out && cp -r $src/* $out";
-      };
     in {
       # Always install hyprland on desktop so it appears in greetd session list
       programs.hyprland = lib.mkIf isDesktop { enable = true; };
@@ -42,7 +37,6 @@
         home.sessionVariables = {
           QT_QPA_PLATFORM = "wayland";
           QT_WAYLAND_DISABLE_WINDOWDECORATION = "1";
-          WALLPAPER_DIR = "${wallpaperDir}";
         };
 
         xdg.portal = {
