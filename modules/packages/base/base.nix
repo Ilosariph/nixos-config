@@ -73,6 +73,7 @@
 
       gemini-cli
       claude-code
+      uv
     ];
 
 		programs.nix-index-database.comma.enable = true;
