@@ -5,8 +5,12 @@
 
       # Entry node of the effects bus (compressor stage). Effected sinks loop back here.
       fxSink = "sink-fx";
-      # Compressor stage feeds the limiter stage, which feeds the physical output.
+      # Compressor stage feeds the limiter stage, which feeds the master sink.
       fxLimSink = "sink-fxlim";
+      # Master mixing point: every sink (effected and direct) converges here, so its volume
+      # is a single global output level independent of the physical device. One loopback
+      # carries the master monitor to the current default (physical) device.
+      masterSink = "sink-master";
 
       anyEffects = lib.any (s: s.effects) cfg.sinks;
 
@@ -80,7 +84,9 @@
               # Pin into the effects bus (an internal virtual sink that never changes).
               "target.object" = fxSink;
             } else {
-              # Direct sink: no target -> follows the default device; friendly name for mixers.
+              # Direct (uncompressed) sink: bypass the effects bus but still converge on the
+              # master sink so the global volume applies. Friendly name for mixers.
+              "target.object" = masterSink;
               "node.description" = "${description} (direct)";
             });
           };
@@ -161,8 +167,8 @@
         description = "Effects bus: limiter";
         sinkNode = fxLimSink;
         outNode = "fx-lim-out";
-        # No target: the effects output follows the default device (output switcher).
-        target = "";
+        # Feed the master sink (which in turn follows the default device).
+        target = masterSink;
         outDescription = "Effects output";
         uri = "http://lsp-plug.in/plugins/lv2/limiter_stereo";
         # Brick-wall safety limiter just below 0 dBFS to catch peaks.
@@ -170,6 +176,30 @@
           "enabled" = 1.0;
           "th" = 0.8913;  # threshold ≈ -1 dBFS
           "lk" = 5.0;     # lookahead (ms)
+        };
+      };
+
+      # Master sink + the single hardware-facing loopback. The null sink is the global volume
+      # control (its monitor is volume-scaled); the loopback plays that monitor to the current
+      # default (physical) device, so the output switcher still moves all audio at once. Point
+      # the Streamdeck's output-volume control at "sink-master".
+      masterNullSink = mkNullSink { name = "master"; description = "Master Output"; };
+      masterLoopback = {
+        name = "libpipewire-module-loopback";
+        args = {
+          "node.name" = "loopback-master";
+          "capture.props" = {
+            "node.name" = "loopback-master-cap";
+            "node.target" = masterSink;
+            "stream.capture.sink" = true;
+            "audio.position" = [ "FL" "FR" ];
+          };
+          "playback.props" = {
+            "node.name" = "loopback-master-play";
+            "node.description" = "Master output";
+            "audio.position" = [ "FL" "FR" ];
+            # No target.object -> follows the default (physical) device / output switcher.
+          };
         };
       };
 
@@ -230,9 +260,12 @@
         # routes through effects. Loopback playback nodes show up as individual streams in
         # volume mixers (pavucontrol, StreamController) so each virtual sink has its own level.
         services.pipewire.extraConfig.pipewire."10-virtual-sinks" = {
-          "context.objects" = map mkNullSink cfg.sinks;
+          "context.objects" =
+            (map mkNullSink cfg.sinks)
+            ++ lib.optional (cfg.sinks != [ ]) masterNullSink;
           "context.modules" =
             (map mkLoopback cfg.sinks)
+            ++ lib.optional (cfg.sinks != [ ]) masterLoopback
             ++ lib.optionals anyEffects [ fxCompressor fxLimiter ];
         };
 
