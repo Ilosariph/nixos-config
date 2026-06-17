@@ -7,6 +7,7 @@
         programs.yazi.plugins = {
           sshfs = pkgs.yaziPlugins.sshfs;
         };
+        home.packages = [ pkgs.sshfs ];
         programs.yazi.keymap = {
           mgr.prepend_keymap = [
             {
