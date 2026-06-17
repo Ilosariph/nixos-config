@@ -3,16 +3,18 @@
     let
       cfg = config.dotfiles.audio;
 
-      # Entry node of the effects bus (compressor stage). Effected sinks loop back here.
-      fxSink = "sink-fx";
-      # Compressor stage feeds the limiter stage, which feeds the master sink.
-      fxLimSink = "sink-fxlim";
       # Master mixing point: every sink (effected and direct) converges here, so its volume
       # is a single global output level independent of the physical device. One loopback
       # carries the master monitor to the current default (physical) device.
       masterSink = "sink-master";
 
-      anyEffects = lib.any (s: s.effects) cfg.sinks;
+      # Each effected sink gets its OWN compressor+limiter chain (independent dynamics, so
+      # e.g. comms compression never ducks app audio). Per-sink stage entry nodes:
+      fxEntryFor = name: "sink-fx-${name}";       # compressor input
+      fxLimEntryFor = name: "sink-fxlim-${name}"; # limiter input
+
+      effectsSinks = lib.filter (s: s.effects) cfg.sinks;
+      anyEffects = effectsSinks != [ ];
 
       # Manual output-device switcher: pick a physical sink from a wofi menu and make it the
       # default. Everything hardware-facing (the effects output + direct loopbacks) follows the
@@ -64,8 +66,8 @@
 
       # Capture from the monitor of a null sink and play it back.
       # stream.capture.sink = true connects the capture side to the sink's monitor output.
-      # Effected sinks are pinned into the internal effects bus (fxSink). Direct sinks are
-      # left unpinned so they follow the current default device (and thus the output switcher).
+      # Effected sinks are pinned into their own compressor input; direct sinks go straight to
+      # the master sink. Either way audio converges on the master sink.
       mkLoopback = { name, description, effects, ... }:
         {
           name = "libpipewire-module-loopback";
@@ -81,8 +83,8 @@
               "node.name" = "loopback-${name}-play";
               "audio.position" = [ "FL" "FR" ];
             } // (if effects then {
-              # Pin into the effects bus (an internal virtual sink that never changes).
-              "target.object" = fxSink;
+              # Pin into this sink's own compressor input (an internal virtual sink).
+              "target.object" = fxEntryFor name;
             } else {
               # Direct (uncompressed) sink: bypass the effects bus but still converge on the
               # master sink so the global volume applies. Friendly name for mixers.
@@ -139,45 +141,51 @@
         };
       };
 
-      # Compressor + limiter effects bus. Values translated from the EasyEffects
-      # `output-comp` preset (downward compressor ~4:1 @ -12 dB, brickwall limiter).
-      # See the NOTE on mkFilter about verifying control names with `lv2info`.
-      fxCompressor = mkFilter {
-        mediaName = "fx-comp";
-        description = "Effects bus: compressor";
-        sinkNode = fxSink;
-        outNode = "fx-comp-out";
-        target = fxLimSink;
-        uri = "http://lsp-plug.in/plugins/lv2/compressor_stereo";
-        # Gentle downward leveling to even out loudness across apps, with makeup to
-        # restore unity (no upward stage — that caused the start-spike in EasyEffects).
-        control = {
-          "enabled" = 1.0;
-          "cm" = 0.0;     # compression mode: Downward
-          "al" = 0.1259;  # attack threshold ≈ -18 dB
-          "cr" = 2.9;     # ratio 2.5:1
-          "at" = 15.0;    # attack time (ms)
-          "rt" = 250.0;   # release time (ms)
-          "mk" = 2.300;   # makeup gain ≈ +4 dB
-        };
+      # Per-channel compressor+limiter. Each effected sink gets its own pair of LSP filter
+      # chains:  <sink> loopback -> sink-fx-<name> -[compressor]-> sink-fxlim-<name>
+      # -[limiter]-> master. Separate instances keep each channel's dynamics isolated.
+      #
+      # Control values are shared defaults (translated from the EasyEffects output-comp preset:
+      # gentle downward compressor + makeup, brick-wall limiter). See the NOTE on mkFilter for
+      # control symbols/units. To tune a channel differently, give it its own control set here.
+      compressorControl = {
+        "enabled" = 1.0;
+        "cm" = 0.0;     # compression mode: Downward
+        "al" = 0.1259;  # attack threshold ≈ -18 dB
+        "cr" = 2.9;     # ratio
+        "at" = 15.0;    # attack time (ms)
+        "rt" = 250.0;   # release time (ms)
+        "mk" = 2.300;   # makeup gain
+      };
+      limiterControl = {
+        "enabled" = 1.0;
+        "th" = 0.8913;  # threshold ≈ -1 dBFS
+        "lk" = 5.0;     # lookahead (ms)
       };
 
-      fxLimiter = mkFilter {
-        mediaName = "fx-lim";
-        description = "Effects bus: limiter";
-        sinkNode = fxLimSink;
-        outNode = "fx-lim-out";
-        # Feed the master sink (which in turn follows the default device).
-        target = masterSink;
-        outDescription = "Effects output";
-        uri = "http://lsp-plug.in/plugins/lv2/limiter_stereo";
-        # Brick-wall safety limiter just below 0 dBFS to catch peaks.
-        control = {
-          "enabled" = 1.0;
-          "th" = 0.8913;  # threshold ≈ -1 dBFS
-          "lk" = 5.0;     # lookahead (ms)
-        };
-      };
+      # The two filter-chains (compressor then limiter) for one effected sink.
+      mkEffectsChain = s: [
+        (mkFilter {
+          mediaName = "fx-comp-${s.name}";
+          description = "${s.description} bus: compressor";
+          sinkNode = fxEntryFor s.name;
+          outNode = "fx-comp-${s.name}-out";
+          target = fxLimEntryFor s.name;
+          uri = "http://lsp-plug.in/plugins/lv2/compressor_stereo";
+          control = compressorControl;
+        })
+        (mkFilter {
+          mediaName = "fx-lim-${s.name}";
+          description = "${s.description} bus: limiter";
+          sinkNode = fxLimEntryFor s.name;
+          outNode = "fx-lim-${s.name}-out";
+          # Feed the master sink (which in turn follows the default device).
+          target = masterSink;
+          outDescription = "${s.description} effects output";
+          uri = "http://lsp-plug.in/plugins/lv2/limiter_stereo";
+          control = limiterControl;
+        })
+      ];
 
       # Master sink + the single hardware-facing loopback. The null sink is the global volume
       # control (its monitor is volume-scaled); the loopback plays that monitor to the current
@@ -266,7 +274,7 @@
           "context.modules" =
             (map mkLoopback cfg.sinks)
             ++ lib.optional (cfg.sinks != [ ]) masterLoopback
-            ++ lib.optionals anyEffects [ fxCompressor fxLimiter ];
+            ++ lib.concatMap mkEffectsChain effectsSinks;
         };
 
         # Route PulseAudio clients to the virtual sinks (see pulseRules above). The default
