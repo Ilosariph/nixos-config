@@ -150,6 +150,12 @@
               focus-follows-mouse max-scroll-amount="0%"
             }
 
+            gestures {
+              hot-corners {
+                off
+              }
+            }
+
             ${lib.optionalString (monitors != []) (generateOutputs monitors)}
 
             layout {
@@ -230,6 +236,7 @@
 
               Mod+C repeat=false { close-window; }
               Mod+V { toggle-window-floating; }
+              Mod+O { toggle-overview; }
 ${lib.optionalString (osConfig.dotfiles.audio.routing == "pipewire-virtual") ''
               Mod+Shift+O hotkey-overlay-title="Switch audio output" { spawn "audio-output"; }
 ''}
