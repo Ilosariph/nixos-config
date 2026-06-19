@@ -1,13 +1,19 @@
 { ... }: {
   flake.nixosModules.waybar = { config, pkgs, lib, ... }:
     lib.mkIf (config.dotfiles.desktop.enable && config.dotfiles.windowManager.statusbar == "waybar") {
-      home-manager.users.${config.dotfiles.user.name} = { lib, pkgs, osConfig, ... }: {
+      home-manager.users.${config.dotfiles.user.name} = { lib, pkgs, osConfig, ... }:
+        let
+          wmType = osConfig.dotfiles.windowManager.type;
+          isHyprland = wmType == "hyprland";
+          workspacesModule = if isHyprland then "hyprland/workspaces" else "niri/workspaces";
+          sessionTarget = if isHyprland then "hyprland-session.target" else "graphical-session.target";
+        in {
         programs.waybar = {
           enable = true;
 
           systemd = {
             enable = true;
-            targets = [ "hyprland-session.target" ];
+            targets = [ sessionTarget ];
           };
 
           style = ''
@@ -81,7 +87,7 @@
               spacing = 0;
               height = 26;
 
-              modules-left = [ "hyprland/workspaces" ];
+              modules-left = [ workspacesModule ];
               modules-center = [ "clock" ];
               modules-right = [
                 "tray"
@@ -93,7 +99,7 @@
                 "battery"
               ];
 
-              "hyprland/workspaces" = {
+              ${workspacesModule} = {
                 on-click = "activate";
                 format = "{icon}";
                 format-icons = {
@@ -183,24 +189,22 @@
           ];
         };
 
-        systemd.user.services.waybar = {
-          Unit = {
-            Wants = [
+        systemd.user.services.waybar =
+          let
+            portalServices = [
               "xdg-desktop-portal.service"
-              "xdg-desktop-portal-hyprland.service"
               "xdg-desktop-portal-gtk.service"
-            ];
-            After = [
-              "xdg-desktop-portal.service"
-              "xdg-desktop-portal-hyprland.service"
-              "xdg-desktop-portal-gtk.service"
-            ];
+            ] ++ lib.optional isHyprland "xdg-desktop-portal-hyprland.service";
+          in {
+            Unit = {
+              Wants = portalServices;
+              After = portalServices;
+            };
+            Service = {
+              ExecStartPre = "${pkgs.coreutils}/bin/sleep 2";
+              RestartSec = 5;
+            };
           };
-          Service = {
-            ExecStartPre = "${pkgs.coreutils}/bin/sleep 2";
-            RestartSec = 5;
-          };
-        };
 
         # Mako notification daemon
         services.mako = {

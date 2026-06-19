@@ -1,6 +1,5 @@
-{ inputs, config, lib, ... }:
-let
-  mkMainpc = wmOverride: inputs.nixpkgs.lib.nixosSystem {
+{ inputs, config, ... }: {
+  flake.nixosConfigurations.mainpc = inputs.nixpkgs.lib.nixosSystem {
     pkgs = import inputs.nixpkgs {
       system = "x86_64-linux";
       config.allowUnfree = true;
@@ -13,8 +12,7 @@ let
       inputs.nix-index-database.nixosModules.nix-index
       inputs.yeetmouse.nixosModules.default
       (inputs.import-tree ../machines/mainpc)
-    ] ++ lib.optional (wmOverride != null) { dotfiles.windowManager.type = lib.mkForce wmOverride; }
-      ++ (builtins.attrValues config.flake.nixosModules) ++ [
+    ] ++ (builtins.attrValues config.flake.nixosModules) ++ [
       ({ pkgs, ... }: {
         services.udev.packages = [ pkgs.streamcontroller ];
         home-manager.users.simon = { pkgs, config, ... }: {
@@ -27,7 +25,4 @@ let
       })
     ];
   };
-in {
-  flake.nixosConfigurations.mainpc      = mkMainpc null;
-  flake.nixosConfigurations.mainpc-niri = mkMainpc "niri";
 }

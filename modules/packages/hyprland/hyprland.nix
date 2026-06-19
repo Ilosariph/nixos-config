@@ -5,26 +5,24 @@
       isHyprlandPrimary = isDesktop && config.dotfiles.windowManager.type == "hyprland";
       isWaybar = config.dotfiles.windowManager.statusbar == "waybar";
     in {
-      # Always install hyprland on desktop so it appears in greetd session list
-      programs.hyprland = lib.mkIf isDesktop { enable = true; };
+      programs.hyprland = lib.mkIf isHyprlandPrimary { enable = true; };
 
-      systemd.user.services.xdg-desktop-portal-hyprland = lib.mkIf isDesktop {
+      systemd.user.services.xdg-desktop-portal-hyprland = lib.mkIf isHyprlandPrimary {
         wantedBy = [ "hyprland-session.target" ];
       };
-      systemd.user.services.xdg-desktop-portal-gtk = lib.mkIf isDesktop {
+      systemd.user.services.xdg-desktop-portal-gtk = lib.mkIf isHyprlandPrimary {
         wantedBy = [ "hyprland-session.target" ];
       };
 
-      nix.settings = lib.mkIf isDesktop {
+      nix.settings = lib.mkIf isHyprlandPrimary {
         extra-substituters = [ "https://hyprland.cachix.org" ];
         extra-trusted-public-keys = [ "hyprland.cachix.org-1:a7pgxzMz7+chwVL3/pzj6jIBMioiJM7ypFP8PwtkuGc=" ];
       };
 
-      services.gnome.gnome-keyring.enable = lib.mkIf isDesktop true;
-      security.pam.services.hyprland = lib.mkIf isDesktop { enableGnomeKeyring = true; };
-      security.pam.services.login = lib.mkIf isDesktop { enableGnomeKeyring = true; };
+      services.gnome.gnome-keyring.enable = lib.mkIf isHyprlandPrimary true;
+      security.pam.services.hyprland = lib.mkIf isHyprlandPrimary { enableGnomeKeyring = true; };
+      security.pam.services.login = lib.mkIf isHyprlandPrimary { enableGnomeKeyring = true; };
 
-      # Hyprland-specific home config (idle, lock, wallpaper) only when hyprland is primary WM
       home-manager.sharedModules = lib.optionals isHyprlandPrimary ([
         ./_hypr/hyprland.nix
         ./_hypr/hypridle.nix
@@ -33,7 +31,7 @@
         ./_hypr/hyprpaper/hyprpaper.nix
       ]);
 
-      home-manager.users.${config.dotfiles.user.name} = lib.mkIf isDesktop {
+      home-manager.users.${config.dotfiles.user.name} = lib.mkIf isHyprlandPrimary {
         home.sessionVariables = {
           QT_QPA_PLATFORM = "wayland";
           QT_WAYLAND_DISABLE_WINDOWDECORATION = "1";

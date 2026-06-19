@@ -4,8 +4,7 @@
       isDesktop = config.dotfiles.desktop.enable;
       isNiriPrimary = isDesktop && config.dotfiles.windowManager.type == "niri";
     in {
-      # Always install niri on desktop so it appears in greetd session list
-      programs.niri.enable = lib.mkIf isDesktop true;
+      programs.niri.enable = lib.mkIf isNiriPrimary true;
 
       programs.xwayland.enable = lib.mkIf isNiriPrimary true;
 
@@ -15,14 +14,14 @@
         config.common.default = [ "niri" "gtk" ];
       };
 
-      security.polkit.enable = lib.mkIf isDesktop true;
-      services.gnome.gnome-keyring.enable = lib.mkIf isDesktop true;
-      security.pam.services.swaylock = lib.mkIf isDesktop {};
+      security.polkit.enable = lib.mkIf isNiriPrimary true;
+      services.gnome.gnome-keyring.enable = lib.mkIf isNiriPrimary true;
+      security.pam.services.swaylock = lib.mkIf isNiriPrimary {};
+      security.pam.services.login = lib.mkIf isNiriPrimary { enableGnomeKeyring = true; };
 
-      environment.systemPackages = lib.optionals isDesktop (with pkgs; [
+      environment.systemPackages = lib.optionals isNiriPrimary (with pkgs; [
         swaylock
         swayidle
-      ]) ++ lib.optionals isNiriPrimary (with pkgs; [
         xwayland-satellite
       ]);
 
@@ -91,7 +90,7 @@
             ++ lib.optionals osConfig.dotfiles.programs._1password.enable [ [ "1password" "--silent" ] ];
 
           allSpawnCommands = baseSpawnCommands ++ map (s: lib.splitString " " s) cfg.execOnce;
-        in lib.mkIf isDesktop {
+        in lib.mkIf isNiriPrimary {
           home.packages = with pkgs; [ grim slurp ];
 
           home.sessionVariables = {
