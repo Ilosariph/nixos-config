@@ -300,6 +300,8 @@ ${lib.optionalString (osConfig.dotfiles.audio.routing == "pipewire-virtual") ''
               Mod+Ctrl+R { reset-window-height; }
               Mod+F { maximize-column; }
               Mod+Shift+F { fullscreen-window; }
+              Mod+T { consume-window-into-column; }
+              Mod+Shift+T { expel-window-from-column; }
 
               // Screenshots
               Print { spawn "sh" "-c" "grim -g \"$(slurp)\" - | swappy -f -"; }
