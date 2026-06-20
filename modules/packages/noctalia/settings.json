@@ -669,7 +669,7 @@
     "enabled": true,
     "screenOffTimeout": 900,
     "lockTimeout": 660,
-    "suspendTimeout": 1800,
+    "suspendTimeout": 0,
     "fadeDuration": 20,
     "screenOffCommand": "",
     "lockCommand": "",
