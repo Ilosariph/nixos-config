@@ -11,6 +11,7 @@
             keep-open = true;
             screenshot-template = "mpv-shot-%tY-%tm-%td-%tHh%tMm%tSs-%f";
             mute = false;
+            ao = "pulse";
           };
           bindings = {
             "e" = "screenshot";
