@@ -33,11 +33,6 @@
         default = "";
         description = "The primary monitor name (used for screen locking widgets, default workspace assignment, etc.).";
       };
-      displayManager = lib.mkOption {
-        type = lib.types.enum [ "gdm" "sddm" "lightdm" "greetd" ];
-        default = "gdm";
-        description = "Display manager / login screen to use.";
-      };
       statusbar = lib.mkOption {
         type = lib.types.enum [ "waybar" "noctalia" ];
         default = "waybar";

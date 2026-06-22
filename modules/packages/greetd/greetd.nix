@@ -1,6 +1,6 @@
 { ... }: {
   flake.nixosModules.greetd = { config, lib, pkgs, ... }:
-    lib.mkIf (config.dotfiles.desktop.enable && config.dotfiles.windowManager.displayManager == "greetd") {
+    lib.mkIf config.dotfiles.desktop.enable {
       environment.pathsToLink = [ "/share/wayland-sessions" ];
 
       services.greetd = {

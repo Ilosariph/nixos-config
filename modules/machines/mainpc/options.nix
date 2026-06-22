@@ -7,7 +7,6 @@
   dotfiles.desktop.enable = true;
   dotfiles.programs.tmux.enable = false;
   dotfiles.windowManager.type = "niri";
-  dotfiles.windowManager.displayManager = "greetd";
   dotfiles.programs.vr.enable = true;
   dotfiles.kernel = "gaming";
   dotfiles.programs.steam.enable = true;

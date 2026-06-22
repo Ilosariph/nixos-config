@@ -4,7 +4,6 @@
   dotfiles.desktop.enable = true;
   dotfiles.programs.tmux.enable = false;
   dotfiles.windowManager.type = "hyprland";
-  dotfiles.windowManager.displayManager = "greetd";
   dotfiles.bluetooth.enable = true;
   dotfiles.windowManager.mainMonitor = "eDP-1";
 	dotfiles.windowManager.statusbar = "noctalia";
