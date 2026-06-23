@@ -399,11 +399,25 @@
       };
 
       # Specialized
-      orca-slicer = {
+      threeDPrinting = {
         enable = lib.mkOption {
           type = lib.types.bool;
           default = config.dotfiles.desktop.enable;
+          description = "Enable 3D modeling / printing tooling (OpenSCAD, OrcaSlicer, ...).";
+        };
+      };
+      orca-slicer = {
+        enable = lib.mkOption {
+          type = lib.types.bool;
+          default = config.dotfiles.programs.threeDPrinting.enable;
           description = "Enable OrcaSlicer 3D printer slicer.";
+        };
+      };
+      openscad = {
+        enable = lib.mkOption {
+          type = lib.types.bool;
+          default = config.dotfiles.programs.threeDPrinting.enable;
+          description = "Enable OpenSCAD 3D modeling tool.";
         };
       };
       vr = {
