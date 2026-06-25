@@ -12,6 +12,7 @@
   dotfiles.programs.steam.enable = true;
   dotfiles.audio.routing = "pipewire-virtual";
   dotfiles.audio.outputSink = "alsa_output.usb-Focusrite_Scarlett_2i2_USB_Y8PC38G1576D2F-00.Direct__Direct__sink";
+  dotfiles.audio.inputSource = "alsa_input.usb-Focusrite_Scarlett_2i2_USB_Y8PC38G1576D2F-00.Direct__Direct__source";
   dotfiles.audio.sinks = [
     # Default catch-all sink, routed through the compressor+limiter effects bus.
     { name = "apps"; description = "Apps"; effects = true; default = true; }

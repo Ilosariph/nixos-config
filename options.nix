@@ -499,8 +499,32 @@
         enable = lib.mkOption {
           type = lib.types.bool;
           default = false;
-          description = "Enable EasyEffects audio processor. Enabled automatically by the audio-routing module for pipewire-virtual and pulsemeeter modes.";
+          description = "Enable EasyEffects audio processor. Enabled automatically by the audio-routing module for pulsemeeter mode.";
         };
+      };
+      micEffects = {
+        enable = lib.mkOption {
+          type = lib.types.bool;
+          default = false;
+          description = ''
+            Enable the declarative microphone processing chain (gate, deesser, EQ,
+            compressor) exposing a static virtual source "source-mic" that follows the
+            default physical source. Replaces the EasyEffects mic-input preset in
+            pipewire-virtual mode. Enabled automatically when routing is "pipewire-virtual".
+          '';
+        };
+      };
+      inputSource = lib.mkOption {
+        type = lib.types.str;
+        default = "";
+        description = ''
+          PipeWire node name of the physical input source to prefer as the default
+          (e.g. "alsa_input.usb-Focusrite_Scarlett_2i2_USB_..."). Run
+          `pw-cli ls Node | grep alsa_input` to find the exact name. Leave empty to
+          fall back to WirePlumber's default source selection. The mic effects chain
+          always captures from whichever source is currently default, so the
+          `audio-input` switcher just calls `wpctl set-default`.
+        '';
       };
       outputSink = lib.mkOption {
         type = lib.types.str;
