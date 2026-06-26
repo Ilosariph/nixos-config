@@ -111,6 +111,24 @@ graphical machines). Generated from the `dotfiles.windowManager` options in
 
 ---
 
+## Media & Laptop Keys
+
+> These work even while the screen is locked.
+
+| Key | Action |
+|-----|--------|
+| `XF86AudioRaiseVolume` | Volume +5% |
+| `XF86AudioLowerVolume` | Volume –5% |
+| `XF86AudioMute` | Toggle mute (output) |
+| `XF86AudioMicMute` | Toggle mute (microphone) |
+| `XF86MonBrightnessUp` | Brightness +5% |
+| `XF86MonBrightnessDown` | Brightness –5% |
+| `XF86AudioNext` | Next track |
+| `XF86AudioPrev` | Previous track |
+| `XF86AudioPlay` / `XF86AudioPause` | Play / Pause |
+
+---
+
 ## tmux
 
 > Prefix = `Ctrl + A`

@@ -317,6 +317,18 @@ ${lib.optionalString (osConfig.dotfiles.audio.routing == "pipewire-virtual") ''
               // Mouse wheel scrolling
               Mod+WheelScrollDown cooldown-ms=150 { focus-workspace-down; }
               Mod+WheelScrollUp cooldown-ms=150 { focus-workspace-up; }
+
+              // Multimedia / laptop keys (work while the screen is locked)
+              XF86AudioRaiseVolume allow-when-locked=true { spawn "wpctl" "set-volume" "-l" "1" "@DEFAULT_AUDIO_SINK@" "5%+"; }
+              XF86AudioLowerVolume allow-when-locked=true { spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "5%-"; }
+              XF86AudioMute allow-when-locked=true { spawn "wpctl" "set-mute" "@DEFAULT_AUDIO_SINK@" "toggle"; }
+              XF86AudioMicMute allow-when-locked=true { spawn "wpctl" "set-mute" "@DEFAULT_AUDIO_SOURCE@" "toggle"; }
+              XF86MonBrightnessUp allow-when-locked=true { spawn "brightnessctl" "-e4" "-n2" "set" "5%+"; }
+              XF86MonBrightnessDown allow-when-locked=true { spawn "brightnessctl" "-e4" "-n2" "set" "5%-"; }
+              XF86AudioNext allow-when-locked=true { spawn "playerctl" "next"; }
+              XF86AudioPause allow-when-locked=true { spawn "playerctl" "play-pause"; }
+              XF86AudioPlay allow-when-locked=true { spawn "playerctl" "play-pause"; }
+              XF86AudioPrev allow-when-locked=true { spawn "playerctl" "previous"; }
             }
           '';
         };
