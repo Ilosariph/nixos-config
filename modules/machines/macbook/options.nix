@@ -3,7 +3,7 @@
   dotfiles.kernel = "none";
   dotfiles.desktop.enable = true;
   dotfiles.programs.tmux.enable = false;
-  dotfiles.windowManager.type = "hyprland";
+  dotfiles.windowManager.type = "niri";
   dotfiles.bluetooth.enable = true;
   dotfiles.windowManager.mainMonitor = "eDP-1";
 	dotfiles.windowManager.statusbar = "noctalia";

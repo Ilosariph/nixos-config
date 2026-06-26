@@ -1,6 +1,6 @@
-# Hyprland Shortcuts
+# Shortcuts
 
-See [HYPRLAND_SHORTCUTS.md](./HYPRLAND_SHORTCUTS.md) for a full list of keybindings.
+See [SHORTCUTS.md](./SHORTCUTS.md) for a full list of keybindings.
 
 ---
 

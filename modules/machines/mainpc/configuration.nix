@@ -41,8 +41,4 @@
 		open = false;
 		package = config.boot.kernelPackages.nvidiaPackages.stable;
 	};
-
-  specialisation.niri.configuration = {
-    dotfiles.windowManager.type = lib.mkForce "niri";
-  };
 }

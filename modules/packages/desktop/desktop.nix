@@ -79,8 +79,6 @@
 
         weechat
 
-        grimblast
-        hyprpicker
         playerctl
         brightnessctl
         clipse
@@ -122,7 +120,7 @@
         inputs.nix-flatpak.homeManagerModules.nix-flatpak
       ];
 
-      home-manager.users.${config.dotfiles.user.name} = { lib, pkgs, config, osConfig, ... }: {
+      home-manager.users.${config.dotfiles.user.name} = { lib, pkgs, config, ... }: {
         xdg.mimeApps = {
           enable = true;
           defaultApplications =
@@ -210,10 +208,7 @@
           ];
           config = {
             common = {
-              default =
-                if osConfig.dotfiles.windowManager.type == "niri"
-                then [ "gtk" ]
-                else [ "hyprland" "gtk" ];
+              default = [ "gtk" ];
               "org.freedesktop.impl.portal.FileChooser" = [ "gtk" ];
               "org.freedesktop.impl.portal.OpenURI" = [ "gtk" ];
             };

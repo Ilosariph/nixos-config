@@ -24,8 +24,8 @@
 
     windowManager = {
       type = lib.mkOption {
-        type = lib.types.enum [ "hyprland" "niri" ];
-        default = "hyprland";
+        type = lib.types.enum [ "niri" ];
+        default = "niri";
         description = "Window manager to use on desktop systems.";
       };
       mainMonitor = lib.mkOption {
@@ -205,8 +205,7 @@
         default = ./modules/packages/wallpapers/wallpapers;
         description = ''
           Directory containing wallpaper image files. Imported into the nix store
-          so all consumers (hyprpaper, noctalia, the random-wallpaper script, etc.)
-          read from the same store path.
+          so all consumers (noctalia, etc.) read from the same store path.
         '';
       };
     };

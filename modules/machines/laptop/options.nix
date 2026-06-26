@@ -2,7 +2,7 @@
 {
   dotfiles.desktop.enable = true;
   dotfiles.programs.tmux.enable = false;
-  dotfiles.windowManager.type = "hyprland";
+  dotfiles.windowManager.type = "niri";
   dotfiles.bluetooth.enable = true;
   dotfiles.bootloader.type = "grub";
   dotfiles.bootloader.grubDevice = "/dev/nvme0n1";

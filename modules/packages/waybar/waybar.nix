@@ -1,12 +1,10 @@
 { ... }: {
   flake.nixosModules.waybar = { config, pkgs, lib, ... }:
     lib.mkIf (config.dotfiles.desktop.enable && config.dotfiles.windowManager.statusbar == "waybar") {
-      home-manager.users.${config.dotfiles.user.name} = { lib, pkgs, osConfig, ... }:
+      home-manager.users.${config.dotfiles.user.name} = { pkgs, ... }:
         let
-          wmType = osConfig.dotfiles.windowManager.type;
-          isHyprland = wmType == "hyprland";
-          workspacesModule = if isHyprland then "hyprland/workspaces" else "niri/workspaces";
-          sessionTarget = if isHyprland then "hyprland-session.target" else "graphical-session.target";
+          workspacesModule = "niri/workspaces";
+          sessionTarget = "graphical-session.target";
         in {
         programs.waybar = {
           enable = true;
@@ -194,7 +192,7 @@
             portalServices = [
               "xdg-desktop-portal.service"
               "xdg-desktop-portal-gtk.service"
-            ] ++ lib.optional isHyprland "xdg-desktop-portal-hyprland.service";
+            ];
           in {
             Unit = {
               Wants = portalServices;

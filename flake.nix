@@ -1,5 +1,5 @@
 {
-  description = "Configs for hyprland, niri and server stuff";
+  description = "Configs for niri and server stuff";
 
   inputs = {
     nixpkgs.url         = "github:nixos/nixpkgs/nixos-unstable";

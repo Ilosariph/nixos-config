@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is a NixOS configuration repository using **flake-parts** + **import-tree** (dendritic pattern). Each feature/program lives in a single file under `modules/packages/<aspect>/` covering both NixOS system config and home-manager config. Auto-discovery via `import-tree` removes manual import wiring.
 
-Desktop systems support both Hyprland and Niri window managers, selected via `dotfiles.windowManager.type`.
+Desktop systems use the Niri window manager (`dotfiles.windowManager.type`).
 
 ## Build Commands
 
@@ -22,7 +22,6 @@ Desktop systems support both Hyprland and Niri window managers, selected via `do
 
 # Manual commands (from project root):
 sudo nixos-rebuild switch --flake .#mainpc
-sudo nixos-rebuild switch --flake .#mainpc-niri
 sudo nixos-rebuild switch --flake .#nucserver
 ```
 
@@ -68,7 +67,7 @@ trusted-public-keys = mainpc:base64pubkey=
 Then rebuild mainpc (loads the signing key) and deploy evo (trusts the public key).
 
 ### Available Flake Configurations
-- **Desktop**: `mainpc`, `mainpc-niri`, `laptop`, `macbook` (aarch64)
+- **Desktop**: `mainpc`, `laptop`, `macbook` (aarch64)
 - **Servers**: `nucserver`, `laptopserver`, `evo`
 
 ## Architecture
@@ -94,7 +93,6 @@ Each aspect in `modules/packages/<aspect>/<aspect>.nix` is a **flake-parts modul
 ├── modules/
 │   ├── _hosts/                  # Host instantiation (explicit, not auto-discovered)
 │   │   ├── mainpc.nix
-│   │   ├── mainpc-niri.nix
 │   │   ├── laptop.nix
 │   │   ├── macbook.nix
 │   │   ├── nucserver.nix
@@ -134,13 +132,6 @@ Each aspect in `modules/packages/<aspect>/<aspect>.nix` is a **flake-parts modul
 │       ├── udiskie/udiskie.nix
 │       ├── orca-slicer/orca-slicer.nix
 │       ├── easyeffects/easyeffects.nix
-│       ├── hyprland/
-│       │   ├── hyprland.nix         # System + home entry (self-guarded by wm.type)
-│       │   └── _hypr/               # Hyprland config files (skipped by import-tree)
-│       │       ├── hyprland.nix
-│       │       ├── hypridle.nix
-│       │       ├── hyprlock.nix
-│       │       └── hyprpaper/
 │       ├── niri/niri.nix
 │       ├── waybar/waybar.nix        # Waybar + mako
 │       ├── wofi/wofi.nix            # Wofi launcher/menu styling (WM/statusbar-independent)
@@ -173,7 +164,7 @@ Every file in `modules/packages/` is a **flake-parts module**:
 Machine-specific settings are defined via custom `dotfiles.*` options in `options.nix`:
 
 - **`dotfiles.desktop.enable`**: Enable desktop environment (audio, printing, flatpak, GUI programs, WM)
-- **`dotfiles.windowManager.type`**: `"hyprland"` (default) or `"niri"`
+- **`dotfiles.windowManager.type`**: `"niri"` (the only supported window manager)
 - **`dotfiles.windowManager.*`**: Monitor layouts, statusbar, keybindings (QWERTY/Colemak), mouse settings
 - **`dotfiles.services.ssh.enable`**: Enable OpenSSH (server machines)
 - **`dotfiles.services.fail2ban.enable`**: Enable fail2ban (server machines)
@@ -222,22 +213,16 @@ Age keys must be placed at `/home/simon/.config/sops/age/keys.txt`.
 ### Mainpc
 - Includes VR support via `nixpkgs-xr` (`dotfiles.programs.vr.enable = true`)
 - Gaming configuration with Steam in `modules/_machines/mainpc/gaming/`
-- `mainpc-niri` host overrides `windowManager.type = lib.mkForce "niri"`
 
-## Window Manager Configurations
-
-### Hyprland
-- Aspect file: `modules/packages/hyprland/hyprland.nix`
-- Config files in `modules/packages/hyprland/_hypr/`: `hyprland.nix`, `hyprlock.nix`, `hypridle.nix`, `hyprpaper/`
-- Self-guarded: only activates when `dotfiles.windowManager.type == "hyprland"`
-- See `HYPRLAND_SHORTCUTS.md` for full keybinding list
+## Window Manager Configuration
 
 ### Niri
 - Aspect file: `modules/packages/niri/niri.nix`
 - Self-guarded: only activates when `dotfiles.windowManager.type == "niri"`
 - Config generated from `dotfiles.windowManager` options
+- See `SHORTCUTS.md` for the full keybinding list
 
 ### Status Bars & Notifications
 - Waybar + mako: `modules/packages/waybar/waybar.nix` (guarded by `statusbar == "waybar"`)
-- Wofi launcher/menu styling: `modules/packages/wofi/wofi.nix` (guarded by `desktop.enable`, so it applies under any WM/statusbar — used by the launcher and the audio-output switcher)
+- Wofi launcher/menu styling: `modules/packages/wofi/wofi.nix` (guarded by `desktop.enable`, so it applies under any statusbar — used by the launcher and the audio-output switcher)
 - Noctalia: `modules/packages/noctalia/noctalia.nix` (guarded by `statusbar == "noctalia"`)
