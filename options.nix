@@ -329,13 +329,6 @@
       };
 
       # Terminal & Shell
-      kitty = {
-        enable = lib.mkOption {
-          type = lib.types.bool;
-          default = config.dotfiles.desktop.enable;
-          description = "Enable kitty terminal emulator.";
-        };
-      };
       fish = {
         enable = lib.mkOption {
           type = lib.types.bool;
@@ -358,22 +351,6 @@
         };
       };
 
-      # Media
-      mpv = {
-        enable = lib.mkOption {
-          type = lib.types.bool;
-          default = config.dotfiles.desktop.enable;
-          description = "Enable mpv media player.";
-        };
-      };
-      yazi = {
-        enable = lib.mkOption {
-          type = lib.types.bool;
-          default = config.dotfiles.desktop.enable;
-          description = "Enable yazi file manager.";
-        };
-      };
-
       # Utilities
       udiskie = {
         enable = lib.mkOption {
@@ -382,22 +359,8 @@
           description = "Enable udiskie USB automounter.";
         };
       };
-      zed = {
-        enable = lib.mkOption {
-          type = lib.types.bool;
-          default = config.dotfiles.desktop.enable;
-          description = "Enable Zed text editor.";
-        };
-      };
 
       # Specialized
-      orca-slicer = {
-        enable = lib.mkOption {
-          type = lib.types.bool;
-          default = config.dotfiles.desktop.enable;
-          description = "Enable OrcaSlicer 3D printer slicer.";
-        };
-      };
       vr = {
         enable = lib.mkOption {
           type = lib.types.bool;

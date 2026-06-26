@@ -168,12 +168,11 @@ Machine-specific settings are defined via custom `dotfiles.*` options in `option
 - **`dotfiles.windowManager.*`**: Monitor layouts, statusbar, keybindings (QWERTY/Colemak), mouse settings
 - **`dotfiles.services.ssh.enable`**: Enable OpenSSH (server machines)
 - **`dotfiles.services.fail2ban.enable`**: Enable fail2ban (server machines)
-- **`dotfiles.programs.*`**: Per-program enable flags (default to `desktop.enable`)
-  - Terminal/Shell: `kitty`, `fish`, `bash`
-  - Media: `mpv`, `yazi`
-  - Audio: `easyeffects`
-  - Utilities: `udiskie`, `zed`, `orca-slicer`
-  - Specialized: `vr` (default false, mainpc-only)
+- **`dotfiles.programs.*`**: Per-program enable flags
+  - Shell: `fish`, `bash`, `tmux` (default true)
+  - Utilities: `udiskie` (default `desktop.enable`)
+  - Specialized: `vr`, `steam`, `thonny`, `blog`, `yeetmouse` (default false)
+  - Desktop GUI programs (kitty, mpv, yazi, zed, swappy, orca-slicer) have no per-program flag — they install whenever `desktop.enable` is set (yazi installs everywhere, it's a TUI)
 - **`dotfiles.vpn`**: Enable/disable, WireGuard account list
 - **`dotfiles.bluetooth.enable`**
 - **`dotfiles.bootloader`**: `"systemd"` (default) or `"grub"`

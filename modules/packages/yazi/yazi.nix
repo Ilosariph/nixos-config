@@ -1,6 +1,6 @@
 { ... }: {
-  flake.nixosModules.yazi = { config, lib, ... }:
-    lib.mkIf config.dotfiles.programs.yazi.enable {
+  flake.nixosModules.yazi = { config, ... }:
+    {
       home-manager.users.${config.dotfiles.user.name} = { config, ... }: {
         programs.yazi.enable = true;
         programs.yazi.shellWrapperName = "yy";
