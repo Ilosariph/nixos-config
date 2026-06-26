@@ -375,13 +375,6 @@
       };
 
       # Utilities
-      swappy = {
-        enable = lib.mkOption {
-          type = lib.types.bool;
-          default = config.dotfiles.desktop.enable;
-          description = "Enable swappy screenshot annotation tool.";
-        };
-      };
       udiskie = {
         enable = lib.mkOption {
           type = lib.types.bool;

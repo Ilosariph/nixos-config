@@ -172,7 +172,7 @@ Machine-specific settings are defined via custom `dotfiles.*` options in `option
   - Terminal/Shell: `kitty`, `fish`, `bash`
   - Media: `mpv`, `yazi`
   - Audio: `easyeffects`
-  - Utilities: `swappy`, `udiskie`, `zed`, `orca-slicer`
+  - Utilities: `udiskie`, `zed`, `orca-slicer`
   - Specialized: `vr` (default false, mainpc-only)
 - **`dotfiles.vpn`**: Enable/disable, WireGuard account list
 - **`dotfiles.bluetooth.enable`**
