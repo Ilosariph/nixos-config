@@ -141,7 +141,7 @@ in {
         };
 
         input = {
-          kb_layout = "ch";
+          kb_layout = osConfig.dotfiles.locale.xkbLayout;
           kb_options = "caps:escape";
 
           follow_mouse = 1;

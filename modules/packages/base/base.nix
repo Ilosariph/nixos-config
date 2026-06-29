@@ -25,6 +25,17 @@
     services.xserver.xkb = {
       layout = config.dotfiles.locale.xkbLayout;
       variant = config.dotfiles.locale.xkbVariant;
+      extraLayouts.ch-nodead-cflex = {
+        description = "Swiss German, non-dead ^ and ~";
+        languages = [ "ger" ];
+        symbolsFile = pkgs.writeText "ch-nodead-cflex" ''
+          default partial alphanumeric_keys
+          xkb_symbols "basic" {
+            include "ch(de)"
+            key <AE12> { [ asciicircum, degree, asciitilde, asciitilde ] };
+          };
+        '';
+      };
     };
     console.keyMap = config.dotfiles.locale.keyMap;
 

@@ -130,7 +130,7 @@
             input {
               keyboard {
                 xkb {
-                  layout "ch"
+                  layout "${osConfig.dotfiles.locale.xkbLayout}"
                   options "caps:escape"
                 }
                 numlock
