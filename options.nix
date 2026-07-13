@@ -522,7 +522,7 @@
       };
       xkbLayout = lib.mkOption {
         type = lib.types.str;
-        default = "ch";
+        default = "ch-nodead-cflex";
         description = "X keyboard layout.";
       };
       xkbVariant = lib.mkOption {
