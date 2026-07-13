@@ -80,12 +80,12 @@
 
           lockCmd =
             if osConfig.dotfiles.windowManager.statusbar == "noctalia"
-            then ''spawn-sh "noctalia-shell ipc call lockScreen lock"''
+            then ''spawn-sh "noctalia msg session lock"''
             else ''spawn "swaylock"'';
 
           baseSpawnCommands =
+            # noctalia daemon is started by its systemd user service (programs.noctalia.systemd.enable)
             (if osConfig.dotfiles.windowManager.statusbar == "waybar" then [ [ "waybar" ] ]
-            else if osConfig.dotfiles.windowManager.statusbar == "noctalia" then [ [ "noctalia-shell" ] ]
             else [])
             ++ lib.optionals osConfig.dotfiles.programs._1password.enable [ [ "1password" "--silent" ] ];
 
@@ -225,13 +225,11 @@
               Mod+E hotkey-overlay-title="Yazi file manager" { spawn "kitty" "-e" "yazi"; }
               Mod+SPACE hotkey-overlay-title="Menu" {
                 ${if osConfig.dotfiles.windowManager.statusbar == "noctalia"
-                  then ''spawn-sh "noctalia-shell ipc call launcher toggle"''
+                  then ''spawn-sh "noctalia msg panel-toggle launcher"''
                   else ''spawn "wofi" "--show" "drun" "--sort-order=alphabetical"''}
               }
-              Super+Alt+L hotkey-overlay-title="Lock the Screen" { ${lockCmd}; }
               Super+Escape hotkey-overlay-title="Lock the Screen" { ${lockCmd}; }
-              ${lib.optionalString (osConfig.dotfiles.windowManager.statusbar == "noctalia")
-                ''Mod+Slash hotkey-overlay-title="Keybind Cheatsheet" { spawn-sh "noctalia-shell ipc call plugin:keybind-cheatsheet toggle"; }''}
+              // TODO: re-enable Mod+Slash keybind cheatsheet once a v5 noctalia plugin exists (tracked in flake.nix)
 
               Mod+C repeat=false { close-window; }
               Mod+V { toggle-window-floating; }

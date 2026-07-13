@@ -6,32 +6,28 @@
         programs.ssh = {
           enable = true;
           enableDefaultConfig = false;
-          matchBlocks = {
+          settings = {
             "nucserver" = {
-              forwardAgent = true;
-              serverAliveInterval = 0;
-              serverAliveCountMax = 3;
-              compression = false;
-              addKeysToAgent = "no";
-              hashKnownHosts = false;
-              controlMaster = "no";
-              controlPersist = "no";
-              extraOptions = lib.mkIf osConfig.dotfiles.programs._1password.sshAgent {
-                IdentityAgent = onePassPath;
-              };
+              ForwardAgent = true;
+              ServerAliveInterval = 0;
+              ServerAliveCountMax = 3;
+              Compression = false;
+              AddKeysToAgent = "no";
+              HashKnownHosts = false;
+              ControlMaster = "no";
+              ControlPersist = "no";
+              IdentityAgent = lib.mkIf osConfig.dotfiles.programs._1password.sshAgent onePassPath;
             };
-            "*" = {
-              forwardAgent = false;
-              serverAliveInterval = 0;
-              serverAliveCountMax = 3;
-              compression = false;
-              addKeysToAgent = "no";
-              hashKnownHosts = false;
-              controlMaster = "no";
-              controlPersist = "no";
-              extraOptions = lib.mkIf osConfig.dotfiles.programs._1password.sshAgent {
-                IdentityAgent = onePassPath;
-              };
+            "*" = lib.hm.dag.entryAfter [ "nucserver" ] {
+              ForwardAgent = false;
+              ServerAliveInterval = 0;
+              ServerAliveCountMax = 3;
+              Compression = false;
+              AddKeysToAgent = "no";
+              HashKnownHosts = false;
+              ControlMaster = "no";
+              ControlPersist = "no";
+              IdentityAgent = lib.mkIf osConfig.dotfiles.programs._1password.sshAgent onePassPath;
             };
           };
         };

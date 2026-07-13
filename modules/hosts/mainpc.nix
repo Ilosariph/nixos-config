@@ -3,6 +3,17 @@
     pkgs = import inputs.nixpkgs {
       system = "x86_64-linux";
       config.allowUnfree = true;
+      # Temporary: musescore is broken in current nixos-unstable
+      # (makeCWrapper: Unknown argument --prefix LD_LIBRARY_PATH).
+      # Pull it from a pinned older nixpkgs until upstream is fixed.
+      overlays = [
+        (final: prev: {
+          musescore = (import inputs.nixpkgs-musescore {
+            inherit (final.stdenv.hostPlatform) system;
+            config.allowUnfree = true;
+          }).musescore;
+        })
+      ];
     };
     modules = [
       { nixpkgs.hostPlatform = "x86_64-linux"; }

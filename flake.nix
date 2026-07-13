@@ -2,9 +2,13 @@
   description = "Configs for niri and server stuff";
 
   inputs = {
-    nixpkgs.url         = "github:nixos/nixpkgs/nixos-unstable";
-    flake-parts.url     = "github:hercules-ci/flake-parts";
-    import-tree.url     = "github:vic/import-tree";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    # Temporary pin for musescore: broken in current nixos-unstable
+    # (makeCWrapper: Unknown argument --prefix LD_LIBRARY_PATH). Remove
+    # once fixed upstream.
+    nixpkgs-musescore.url = "github:nixos/nixpkgs/da5ad661ba4e5ef59ba743f0d112cbc30e474f32";
+    flake-parts.url = "github:hercules-ci/flake-parts";
+    import-tree.url = "github:vic/import-tree";
 
     home-manager = {
       url = "github:nix-community/home-manager";
@@ -23,6 +27,8 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # TODO: noctalia v5 dropped the keybind-cheatsheet plugin; Mod+Slash bind
+    # is commented out in niri.nix. Re-enable once a v5 cheatsheet plugin ships.
     noctalia-shell = {
       url = "github:noctalia-dev/noctalia-shell";
       inputs.nixpkgs.follows = "nixpkgs";
