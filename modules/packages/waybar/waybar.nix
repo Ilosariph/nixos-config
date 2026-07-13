@@ -238,6 +238,21 @@
             };
           };
         };
+
+        # Polkit authentication agent (Noctalia provides its own; waybar needs one)
+        systemd.user.services.hyprpolkitagent = {
+          Unit = {
+            Description = "Hyprland Polkit authentication agent";
+            PartOf = [ sessionTarget ];
+            After = [ sessionTarget ];
+          };
+          Service = {
+            ExecStart = "${pkgs.hyprpolkitagent}/libexec/hyprpolkitagent";
+            Restart = "on-failure";
+            RestartSec = 1;
+          };
+          Install.WantedBy = [ sessionTarget ];
+        };
       };
     };
 }
