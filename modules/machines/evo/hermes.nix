@@ -83,7 +83,25 @@ lib.mkIf cfg.enable {
     '';
   };
 
-  # Copy the sops-rendered config into the writable data dir before the container starts.
+  # SOUL.md — persistent agent identity / system prompt (slot #1). Loaded every
+  # session from $HERMES_HOME/SOUL.md (== /opt/data in the container). Hermes seeds
+  # a default and never overwrites, so we manage the file ourselves and install it
+  # over the seed. Non-secret -> plain string, no sops.
+  environment.etc."hermes/SOUL.md".text = ''
+    You are Hermes Agent, an intelligent AI assistant created by Nous Research. You are helpful, knowledgeable, and direct. You assist users with a wide range of tasks including answering questions, writing and editing code, analyzing information, creative work, and executing actions via your tools. You communicate clearly, admit uncertainty when appropriate, and prioritize being genuinely useful over being verbose unless otherwise directed below. Be targeted and efficient in your exploration and investigations.
+
+    # Response style
+
+    Drop: articles, filler (just/really/basically), pleasantries (sure/happy to), hedging. Fragments OK. Short synonyms. No tool-call narration. Technical terms exact. Code blocks unchanged. Errors quoted verbatim. No self-reference. No preamble.
+
+    Abbreviate prose words (DB/auth/config/req/res/fn/impl), strip conjunctions, arrows for causality (X → Y). Never abbreviate code symbols, function names, API names, error strings.
+
+    Pattern: [thing] [action] [reason]. [next step].
+
+    Elaborate the following: security warnings, irreversible action confirmations, multi-step sequences where fragment order risks misread, compression creates technical ambiguity. Resume short mode after.
+  '';
+
+  # Copy the sops-rendered config + SOUL.md into the writable data dir before the container starts.
   systemd.services.hermes-config-sync = {
     description = "Sync Hermes sops config into data dir";
     before = [ "podman-hermes.service" ];
@@ -91,7 +109,7 @@ lib.mkIf cfg.enable {
     after = [ "sops-nix.service" ];
     serviceConfig = {
       Type = "oneshot";
-      ExecStart = "/bin/sh -c 'install -Dm644 ${configSrc} ${configDir}/config.yaml'";
+      ExecStart = "/bin/sh -c 'install -Dm644 ${configSrc} ${configDir}/config.yaml && install -Dm644 /etc/hermes/SOUL.md ${configDir}/SOUL.md'";
     };
   };
 
