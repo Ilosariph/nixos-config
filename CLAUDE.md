@@ -76,8 +76,8 @@ Then rebuild mainpc (loads the signing key) and deploy evo (trusts the public ke
 
 `flake.nix` uses `flake-parts` as orchestrator:
 - `import-tree ./modules/packages` auto-discovers all aspect modules
-- `modules/_hosts/*.nix` are explicitly loaded (skipped by import-tree due to `_` prefix)
-- Each host file instantiates `nixpkgs.lib.nixosSystem` referencing all `config.flake.nixosModules.*`
+- `import-tree ./modules/hosts` auto-discovers all host instantiations
+- Each host file instantiates `nixpkgs.lib.nixosSystem`, pulling in every aspect via `builtins.attrValues config.flake.nixosModules` and its own machine dir via `import-tree ../machines/<name>`
 
 ### Module Loading Pattern
 
@@ -91,7 +91,7 @@ Each aspect in `modules/packages/<aspect>/<aspect>.nix` is a **flake-parts modul
 ├── options.nix                  # All dotfiles.* option definitions
 │
 ├── modules/
-│   ├── _hosts/                  # Host instantiation (explicit, not auto-discovered)
+│   ├── hosts/                   # Host instantiation (auto-discovered by import-tree ./modules/hosts)
 │   │   ├── mainpc.nix
 │   │   ├── laptop.nix
 │   │   ├── macbook.nix
@@ -99,7 +99,7 @@ Each aspect in `modules/packages/<aspect>/<aspect>.nix` is a **flake-parts modul
 │   │   ├── laptopserver.nix
 │   │   └── evo.nix
 │   │
-│   ├── _machines/               # Per-machine options + hardware (skipped by import-tree)
+│   ├── machines/                # Per-machine options + hardware (loaded per-host via import-tree)
 │   │   ├── mainpc/
 │   │   ├── laptop/
 │   │   ├── macbook/
@@ -129,6 +129,7 @@ Each aspect in `modules/packages/<aspect>/<aspect>.nix` is a **flake-parts modul
 │       ├── yazi/yazi.nix
 │       ├── zed/zed.nix
 │       ├── swappy/swappy.nix
+│       ├── ksnip/ksnip.nix
 │       ├── udiskie/udiskie.nix
 │       ├── orca-slicer/orca-slicer.nix
 │       ├── easyeffects/easyeffects.nix
@@ -141,7 +142,7 @@ Each aspect in `modules/packages/<aspect>/<aspect>.nix` is a **flake-parts modul
 └── shells/                      # Dev shells
 ```
 
-**Key convention**: `_`-prefixed directories are skipped by import-tree. `_hosts/` and `_machines/` must be loaded explicitly.
+**Key convention**: the top-level flake runs import-tree only over `modules/packages` (aspects) and `modules/hosts` (host instantiations). `modules/machines/<name>` is *not* auto-discovered as an aspect — each host file loads its own machine dir via `import-tree ../machines/<name>`.
 
 ### Aspect File Pattern
 
@@ -171,8 +172,9 @@ Machine-specific settings are defined via custom `dotfiles.*` options in `option
 - **`dotfiles.programs.*`**: Per-program enable flags
   - Shell: `fish`, `bash`, `tmux` (default true)
   - Utilities: `udiskie` (default `desktop.enable`)
+  - `screenshot.tool`: `"grim-swappy"` (default) or `"ksnip"` — selects the screenshot stack; gates package installs (grim/slurp/swappy vs ksnip) and the Print keybindings
   - Specialized: `vr`, `steam`, `thonny`, `blog`, `yeetmouse` (default false)
-  - Desktop GUI programs (kitty, mpv, yazi, zed, swappy, orca-slicer) have no per-program flag — they install whenever `desktop.enable` is set (yazi installs everywhere, it's a TUI)
+  - Desktop GUI programs (kitty, mpv, yazi, zed, orca-slicer) have no per-program flag — they install whenever `desktop.enable` is set (yazi installs everywhere, it's a TUI). The screenshot tools (swappy / ksnip) install based on `dotfiles.programs.screenshot.tool`
 - **`dotfiles.vpn`**: Enable/disable, WireGuard account list
 - **`dotfiles.bluetooth.enable`**
 - **`dotfiles.bootloader`**: `"systemd"` (default) or `"grub"`
@@ -180,13 +182,12 @@ Machine-specific settings are defined via custom `dotfiles.*` options in `option
 
 ### Adding a New Machine
 
-1. Create `modules/_machines/{machine-name}/` with:
+1. Create `modules/machines/{machine-name}/` with:
    - `options.nix` - Set `dotfiles.*` options
    - `configuration.nix` - NixOS system config
    - `hardware-configuration.nix` - Hardware config
-   - `home.nix` - Home-manager config
-2. Create `modules/_hosts/{machine-name}.nix` instantiating `nixpkgs.lib.nixosSystem` with all shared `config.flake.nixosModules.*`
-3. Add the host file to the explicit imports in `flake.nix`
+2. Create `modules/hosts/{machine-name}.nix` instantiating `nixpkgs.lib.nixosSystem`, pulling in all aspects via `builtins.attrValues config.flake.nixosModules` and its machine dir via `import-tree ../machines/{machine-name}`
+3. No changes needed to `flake.nix` — `import-tree ./modules/hosts` auto-discovers the new host file
 
 ### Adding a New Aspect/Program
 
@@ -206,12 +207,12 @@ Age keys must be placed at `/home/simon/.config/sops/age/keys.txt`.
 
 ### Macbook (Apple Silicon)
 - Uses `aarch64-linux` architecture
-- Has custom `apple-silicon-support` submodule in `modules/_machines/macbook/`
+- Pulls in the `apple-silicon` flake input; firmware and touchbar config live under `modules/machines/macbook/`
 - Requires manual WireGuard configuration files
 
 ### Mainpc
 - Includes VR support via `nixpkgs-xr` (`dotfiles.programs.vr.enable = true`)
-- Gaming configuration with Steam in `modules/_machines/mainpc/gaming/`
+- Gaming: Steam via the `steam` aspect (`modules/packages/steam/steam.nix`, `dotfiles.programs.steam.enable = true`)
 
 ## Window Manager Configuration
 
