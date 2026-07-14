@@ -70,6 +70,14 @@ lib.mkIf cfg.enable {
       # so no docker_volumes needed.
       terminal:
         backend: local
+      # MCP servers — launched by Hermes as stdio subprocesses inside this
+      # container (uvx/uv/npx/python3 are all on PATH, Debian 13). Tools register
+      # as mcp_<name>_<tool>. Edit + /reload-mcp in chat to pick up changes without
+      # a container restart.
+      mcp_servers:
+        nixos:
+          command: uvx
+          args: ["mcp-nixos"]
       # Discord access control is configured via env vars in hermes-env
       # (DISCORD_ALLOWED_USERS / _CHANNELS / _HOME_CHANNEL / _REQUIRE_MENTION).
     '';
