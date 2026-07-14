@@ -93,11 +93,14 @@ graphical machines). Generated from the `dotfiles.windowManager` options in
 
 ## Screenshots
 
-| Shortcut | Action |
-|----------|--------|
-| `Print` | Screenshot selection → edit in Swappy |
-| `Shift + Print` | Screenshot full screen → edit in Swappy |
-| `Ctrl + Print` | Screenshot current output → edit in Swappy |
+The screenshot tool is selected per-machine via `dotfiles.programs.screenshot.tool`
+(`grim-swappy` default, or `ksnip`). The bindings below adapt to that setting.
+
+| Shortcut | Action (`grim-swappy`) | Action (`ksnip`) |
+|----------|------------------------|------------------|
+| `Print` | Screenshot selection → edit in Swappy | Screenshot selection (magnifier) → edit in ksnip |
+| `Shift + Print` | Screenshot full screen → edit in Swappy | Screenshot full screen → edit in ksnip |
+| `Ctrl + Print` | Screenshot current output → edit in Swappy | Screenshot current output → edit in ksnip |
 
 > niri also stores screenshots under `~/Pictures/Screenshots/`.
 

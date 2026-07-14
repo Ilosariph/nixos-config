@@ -31,6 +31,7 @@
     # Comms through the effects bus; Discord etc. select this sink in-app (no rule).
     { name = "comms"; description = "Comms"; effects = true; }
   ];
+  dotfiles.programs.screenshot.tool = "ksnip";
   dotfiles.programs.thonny.enable = true;
   dotfiles.programs.blog.enable = true;
   dotfiles.programs.yeetmouse.enable = true;

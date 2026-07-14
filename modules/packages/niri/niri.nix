@@ -90,8 +90,11 @@
             ++ lib.optionals osConfig.dotfiles.programs._1password.enable [ [ "1password" "--silent" ] ];
 
           allSpawnCommands = baseSpawnCommands ++ map (s: lib.splitString " " s) cfg.execOnce;
+
+          screenshotTool = osConfig.dotfiles.programs.screenshot.tool;
         in lib.mkIf isNiriPrimary {
-          home.packages = with pkgs; [ grim slurp ];
+          home.packages = with pkgs;
+            lib.optionals (screenshotTool == "grim-swappy") [ grim slurp ];
 
           home.sessionVariables = {
             QT_QPA_PLATFORM = "wayland";
@@ -303,9 +306,15 @@ ${lib.optionalString (osConfig.dotfiles.audio.routing == "pipewire-virtual") ''
               Mod+Shift+T { expel-window-from-column; }
 
               // Screenshots
-              Print { spawn "sh" "-c" "grim -g \"$(slurp)\" - | swappy -f -"; }
-              Shift+Print { spawn "sh" "-c" "grim - | swappy -f -"; }
-              Ctrl+Print { spawn "sh" "-c" "grim -g \"$(slurp -o)\" - | swappy -f -"; }
+              ${if screenshotTool == "ksnip" then ''
+              Print hotkey-overlay-title="Screenshot selection (ksnip)" { spawn "ksnip" "-r"; }
+              Shift+Print hotkey-overlay-title="Screenshot full screen (ksnip)" { spawn "ksnip" "-f"; }
+              Ctrl+Print hotkey-overlay-title="Screenshot current output (ksnip)" { spawn "ksnip" "-m"; }
+              '' else ''
+              Print hotkey-overlay-title="Screenshot selection (Swappy)" { spawn "sh" "-c" "grim -g \"$(slurp)\" - | swappy -f -"; }
+              Shift+Print hotkey-overlay-title="Screenshot full screen (Swappy)" { spawn "sh" "-c" "grim - | swappy -f -"; }
+              Ctrl+Print hotkey-overlay-title="Screenshot current output (Swappy)" { spawn "sh" "-c" "grim -g \"$(slurp -o)\" - | swappy -f -"; }
+              ''}
 
               // Session
               Mod+Escape allow-inhibiting=false { toggle-keyboard-shortcuts-inhibit; }

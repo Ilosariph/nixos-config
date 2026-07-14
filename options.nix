@@ -359,6 +359,19 @@
           description = "Enable udiskie USB automounter.";
         };
       };
+      screenshot = {
+        tool = lib.mkOption {
+          type = lib.types.enum [ "grim-swappy" "ksnip" ];
+          default = "grim-swappy";
+          description = ''
+            Screenshot tool/stack to use on desktop systems. Selects which packages
+            are installed and which Print keybindings the window manager generates.
+            grim-swappy: grim + slurp for capture/region selection, swappy for annotation.
+            ksnip: all-in-one Greenshot-like tool with a cursor magnifier during
+              region selection and built-in annotation.
+          '';
+        };
+      };
 
       # Specialized
       vr = {
