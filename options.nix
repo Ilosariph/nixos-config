@@ -178,6 +178,13 @@
           description = "Published server URL for Jellyfin autodiscovery (JELLYFIN_PublishedServerUrl).";
         };
       };
+      hermes = {
+        enable = lib.mkOption {
+          type = lib.types.bool;
+          default = false;
+          description = "Nous Research Hermes agent (Discord input + local llama.cpp backend).";
+        };
+      };
     };
 
     vpn = {
