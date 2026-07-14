@@ -61,11 +61,15 @@ lib.mkIf cfg.enable {
         model: qwen3.6-27b
         base_url: http://127.0.0.1:8081/v1
         api_key: "none"
+      # backend: local -> commands run directly inside this container (Debian 13,
+      # has git/apt/python3/curl). The old `docker` backend spawned a sibling
+      # container per command and needs a Docker daemon in-container -> we run under
+      # podman with no docker socket, so every execute_code/git call failed with
+      # "Docker command is available but 'docker version' failed". The project dir
+      # and /data are already bind-mounted at the container level (see volumes below),
+      # so no docker_volumes needed.
       terminal:
-        backend: docker
-        docker_volumes:
-          - "/mnt/projects/hermes:/workspace/projects"
-          - "/home/${user}/data:/data"
+        backend: local
       # Discord access control is configured via env vars in hermes-env
       # (DISCORD_ALLOWED_USERS / _CHANNELS / _HOME_CHANNEL / _REQUIRE_MENTION).
     '';
