@@ -14,6 +14,7 @@
 		publishedServerUrl = "https://jellyfin.simon-wick.ch";
 	};
   dotfiles.services.fail2ban.enable = true;
+  dotfiles.services.hermes.enable = true;
   dotfiles.services.backup.enable = true;
   dotfiles.services.backup.jobs = [
     {

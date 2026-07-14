@@ -1,18 +1,6 @@
 { ... }: {
-  flake.nixosModules.yeetmouse = { config, lib, pkgs, ... }:
-    lib.mkIf config.dotfiles.programs.yeetmouse.enable {
-      hardware.yeetmouse = {
-        enable = true;
-        sensitivity = 0.257;
-        preScale = 1.0;
-        mode.jump = {
-          acceleration = 7.07;
-          midpoint = 3.63;
-          smoothness = 1.0;
-          useSmoothing = true;
-        };
-      };
-
+  flake.nixosModules.yeetmouse = { config, lib, options, pkgs, ... }:
+    lib.mkIf config.dotfiles.programs.yeetmouse.enable ({
       users.groups.yeetmouse = {};
       users.users.${config.dotfiles.user.name}.extraGroups = [ "yeetmouse" ];
 
@@ -40,5 +28,21 @@
           '';
         };
       };
-    };
+    }
+    # The hardware.yeetmouse option comes from inputs.yeetmouse.nixosModules.default,
+    # which is only imported on hosts that actually use it (mainpc). Guard on the option
+    # existing so this aspect module (imported into every host) evaluates on servers too.
+    // lib.optionalAttrs (options.hardware ? yeetmouse) {
+      hardware.yeetmouse = {
+        enable = true;
+        sensitivity = 0.257;
+        preScale = 1.0;
+        mode.jump = {
+          acceleration = 7.07;
+          midpoint = 3.63;
+          smoothness = 1.0;
+          useSmoothing = true;
+        };
+      };
+    });
 }
