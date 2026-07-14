@@ -66,7 +66,7 @@ lib.mkIf cfg.enable {
       # container per command and needs a Docker daemon in-container -> we run under
       # podman with no docker socket, so every execute_code/git call failed with
       # "Docker command is available but 'docker version' failed". The project dir
-      # and /data are already bind-mounted at the container level (see volumes below),
+      # is already bind-mounted at the container level (see volumes below),
       # so no docker_volumes needed.
       terminal:
         backend: local
@@ -95,21 +95,47 @@ lib.mkIf cfg.enable {
     };
   };
 
+  # Dedicated CIFS mount of the `p` share's `hermes/` subfolder, mounted 0777 so the
+  # hermes container (runs as root, uid 0) can write. The regular `dotfiles.shares`
+  # mount of /mnt/projects stays uid=1000,file_mode=0755 (owner-only write) and is
+  # left untouched — file_mode is a per-mount option, so a second mount is the only way
+  # to widen perms for hermes without affecting the other folders on that share.
+  fileSystems."/mnt/hermes-projects" = {
+    device = "//192.168.1.148/p/hermes";
+    fsType = "cifs";
+    options = [
+      "x-systemd.automount,noauto,x-systemd.idle-timeout=60,x-systemd.device-timeout=5s,x-systemd.mount-timeout=5s"
+      "credentials=/etc/nixos/smb-p"
+      "uid=1000"
+      "gid=100"
+      "file_mode=0777"
+      "dir_mode=0777"
+      # noperm: skip client-side permission checks. The container runs as root
+      # (uid 0) but CIFS forceuid pins every file to uid 1000, so git's chmod on
+      # loose objects failed with EPERM for the non-owner. noperm makes the client
+      # stop enforcing perms locally (safe: this is a dedicated hermes-only mount).
+      "noperm"
+      "vers=3.0"
+    ];
+  };
+
   # Pre-create host dirs for the volume mounts.
   systemd.tmpfiles.rules = [
-    "d ${configDir}          0755 ${user} users - -"
-    "d /mnt/projects/hermes  0755 ${user} users - -"
-    "d /home/${user}/data    0755 ${user} users - -"
+    "d ${configDir}  0755 ${user} users - -"
   ];
 
   virtualisation.oci-containers.containers.hermes = {
     image = "nousresearch/hermes-agent:latest";
     cmd = [ "gateway" "run" ];
     environmentFiles = [ config.sops.templates."hermes-env".path ];
+    # HERMES_WRITE_SAFE_ROOT=/opt/data is baked into the image (also HERMES_HOME),
+    # so the agent can only write under /opt/data. Mount the projects dir *inside*
+    # that root (/opt/data/projects) so writes pass the guard. The source is the
+    # dedicated 0777 CIFS mount above (not /mnt/projects) so container-root can write.
+    # Podman overlays the nested mount onto the subdir of the configDir mount.
     volumes = [
       "${configDir}:/opt/data"
-      "/mnt/projects/hermes:/workspace/projects"
-      "/home/${user}/data:/data"
+      "/mnt/hermes-projects:/opt/data/projects"
     ];
     ports = [ "9119:9119" ];
     extraOptions = [
