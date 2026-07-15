@@ -160,6 +160,26 @@
                 default = null;
                 description = "snapshot mode only: number of most recent snapshots to retain. null = keep all.";
               };
+              restoreOnMissing = lib.mkOption {
+                type = lib.types.bool;
+                default = false;
+                description = ''
+                  When the source folder is absent at boot, restore it from the latest backup
+                  at the destination before the dependent services start. Does not run on the
+                  periodic backup timer.
+                '';
+              };
+              restoreBefore = lib.mkOption {
+                type = lib.types.listOf lib.types.str;
+                default = [];
+                example = [ "podman-jellyfin.service" ];
+                description = ''
+                  systemd units that must start only AFTER the restore has run, so they don't
+                  recreate the source dir as empty first. For oci-containers the unit is
+                  <backend>-<name>.service (podman is the default backend, e.g.
+                  'podman-jellyfin.service').
+                '';
+              };
             };
           });
           default = [];

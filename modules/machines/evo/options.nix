@@ -23,6 +23,8 @@
       calendar = "*-*-* 03:00:00";
       mode = "snapshot";
       keep = 3;
+      restoreOnMissing = true;
+      restoreBefore = [ "podman-jellyfin.service" ];
     }
   ];
   dotfiles.services.pangolinNewt = {
