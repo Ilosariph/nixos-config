@@ -16,6 +16,7 @@ let
   user = config.dotfiles.user.name;
   configDir = "/home/${user}/.hermes";
   configSrc = config.sops.templates."hermes-config".path;
+  gitCredsSrc = config.sops.templates."hermes-git-credentials".path;
 in
 lib.mkIf cfg.enable {
   sops.secrets."hermes-discord-token" = { mode = "0400"; restartUnits = [ "podman-hermes.service" ]; };
@@ -23,6 +24,9 @@ lib.mkIf cfg.enable {
   sops.secrets."hermes-discord-channel" = { mode = "0400"; restartUnits = [ "podman-hermes.service" ]; };
   sops.secrets."hermes-dashboard-username" = { mode = "0400"; restartUnits = [ "podman-hermes.service" ]; };
   sops.secrets."hermes-dashboard-password" = { mode = "0400"; restartUnits = [ "podman-hermes.service" ]; };
+  # Forgejo access token for the `hermes` account (scoped to its fork). Lets the agent push
+  # to the local git forge over the host network; it never sees GitHub credentials.
+  sops.secrets."forgejo-hermes-token" = { mode = "0400"; restartUnits = [ "podman-hermes.service" ]; };
 
   # Environment file for the container (secrets + dashboard/discord config).
   #
@@ -45,6 +49,16 @@ lib.mkIf cfg.enable {
       HERMES_DASHBOARD_PORT=9119
       HERMES_DASHBOARD_BASIC_AUTH_USERNAME=${config.sops.placeholder."hermes-dashboard-username"}
       HERMES_DASHBOARD_BASIC_AUTH_PASSWORD=${config.sops.placeholder."hermes-dashboard-password"}
+    '';
+  };
+
+  # git credential store for the Forgejo forge (reached over the host network on loopback).
+  # Consumed via the credential helper configured in /opt/data/.gitconfig (see below);
+  # git finds that config through GIT_CONFIG_GLOBAL set on the container.
+  sops.templates."hermes-git-credentials" = {
+    mode = "0400";
+    content = ''
+      http://hermes:${config.sops.placeholder."forgejo-hermes-token"}@127.0.0.1:3000
     '';
   };
 
@@ -99,6 +113,31 @@ lib.mkIf cfg.enable {
     Pattern: [thing] [action] [reason]. [next step].
 
     Elaborate the following: security warnings, irreversible action confirmations, multi-step sequences where fragment order risks misread, compression creates technical ambiguity. Resume short mode after.
+
+    # Git workflow (nixos-config)
+
+    Local Forgejo forge, not GitHub. You have no GitHub access. Repos:
+      - upstream (read-only mirror of GitHub): http://127.0.0.1:3000/simon/nixos-config.git
+      - your fork (push here):                 http://127.0.0.1:3000/hermes/nixos-config.git
+
+    Steps: clone your fork into /opt/data/projects, branch off origin/main, commit, push branch
+    to your fork, open a PR against simon/nixos-config:main via the Forgejo API/UI. Never commit
+    to main directly. Credentials are pre-configured (git just works over http on 127.0.0.1:3000).
+    Simon reviews the PR and forwards it to GitHub — you do not.
+  '';
+
+  # git global config for the container: point the credential helper at the sops-rendered
+  # store file and set the commit identity. Non-secret (the token lives in .git-credentials).
+  environment.etc."hermes/gitconfig".text = ''
+    [credential]
+        helper = store --file=/opt/data/.git-credentials
+    [user]
+        name = hermes
+        email = hermes@${config.dotfiles.services.forgejo.domain}
+    [init]
+        defaultBranch = main
+    [safe]
+        directory = *
   '';
 
   # Copy the sops-rendered config + SOUL.md into the writable data dir before the container starts.
@@ -109,7 +148,7 @@ lib.mkIf cfg.enable {
     after = [ "sops-nix.service" ];
     serviceConfig = {
       Type = "oneshot";
-      ExecStart = "/bin/sh -c 'install -Dm644 ${configSrc} ${configDir}/config.yaml && install -Dm644 /etc/hermes/SOUL.md ${configDir}/SOUL.md'";
+      ExecStart = "/bin/sh -c 'install -Dm644 ${configSrc} ${configDir}/config.yaml && install -Dm644 /etc/hermes/SOUL.md ${configDir}/SOUL.md && install -Dm644 /etc/hermes/gitconfig ${configDir}/.gitconfig && install -Dm600 ${gitCredsSrc} ${configDir}/.git-credentials'";
     };
   };
 
@@ -146,6 +185,9 @@ lib.mkIf cfg.enable {
     image = "nousresearch/hermes-agent:latest";
     cmd = [ "gateway" "run" ];
     environmentFiles = [ config.sops.templates."hermes-env".path ];
+    # Point git at the global config we install into /opt/data (credential helper + identity),
+    # without disturbing the container's HOME. Container path, not the host configDir.
+    environment.GIT_CONFIG_GLOBAL = "/opt/data/.gitconfig";
     # HERMES_WRITE_SAFE_ROOT=/opt/data is baked into the image (also HERMES_HOME),
     # so the agent can only write under /opt/data. Mount the projects dir *inside*
     # that root (/opt/data/projects) so writes pass the guard. The source is the

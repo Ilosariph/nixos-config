@@ -185,6 +185,23 @@
           description = "Nous Research Hermes agent (Discord input + local llama.cpp backend).";
         };
       };
+      forgejo = {
+        enable = lib.mkOption {
+          type = lib.types.bool;
+          default = false;
+          description = "Forgejo git forge (self-hosted mirror + review buffer).";
+        };
+        domain = lib.mkOption {
+          type = lib.types.str;
+          default = "";
+          description = "Public domain for Forgejo (sets DOMAIN and ROOT_URL, e.g. git.example.com).";
+        };
+        httpPort = lib.mkOption {
+          type = lib.types.port;
+          default = 3000;
+          description = "HTTP port Forgejo listens on.";
+        };
+      };
     };
 
     vpn = {

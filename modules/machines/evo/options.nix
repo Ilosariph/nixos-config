@@ -15,6 +15,11 @@
 	};
   dotfiles.services.fail2ban.enable = true;
   dotfiles.services.hermes.enable = true;
+  dotfiles.services.forgejo = {
+    enable = true;
+    domain = "git.simon-wick.ch";
+    httpPort = 3000;
+  };
   dotfiles.services.backup.enable = true;
   dotfiles.services.backup.jobs = [
     {
