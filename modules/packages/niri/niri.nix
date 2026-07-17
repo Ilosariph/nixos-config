@@ -208,6 +208,12 @@
               clip-to-geometry true
             }
 
+            // Steam games open fullscreen (niri tiles them at partial width otherwise)
+            window-rule {
+              match app-id=r#"^steam_app_\d+$"#
+              open-fullscreen true
+            }
+
             ${lib.optionalString (cfg.monitors != []) (let
               rightMonitor = (lib.last (map parseMonitorConfig cfg.monitors)).name;
             in ''
