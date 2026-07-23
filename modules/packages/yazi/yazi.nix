@@ -23,6 +23,27 @@
           tasks = {
             image_bound = [0 0];
           };
+          # Open each selected file in its own detached (orphan) window.
+          # The default opener spawns one non-orphan xdg-open per file, which
+          # fills yazi's opener task slots after a handful of files and then
+          # stops opening anything. Orphaning each spawn avoids that.
+          opener = {
+            image = [
+              { run = ''for f in "$@"; do setsid qview "$f" >/dev/null 2>&1 & done''; orphan = true; desc = "View images"; for = "unix"; }
+            ];
+            video = [
+              { run = ''for f in "$@"; do setsid mpv "$f" >/dev/null 2>&1 & done''; orphan = true; desc = "Play videos"; for = "unix"; }
+            ];
+            open = [
+              { run = ''for f in "$@"; do setsid xdg-open "$f" >/dev/null 2>&1 & done''; orphan = true; desc = "Open"; for = "unix"; }
+            ];
+          };
+          open = {
+            prepend_rules = [
+              { mime = "image/*"; use = "image"; }
+              { mime = "video/*"; use = "video"; }
+            ];
+          };
         };
       };
     };
