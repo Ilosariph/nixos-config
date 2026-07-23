@@ -121,6 +121,28 @@
       ];
 
       home-manager.users.${config.dotfiles.user.name} = { lib, pkgs, config, ... }: {
+        # jellyfin-mpv-shim: mpv.conf sets the screenshot filename template,
+        # input.conf binds `e` to screenshot (matching the standalone mpv bind).
+        # The screenshot *directory* can't be set here — the shim overrides
+        # mpv's screenshot-directory at runtime from its own conf.json
+        # `screenshot_dir` key, so that's patched via the activation script below.
+        xdg.configFile."jellyfin-mpv-shim/mpv.conf".text = ''
+          screenshot-template=mpv-shot-%tY-%tm-%td-%tHh%tMm%tSs-%f
+        '';
+        xdg.configFile."jellyfin-mpv-shim/input.conf".text = ''
+          e screenshot
+        '';
+
+        home.activation.jellyfinMpvShimScreenshotDir =
+          lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+            conf="$HOME/.config/jellyfin-mpv-shim/conf.json"
+            if [ -f "$conf" ]; then
+              tmp="$(${pkgs.coreutils}/bin/mktemp)"
+              ${pkgs.jq}/bin/jq '.screenshot_dir = "'"$HOME"'/Documents/enc"' "$conf" > "$tmp" \
+                && ${pkgs.coreutils}/bin/mv "$tmp" "$conf"
+            fi
+          '';
+
         xdg.mimeApps = {
           enable = true;
           defaultApplications =
