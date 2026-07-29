@@ -1,0 +1,26 @@
+---
+- name: Install git and openssh client
+  become: true
+  ansible.builtin.package:
+    name:
+      - git
+      - openssh-clients
+    state: present
+
+- name: Write the git configuration
+  ansible.builtin.template:
+    src: gitconfig.j2
+    dest: "{{ dotfiles_home }}/.gitconfig"
+    mode: "0644"
+
+- name: Create ~/.ssh
+  ansible.builtin.file:
+    path: "{{ dotfiles_home }}/.ssh"
+    state: directory
+    mode: "0700"
+
+- name: Write the ssh client configuration
+  ansible.builtin.template:
+    src: ssh_config.j2
+    dest: "{{ dotfiles_home }}/.ssh/config"
+    mode: "0600"

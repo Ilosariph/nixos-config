@@ -1,0 +1,12 @@
+[Unit]
+Description=udiskie removable disk automounter
+PartOf=graphical-session.target
+After=graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/udiskie --no-automount --tray --appindicator
+Restart=on-failure
+
+[Install]
+WantedBy=graphical-session.target

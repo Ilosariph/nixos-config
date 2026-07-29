@@ -1,0 +1,100 @@
+---
+# ============================================================================
+# Shared defaults for every workstation.
+#
+# These mirror the `dotfiles.*` options in ../options.nix. Per-machine
+# overrides belong in host_vars/<host>.yml.
+# ============================================================================
+
+# --- Identity ---------------------------------------------------------------
+dotfiles_user: "{{ ansible_user_id }}"
+dotfiles_home: "{{ ansible_env.HOME }}"
+
+# --- Locale (dotfiles.locale) ----------------------------------------------
+dotfiles_timezone: Europe/Zurich
+dotfiles_locale_default: en_US.UTF-8
+dotfiles_locale_extra: de_CH.UTF-8
+dotfiles_console_keymap: sg
+# X/Wayland keyboard layout. `ch-nodead-cflex` is the custom Swiss German
+# layout from base.nix (non-dead circumflex/grave/tilde); the niri role
+# installs the xkb symbols file for it when install_custom_xkb_layout is true.
+dotfiles_xkb_layout: ch-nodead-cflex
+dotfiles_xkb_options: caps:escape
+install_custom_xkb_layout: true
+
+# --- Window manager (dotfiles.windowManager) --------------------------------
+# Directional keybindings. "qwerty" -> H/L/K/J, "colemak" -> N/I/U/comma.
+# mainpc runs colemak; every other machine defaults to qwerty.
+wm_keyboard_layout: qwerty
+
+# "noctalia" or "waybar". Only noctalia is wired up in this playbook.
+wm_statusbar: noctalia
+
+# Primary output: gets the "tools" workspace, notifications and OSDs.
+wm_main_monitor: eDP-1
+
+# One entry per output. `mode` and `scale` map straight onto niri's
+# output block; position is the top-left corner in layout coordinates.
+wm_monitors:
+  - name: eDP-1
+    mode: 2560x1600@60.00000
+    position_x: 0
+    position_y: 0
+    scale: 1.3333334
+
+# Extra commands appended to niri's spawn-at-startup list, one command line
+# per entry (split on spaces, like dotfiles.windowManager.settings.execOnce).
+wm_exec_once: []
+
+# mainpc-only extras, off everywhere else.
+wm_audio_switcher_binds: false      # Mod+Shift+O/M/D -> audio-{output,input,device}
+wm_flat_mouse_accel: false          # yeetmouse: accel-speed 0 / flat profile
+wm_streamcontroller_window_rule: false
+
+# --- Programs ---------------------------------------------------------------
+enable_1password: true
+enable_1password_ssh_agent: true    # IdentityAgent ~/.1password/agent.sock
+enable_obsidian: true
+enable_zed: true
+enable_kitty: true
+enable_fish: true
+enable_yazi: true
+enable_mpv: true
+enable_swappy: true
+enable_wofi: true
+enable_udiskie: true
+
+# Proton Mail has no official arm64 Linux build. Options:
+#   webapp        -> desktop launcher for mail.proton.me in the default browser
+#   community_rpm -> third-party aarch64 rebuild (see roles/proton/defaults)
+#   official      -> Proton's own rpm (x86_64 only)
+#   none          -> skip
+protonmail_install_method: "{{ 'official' if ansible_architecture == 'x86_64' else 'webapp' }}"
+
+# Proton VPN. The GUI app is x86_64-only; on aarch64 the WireGuard configs are
+# imported into NetworkManager instead, exactly like modules/packages/vpn/vpn.nix.
+protonvpn_install_gui: "{{ ansible_architecture == 'x86_64' }}"
+# Config files are read from /etc/wireguard/<name>.conf and imported with
+# autoconnect disabled. Drop the files there yourself; they are never generated.
+wireguard_accounts:
+  - home
+  - proton
+
+# --- Git (modules/packages/git/git.nix) -------------------------------------
+git_user_name: Ilosariph
+git_user_email: 71074737+Ilosariph@users.noreply.github.com
+git_signing_key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDk/LW0RX25BW64tJrsU7VFMqlSPR6zto9lAYghBLvie"
+git_default_branch: main
+
+# --- Look & feel ------------------------------------------------------------
+gtk_theme: Tokyonight-Dark
+cursor_theme: material_light_cursors
+cursor_size: 20
+terminal_font: JetBrains Mono
+wallpaper_dir: "{{ dotfiles_home }}/Pictures/Wallpapers"
+screenshot_dir: "{{ dotfiles_home }}/Pictures/Screenshots"
+
+# --- Flatpak ----------------------------------------------------------------
+# Flathub aarch64 coverage is patchy; keep this list short and verify per app.
+enable_flathub: true
+flatpak_packages: []

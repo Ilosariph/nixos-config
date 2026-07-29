@@ -1,0 +1,11 @@
+# Ported from programs.yazi.keymap in modules/packages/yazi/yazi.nix.
+# `y` yanks the selection and also puts file:// URIs on the Wayland clipboard,
+# so pasting into GUI apps works.
+# Managed by Ansible.
+
+[[mgr.prepend_keymap]]
+on = "y"
+run = [
+  'shell -- for path in "$@"; do echo "file://$path"; done | wl-copy -t text/uri-list',
+  "yank",
+]

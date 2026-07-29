@@ -1,0 +1,23 @@
+---
+niri_packages:
+  - niri
+  - xdg-desktop-portal-gtk
+  - gnome-keyring
+  - wl-clipboard
+  - grim
+  - slurp
+  - playerctl
+  - brightnessctl
+  - wireplumber            # provides wpctl for the volume binds
+
+# Not present in every Fedora release; installed best effort.
+niri_optional_packages:
+  - xwayland-satellite     # X11 apps inside niri
+  - swaylock
+  - swayidle
+  - wl-clip-persist
+  - clipse
+
+# Start xwayland-satellite as a systemd user service, matching
+# systemd.user.services.xwayland-satellite in modules/packages/niri/niri.nix.
+niri_enable_xwayland_satellite: true

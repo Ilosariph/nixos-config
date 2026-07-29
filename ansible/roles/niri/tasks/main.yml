@@ -1,0 +1,108 @@
+---
+- name: Install niri and its session dependencies
+  become: true
+  ansible.builtin.package:
+    name: "{{ niri_packages }}"
+    state: present
+
+- name: Install optional niri companions (best effort)
+  become: true
+  ansible.builtin.package:
+    name: "{{ item }}"
+    state: present
+  loop: "{{ niri_optional_packages }}"
+  register: niri_optional_result
+  failed_when: false
+  changed_when: niri_optional_result is changed
+
+- name: Report optional niri companions that are unavailable
+  ansible.builtin.debug:
+    msg: >-
+      Not installed (missing from the configured repos):
+      {{ niri_optional_result.results | selectattr('failed', 'defined')
+         | selectattr('failed') | map(attribute='item') | list | join(', ') }}
+  when: >-
+    niri_optional_result.results | selectattr('failed', 'defined')
+    | selectattr('failed') | list | length > 0
+
+# --- Custom Swiss German xkb layout ----------------------------------------
+# base.nix defines this as services.xserver.xkb.extraLayouts.ch-nodead-cflex.
+# xkbcommon (which niri uses) resolves a layout name straight to the symbols
+# file of the same name, so dropping the file in place is enough.
+- name: Install the ch-nodead-cflex xkb symbols file
+  become: true
+  ansible.builtin.copy:
+    src: ch-nodead-cflex
+    dest: /usr/share/X11/xkb/symbols/ch-nodead-cflex
+    owner: root
+    group: root
+    mode: "0644"
+  when: install_custom_xkb_layout | bool
+
+# --- Configuration ----------------------------------------------------------
+- name: Create the niri config directory
+  ansible.builtin.file:
+    path: "{{ dotfiles_home }}/.config/niri"
+    state: directory
+    mode: "0755"
+
+- name: Write the niri configuration
+  ansible.builtin.template:
+    src: config.kdl.j2
+    dest: "{{ dotfiles_home }}/.config/niri/config.kdl"
+    mode: "0644"
+    # niri validates and hot-reloads this file; a bad config would leave the
+    # session unusable, so refuse to install one that does not parse.
+    validate: niri validate -c %s
+
+- name: Create the screenshot directory
+  ansible.builtin.file:
+    path: "{{ screenshot_dir }}"
+    state: directory
+    mode: "0755"
+
+# --- Session environment ----------------------------------------------------
+# Replaces home.sessionVariables / systemd.user.sessionVariables from niri.nix.
+- name: Create the environment.d directory
+  ansible.builtin.file:
+    path: "{{ dotfiles_home }}/.config/environment.d"
+    state: directory
+    mode: "0755"
+
+- name: Write session environment variables
+  ansible.builtin.template:
+    src: 10-niri.conf.j2
+    dest: "{{ dotfiles_home }}/.config/environment.d/10-niri.conf"
+    mode: "0644"
+
+# --- xwayland-satellite user service ---------------------------------------
+- name: Look for the xwayland-satellite binary
+  ansible.builtin.stat:
+    path: /usr/bin/xwayland-satellite
+  register: xwayland_satellite_bin
+
+- name: Create the systemd user unit directory
+  ansible.builtin.file:
+    path: "{{ dotfiles_home }}/.config/systemd/user"
+    state: directory
+    mode: "0755"
+
+- name: Install the xwayland-satellite user service
+  ansible.builtin.copy:
+    src: xwayland-satellite.service
+    dest: "{{ dotfiles_home }}/.config/systemd/user/xwayland-satellite.service"
+    mode: "0644"
+  when:
+    - niri_enable_xwayland_satellite | bool
+    - xwayland_satellite_bin.stat.exists
+  notify: Reload systemd user daemon
+
+- name: Enable the xwayland-satellite user service
+  ansible.builtin.systemd_service:
+    name: xwayland-satellite.service
+    scope: user
+    enabled: true
+    daemon_reload: true
+  when:
+    - niri_enable_xwayland_satellite | bool
+    - xwayland_satellite_bin.stat.exists

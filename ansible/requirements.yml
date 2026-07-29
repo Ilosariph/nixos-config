@@ -1,0 +1,6 @@
+---
+# Install with:  ansible-galaxy collection install -r requirements.yml
+collections:
+  # copr, flatpak, flatpak_remote, dconf and timezone modules
+  - name: community.general
+    version: ">=8.0.0"

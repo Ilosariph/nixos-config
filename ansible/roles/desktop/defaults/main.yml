@@ -1,0 +1,44 @@
+---
+# Ported from environment.systemPackages in modules/packages/desktop/desktop.nix,
+# minus the mainpc-only hardware bits (razer tooling, VR, Steam).
+desktop_packages:
+  - firefox
+  - chromium
+  - dolphin
+  - filezilla
+  - vlc
+  - gimp
+  - libreoffice
+  - pavucontrol
+  - blueman
+  - NetworkManager-tui
+  - network-manager-applet
+  - seahorse
+  - xdg-utils
+  - xdg-user-dirs
+  - desktop-file-utils
+  - gsettings-desktop-schemas
+  - gnome-themes-extra
+  - libnotify
+  - lm_sensors
+  - udiskie
+  - polkit
+
+desktop_optional_packages:
+  - qview                 # image viewer used by the yazi opener
+  - adwaita-qt6           # qt.platformTheme.name = "adwaita-dark"
+  - qadwaitadecorations-qt6
+  - fsearch
+
+# GTK theme. Not packaged for Fedora, so it is unpacked from the upstream
+# tarball into ~/.themes. Set desktop_install_gtk_theme=false to skip.
+desktop_install_gtk_theme: true
+desktop_gtk_theme_url: https://github.com/Fausto-Korpsvart/Tokyonight-GTK-Theme/archive/refs/heads/master.tar.gz
+
+# Desktop file ids used for the default-application map.
+desktop_id_browser: firefox.desktop
+desktop_id_image: com.interversehq.qView.desktop
+desktop_id_video: mpv.desktop
+desktop_id_files: org.kde.dolphin.desktop
+desktop_id_editor: dev.zed.Zed.desktop
+desktop_id_ftp: filezilla.desktop

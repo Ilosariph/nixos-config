@@ -1,0 +1,19 @@
+# Managed by Ansible.
+# Equivalent of programs.fish / programs.starship / programs.fzf in
+# modules/packages/fish/fish.nix.
+
+if status is-interactive
+    # Starship prompt
+    if command -q starship
+        starship init fish | source
+    end
+
+    # fzf key bindings and completions
+    if command -q fzf
+        fzf --fish 2>/dev/null | source
+        or fzf_key_bindings 2>/dev/null
+    end
+
+    set -gx EDITOR nvim
+    set -gx VISUAL nvim
+end

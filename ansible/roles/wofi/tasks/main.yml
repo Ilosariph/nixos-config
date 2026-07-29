@@ -1,0 +1,24 @@
+---
+- name: Install wofi
+  become: true
+  ansible.builtin.package:
+    name: wofi
+    state: present
+
+- name: Create the wofi config directory
+  ansible.builtin.file:
+    path: "{{ dotfiles_home }}/.config/wofi"
+    state: directory
+    mode: "0755"
+
+- name: Write the wofi configuration
+  ansible.builtin.copy:
+    src: config
+    dest: "{{ dotfiles_home }}/.config/wofi/config"
+    mode: "0644"
+
+- name: Write the wofi stylesheet
+  ansible.builtin.copy:
+    src: style.css
+    dest: "{{ dotfiles_home }}/.config/wofi/style.css"
+    mode: "0644"

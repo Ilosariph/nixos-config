@@ -1,0 +1,81 @@
+---
+- name: Install AppImage runtime dependencies
+  become: true
+  ansible.builtin.package:
+    name:
+      - fuse
+      - fuse-libs
+    state: present
+
+- name: Resolve the latest Obsidian release
+  ansible.builtin.uri:
+    url: https://api.github.com/repos/obsidianmd/obsidian-releases/releases/latest
+    return_content: true
+  register: obsidian_release
+  failed_when: false
+  when: not obsidian_version
+
+- name: Decide which Obsidian version to install
+  ansible.builtin.set_fact:
+    obsidian_resolved_version: >-
+      {{ obsidian_version
+         if obsidian_version
+         else (obsidian_release.json.tag_name | default('v' ~ obsidian_fallback_version) | regex_replace('^v', '')) }}
+
+- name: Create the Obsidian install directory
+  become: true
+  ansible.builtin.file:
+    path: "{{ obsidian_install_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Download the Obsidian AppImage
+  become: true
+  ansible.builtin.get_url:
+    url: >-
+      https://github.com/obsidianmd/obsidian-releases/releases/download/v{{ obsidian_resolved_version }}/Obsidian-{{ obsidian_resolved_version }}-{{ obsidian_arch }}.AppImage
+    dest: "{{ obsidian_install_dir }}/Obsidian-{{ obsidian_resolved_version }}-{{ obsidian_arch }}.AppImage"
+    mode: "0755"
+    owner: root
+    group: root
+  register: obsidian_download
+
+- name: Link the current AppImage
+  become: true
+  ansible.builtin.file:
+    src: "{{ obsidian_install_dir }}/Obsidian-{{ obsidian_resolved_version }}-{{ obsidian_arch }}.AppImage"
+    dest: /usr/local/bin/obsidian
+    state: link
+
+# The AppImage carries its own icon; unpack it so the launcher is not blank.
+- name: Extract the application icon
+  become: true
+  ansible.builtin.shell:
+    cmd: |
+      set -euo pipefail
+      rm -rf /tmp/obsidian-icon
+      mkdir -p /tmp/obsidian-icon
+      cd /tmp/obsidian-icon
+      "{{ obsidian_install_dir }}/Obsidian-{{ obsidian_resolved_version }}-{{ obsidian_arch }}.AppImage" --appimage-extract >/dev/null
+      icon="$(find squashfs-root -maxdepth 1 -name '*.png' | head -n1)"
+      install -Dm644 "$icon" /usr/share/icons/hicolor/512x512/apps/obsidian.png
+      rm -rf /tmp/obsidian-icon
+    executable: /bin/bash
+    creates: /usr/share/icons/hicolor/512x512/apps/obsidian.png
+  failed_when: false
+
+- name: Install the Obsidian desktop entry
+  become: true
+  ansible.builtin.copy:
+    src: obsidian.desktop
+    dest: /usr/share/applications/obsidian.desktop
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Update the desktop database
+  become: true
+  ansible.builtin.command: update-desktop-database /usr/share/applications
+  changed_when: false

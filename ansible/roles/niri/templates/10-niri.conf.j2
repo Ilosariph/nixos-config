@@ -1,0 +1,24 @@
+# Session environment for niri.
+# Ported from home.sessionVariables / systemd.user.sessionVariables in
+# modules/packages/niri/niri.nix and desktop.nix.
+# Managed by Ansible.
+
+QT_QPA_PLATFORM=wayland
+QT_WAYLAND_DISABLE_WINDOWDECORATION=1
+GDK_BACKEND=wayland
+GSK_RENDERER=ngl
+DISPLAY=:0
+XDG_SESSION_TYPE=wayland
+XDG_CURRENT_DESKTOP=niri
+
+# Fedora's equivalent of NIXOS_OZONE_WL: makes Electron/Chromium apps
+# (1Password, Obsidian, Zed, Proton Mail) run natively on Wayland.
+ELECTRON_OZONE_PLATFORM_HINT=auto
+
+XDG_THEME_MODE=dark
+GTK_THEME={{ gtk_theme }}
+GTK_USE_PORTAL=1
+XCURSOR_THEME={{ cursor_theme }}
+XCURSOR_SIZE={{ cursor_size }}
+BROWSER=firefox
+WALLPAPER_DIR={{ wallpaper_dir }}

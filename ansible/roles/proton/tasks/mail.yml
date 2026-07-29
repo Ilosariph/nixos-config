@@ -1,0 +1,60 @@
+---
+- name: Refuse to install the official rpm on a non-x86_64 host
+  ansible.builtin.fail:
+    msg: >-
+      protonmail_install_method is "official" but Proton only publishes x86_64
+      builds and this host is {{ ansible_architecture }}. Use "webapp", or set
+      protonmail_community_rpm_url and switch to "community_rpm".
+  when:
+    - protonmail_install_method == 'official'
+    - ansible_architecture != 'x86_64'
+
+- name: Install the official Proton Mail desktop app
+  become: true
+  ansible.builtin.package:
+    name: "{{ protonmail_official_rpm_url }}"
+    state: present
+    disable_gpg_check: true
+  when: protonmail_install_method == 'official'
+
+- name: Require an explicit URL for the community build
+  ansible.builtin.fail:
+    msg: >-
+      protonmail_install_method is "community_rpm" but protonmail_community_rpm_url
+      is empty. These builds are not published by Proton, so pick and pin a release
+      yourself, e.g. from
+      https://github.com/ArchitektApx/protonmail-desktop/releases
+  when:
+    - protonmail_install_method == 'community_rpm'
+    - not protonmail_community_rpm_url
+
+- name: Install the community Proton Mail rpm
+  become: true
+  ansible.builtin.package:
+    name: "{{ protonmail_community_rpm_url }}"
+    state: present
+    disable_gpg_check: true
+  when:
+    - protonmail_install_method == 'community_rpm'
+    - protonmail_community_rpm_url | length > 0
+
+# There is no arm64 desktop build, so the web app in its own window is the
+# closest equivalent: a real launcher, a real window, no browser chrome.
+- name: Create the local applications directory
+  ansible.builtin.file:
+    path: "{{ dotfiles_home }}/.local/share/applications"
+    state: directory
+    mode: "0755"
+  when: protonmail_install_method == 'webapp'
+
+- name: Install a Proton Mail web app launcher
+  ansible.builtin.template:
+    src: protonmail-webapp.desktop.j2
+    dest: "{{ dotfiles_home }}/.local/share/applications/protonmail-webapp.desktop"
+    mode: "0644"
+  when: protonmail_install_method == 'webapp'
+
+- name: Update the desktop database
+  ansible.builtin.command: update-desktop-database {{ dotfiles_home }}/.local/share/applications
+  changed_when: false
+  when: protonmail_install_method == 'webapp'

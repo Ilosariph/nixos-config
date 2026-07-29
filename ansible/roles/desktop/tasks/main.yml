@@ -1,0 +1,159 @@
+---
+- name: Install desktop packages
+  become: true
+  ansible.builtin.package:
+    name: "{{ desktop_packages }}"
+    state: present
+
+- name: Install optional desktop packages (best effort)
+  become: true
+  ansible.builtin.package:
+    name: "{{ item }}"
+    state: present
+  loop: "{{ desktop_optional_packages }}"
+  register: desktop_optional_result
+  failed_when: false
+  changed_when: desktop_optional_result is changed
+
+- name: Report optional desktop packages that are unavailable
+  ansible.builtin.debug:
+    msg: >-
+      Not installed (missing from the configured repos):
+      {{ desktop_optional_result.results | selectattr('failed', 'defined')
+         | selectattr('failed') | map(attribute='item') | list | join(', ') }}
+  when: >-
+    desktop_optional_result.results | selectattr('failed', 'defined')
+    | selectattr('failed') | list | length > 0
+
+# --- Wallpapers -------------------------------------------------------------
+- name: Create the wallpaper directory
+  ansible.builtin.file:
+    path: "{{ wallpaper_dir }}"
+    state: directory
+    mode: "0755"
+
+- name: Copy the wallpapers from the nix config
+  ansible.builtin.copy:
+    src: "{{ playbook_dir }}/../modules/packages/wallpapers/wallpapers/"
+    dest: "{{ wallpaper_dir }}/"
+    mode: "0644"
+
+# --- GTK / Qt theming -------------------------------------------------------
+- name: Install the Tokyo Night GTK theme
+  when: desktop_install_gtk_theme | bool
+  block:
+    - name: Create ~/.themes
+      ansible.builtin.file:
+        path: "{{ dotfiles_home }}/.themes"
+        state: directory
+        mode: "0755"
+
+    - name: Download and unpack the theme
+      ansible.builtin.unarchive:
+        src: "{{ desktop_gtk_theme_url }}"
+        dest: /tmp
+        remote_src: true
+        creates: /tmp/Tokyonight-GTK-Theme-master
+
+    - name: Find the packaged theme variants
+      ansible.builtin.find:
+        paths: /tmp/Tokyonight-GTK-Theme-master/themes
+        file_type: directory
+        recurse: false
+      register: gtk_theme_variants
+      failed_when: false
+
+    - name: Install the theme variants into ~/.themes
+      ansible.builtin.copy:
+        src: "{{ item.path }}"
+        dest: "{{ dotfiles_home }}/.themes/"
+        mode: preserve
+        remote_src: true
+      loop: "{{ gtk_theme_variants.files | default([]) }}"
+      loop_control:
+        label: "{{ item.path | basename }}"
+
+    - name: Check that the configured theme is present
+      ansible.builtin.stat:
+        path: "{{ dotfiles_home }}/.themes/{{ gtk_theme }}"
+      register: gtk_theme_present
+
+    - name: Report available theme names when the configured one is missing
+      ansible.builtin.debug:
+        msg: >-
+          gtk_theme is "{{ gtk_theme }}" but that variant was not found. Available:
+          {{ gtk_theme_variants.files | default([]) | map(attribute='path') | map('basename') | list | join(', ') }}.
+          Set `gtk_theme` in group_vars/all.yml to one of these.
+      when: not gtk_theme_present.stat.exists
+
+- name: Create the GTK config directories
+  ansible.builtin.file:
+    path: "{{ dotfiles_home }}/.config/{{ item }}"
+    state: directory
+    mode: "0755"
+  loop:
+    - gtk-3.0
+    - gtk-4.0
+
+- name: Write the GTK settings
+  ansible.builtin.template:
+    src: gtk-settings.ini.j2
+    dest: "{{ dotfiles_home }}/.config/{{ item }}/settings.ini"
+    mode: "0644"
+  loop:
+    - gtk-3.0
+    - gtk-4.0
+
+- name: Apply the dconf interface settings
+  community.general.dconf:
+    key: "/org/gnome/desktop/interface/{{ item.key }}"
+    value: "{{ item.value }}"
+    state: present
+  loop:
+    - { key: color-scheme, value: "'prefer-dark'" }
+    - { key: gtk-theme, value: "'{{ gtk_theme }}'" }
+    - { key: cursor-theme, value: "'{{ cursor_theme }}'" }
+    - { key: cursor-size, value: "{{ cursor_size }}" }
+  failed_when: false
+
+# --- Default applications ---------------------------------------------------
+- name: Write the default application map
+  ansible.builtin.template:
+    src: mimeapps.list.j2
+    dest: "{{ dotfiles_home }}/.config/mimeapps.list"
+    mode: "0644"
+
+# --- udiskie ----------------------------------------------------------------
+- name: Configure udiskie
+  when: enable_udiskie | bool
+  block:
+    - name: Create the udiskie config directory
+      ansible.builtin.file:
+        path: "{{ dotfiles_home }}/.config/udiskie"
+        state: directory
+        mode: "0755"
+
+    - name: Write the udiskie configuration
+      ansible.builtin.template:
+        src: udiskie.yml.j2
+        dest: "{{ dotfiles_home }}/.config/udiskie/config.yml"
+        mode: "0644"
+
+    - name: Create the systemd user unit directory
+      ansible.builtin.file:
+        path: "{{ dotfiles_home }}/.config/systemd/user"
+        state: directory
+        mode: "0755"
+
+    - name: Install the udiskie user service
+      ansible.builtin.copy:
+        src: udiskie.service
+        dest: "{{ dotfiles_home }}/.config/systemd/user/udiskie.service"
+        mode: "0644"
+
+    - name: Enable the udiskie user service
+      ansible.builtin.systemd_service:
+        name: udiskie.service
+        scope: user
+        enabled: true
+        daemon_reload: true

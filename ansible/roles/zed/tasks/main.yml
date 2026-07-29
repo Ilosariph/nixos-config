@@ -1,0 +1,41 @@
+---
+# Zed's official installer handles x86_64 and aarch64, drops the app in
+# ~/.local/zed.app, a launcher in ~/.local/bin/zed and a desktop entry.
+- name: Check whether Zed is already installed
+  ansible.builtin.stat:
+    path: "{{ dotfiles_home }}/.local/bin/zed"
+  register: zed_installed
+
+- name: Install Zed
+  when: not zed_installed.stat.exists
+  block:
+    - name: Download the Zed installer
+      ansible.builtin.get_url:
+        url: https://zed.dev/install.sh
+        dest: /tmp/zed-install.sh
+        mode: "0755"
+
+    - name: Run the Zed installer
+      ansible.builtin.command: /tmp/zed-install.sh
+      args:
+        creates: "{{ dotfiles_home }}/.local/bin/zed"
+      environment:
+        ZED_CHANNEL: stable
+
+- name: Create the Zed config directory
+  ansible.builtin.file:
+    path: "{{ dotfiles_home }}/.config/zed"
+    state: directory
+    mode: "0755"
+
+- name: Write the Zed settings
+  ansible.builtin.template:
+    src: settings.json.j2
+    dest: "{{ dotfiles_home }}/.config/zed/settings.json"
+    mode: "0644"
+
+- name: Write the Zed keymap
+  ansible.builtin.copy:
+    src: keymap.json
+    dest: "{{ dotfiles_home }}/.config/zed/keymap.json"
+    mode: "0644"

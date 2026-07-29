@@ -1,0 +1,52 @@
+---
+# fonts.packages in modules/packages/desktop/desktop.nix
+- name: Install JetBrains Mono and Nerd Font variants
+  become: true
+  ansible.builtin.package:
+    name:
+      - jetbrains-mono-fonts
+      - google-noto-emoji-fonts
+    state: present
+
+- name: Install Nerd Fonts from the Fedora repos (best effort)
+  become: true
+  ansible.builtin.package:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - jetbrainsmono-nerd-fonts
+    - fira-code-nerd-fonts
+  register: nerd_font_pkgs
+  failed_when: false
+  changed_when: nerd_font_pkgs is changed
+
+- name: Determine which Nerd Fonts still need a manual install
+  ansible.builtin.set_fact:
+    nerd_fonts_missing: >-
+      {{ nerd_font_pkgs.results | selectattr('failed', 'defined')
+         | selectattr('failed') | map(attribute='item') | list }}
+
+- name: Create the user font directory
+  ansible.builtin.file:
+    path: "{{ dotfiles_home }}/.local/share/fonts"
+    state: directory
+    mode: "0755"
+  when: nerd_fonts_missing | length > 0
+
+- name: Download Nerd Fonts release archives
+  ansible.builtin.unarchive:
+    src: "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/{{ item.archive }}"
+    dest: "{{ dotfiles_home }}/.local/share/fonts"
+    remote_src: true
+    creates: "{{ dotfiles_home }}/.local/share/fonts/{{ item.marker }}"
+  loop:
+    - archive: JetBrainsMono.tar.xz
+      marker: JetBrainsMonoNerdFont-Regular.ttf
+    - archive: FiraCode.tar.xz
+      marker: FiraCodeNerdFont-Regular.ttf
+  when: nerd_fonts_missing | length > 0
+  notify: Refresh font cache
+
+- name: Refresh font cache now if fonts were installed from packages
+  ansible.builtin.command: fc-cache -f
+  changed_when: false

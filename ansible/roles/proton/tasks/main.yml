@@ -1,0 +1,9 @@
+---
+- name: Install Proton Mail
+  ansible.builtin.include_tasks: mail.yml
+  when: protonmail_install_method != 'none'
+  tags: [mail]
+
+- name: Install Proton VPN
+  ansible.builtin.include_tasks: vpn.yml
+  tags: [vpn]

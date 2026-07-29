@@ -1,0 +1,12 @@
+// Ported from programs.zed-editor.userKeymaps in modules/packages/zed/zed.nix.
+// Managed by Ansible.
+[
+  {
+    "context": "Workspace",
+    "bindings": {}
+  },
+  {
+    "context": "Editor && vim_mode == insert",
+    "bindings": {}
+  }
+]

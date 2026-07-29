@@ -1,0 +1,134 @@
+---
+- name: Import the 1Password signing key
+  become: true
+  ansible.builtin.rpm_key:
+    key: https://downloads.1password.com/linux/keys/1password.asc
+    state: present
+
+# --- x86_64: everything comes from the rpm repo ------------------------------
+- name: Install 1Password from the rpm repository
+  when: ansible_architecture == 'x86_64'
+  block:
+    - name: Add the 1Password rpm repository
+      become: true
+      ansible.builtin.yum_repository:
+        name: 1password
+        description: 1Password Stable Channel
+        baseurl: https://downloads.1password.com/linux/rpm/stable/$basearch
+        gpgcheck: true
+        repo_gpgcheck: true
+        gpgkey: https://downloads.1password.com/linux/keys/1password.asc
+        enabled: true
+
+    - name: Install the 1Password desktop app and CLI
+      become: true
+      ansible.builtin.package:
+        name: "{{ ['1password'] + (['1password-cli'] if onepassword_install_cli else []) }}"
+        state: present
+
+# --- aarch64: tarball for the app, zip for the CLI ---------------------------
+- name: Install 1Password from the arm64 tarball
+  when: ansible_architecture != 'x86_64'
+  block:
+    - name: Check whether 1Password is already installed
+      ansible.builtin.stat:
+        path: "{{ onepassword_install_dir }}/1password"
+      register: onepassword_installed
+
+    - name: Install and unpack the arm64 tarball
+      when: not onepassword_installed.stat.exists
+      block:
+        - name: Create a staging directory
+          become: true
+          ansible.builtin.file:
+            path: /tmp/1password-unpack
+            state: directory
+            mode: "0755"
+
+        - name: Download and unpack the 1Password tarball
+          become: true
+          ansible.builtin.unarchive:
+            src: "{{ onepassword_tarball_url }}"
+            dest: /tmp/1password-unpack
+            remote_src: true
+
+        - name: Locate the unpacked directory
+          become: true
+          ansible.builtin.find:
+            paths: /tmp/1password-unpack
+            file_type: directory
+            recurse: false
+          register: onepassword_unpacked
+
+        - name: Fail when the tarball layout is unexpected
+          ansible.builtin.assert:
+            that: onepassword_unpacked.files | length == 1
+            fail_msg: >-
+              Expected exactly one directory inside the 1Password tarball,
+              found {{ onepassword_unpacked.files | length }}.
+
+        - name: Create {{ onepassword_install_dir }}
+          become: true
+          ansible.builtin.file:
+            path: "{{ onepassword_install_dir }}"
+            state: directory
+            owner: root
+            group: root
+            mode: "0755"
+
+        - name: Move 1Password into place
+          become: true
+          ansible.builtin.command: >-
+            cp -a {{ onepassword_unpacked.files[0].path }}/. {{ onepassword_install_dir }}/
+          args:
+            creates: "{{ onepassword_install_dir }}/1password"
+
+        # Creates the onepassword/onepassword-cli groups, the polkit policy,
+        # the desktop entry and the browser-integration helper.
+        - name: Run the 1Password post-install script
+          become: true
+          ansible.builtin.command: "{{ onepassword_install_dir }}/after-install.sh"
+          register: onepassword_after_install
+          changed_when: onepassword_after_install.rc == 0
+
+        - name: Clean up the staging directory
+          become: true
+          ansible.builtin.file:
+            path: /tmp/1password-unpack
+            state: absent
+
+    - name: Install the 1Password CLI from the release zip
+      when: onepassword_install_cli | bool
+      block:
+        - name: Install unzip
+          become: true
+          ansible.builtin.package:
+            name: unzip
+            state: present
+
+        - name: Download and unpack the CLI
+          become: true
+          ansible.builtin.unarchive:
+            src: "{{ onepassword_cli_zip_url }}"
+            dest: /usr/local/bin
+            remote_src: true
+            include:
+              - op
+            mode: "0755"
+            creates: /usr/local/bin/op
+
+# --- Desktop integration ----------------------------------------------------
+- name: Add {{ dotfiles_user }} to the onepassword-cli group
+  become: true
+  ansible.builtin.user:
+    name: "{{ dotfiles_user }}"
+    groups: onepassword-cli
+    append: true
+  failed_when: false
+
+- name: Note how to finish the SSH agent setup
+  ansible.builtin.debug:
+    msg: >-
+      Enable "Use the SSH agent" in 1Password → Settings → Developer to create
+      ~/.1password/agent.sock, which ~/.ssh/config and git commit signing expect.
+  when: enable_1password_ssh_agent | bool

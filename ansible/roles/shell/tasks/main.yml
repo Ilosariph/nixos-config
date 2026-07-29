@@ -1,0 +1,74 @@
+---
+- name: Install fish and friends
+  become: true
+  ansible.builtin.package:
+    name:
+      - fish
+      - fzf
+      - bat
+      - eza
+    state: present
+
+- name: Install starship from the Fedora repos
+  become: true
+  ansible.builtin.package:
+    name: starship
+    state: present
+  register: starship_pkg
+  failed_when: false
+
+- name: Install starship from upstream when it is not packaged
+  when: starship_pkg is failed
+  block:
+    - name: Download the starship installer
+      ansible.builtin.get_url:
+        url: https://starship.rs/install.sh
+        dest: /tmp/starship-install.sh
+        mode: "0755"
+
+    - name: Run the starship installer
+      become: true
+      ansible.builtin.command: /tmp/starship-install.sh --yes --bin-dir /usr/local/bin
+      args:
+        creates: /usr/local/bin/starship
+
+- name: Create the fish config directories
+  ansible.builtin.file:
+    path: "{{ dotfiles_home }}/.config/fish/{{ item }}"
+    state: directory
+    mode: "0755"
+  loop:
+    - conf.d
+    - functions
+
+- name: Write the fish configuration
+  ansible.builtin.template:
+    src: config.fish.j2
+    dest: "{{ dotfiles_home }}/.config/fish/config.fish"
+    mode: "0644"
+
+- name: Write the starship configuration
+  ansible.builtin.copy:
+    src: starship.toml
+    dest: "{{ dotfiles_home }}/.config/starship.toml"
+    mode: "0644"
+
+# programs.bash.initExtra in modules/packages/bash/bash.nix. Fedora sources
+# every ~/.bashrc.d/*.sh from the stock ~/.bashrc.
+- name: Create ~/.bashrc.d
+  ansible.builtin.file:
+    path: "{{ dotfiles_home }}/.bashrc.d"
+    state: directory
+    mode: "0755"
+
+- name: Enable kitty shell integration for bash
+  ansible.builtin.copy:
+    src: 10-kitty.sh
+    dest: "{{ dotfiles_home }}/.bashrc.d/10-kitty.sh"
+    mode: "0644"
+
+- name: Make fish the login shell
+  become: true
+  ansible.builtin.user:
+    name: "{{ dotfiles_user }}"
+    shell: /usr/bin/fish

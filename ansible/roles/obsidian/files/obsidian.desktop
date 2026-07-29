@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Obsidian
+Comment=Knowledge base that works on local Markdown files
+Exec=/usr/local/bin/obsidian --enable-features=UseOzonePlatform --ozone-platform-hint=auto %u
+Icon=obsidian
+Terminal=false
+Categories=Office;TextEditor;
+MimeType=x-scheme-handler/obsidian;
+StartupWMClass=obsidian

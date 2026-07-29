@@ -1,0 +1,13 @@
+---
+# Yazi is not in every Fedora release; fall back to the upstream release binary.
+yazi_release_url: >-
+  https://github.com/sxyazi/yazi/releases/latest/download/yazi-{{
+  'aarch64' if ansible_architecture == 'aarch64' else 'x86_64'
+  }}-unknown-linux-gnu.zip
+
+# Previewer helpers (ported from the yazi package's optional dependencies).
+yazi_preview_packages:
+  - ffmpegthumbnailer
+  - poppler-utils
+  - ImageMagick
+  - p7zip

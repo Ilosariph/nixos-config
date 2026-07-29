@@ -1,0 +1,97 @@
+---
+- name: Enable RPM Fusion (free and nonfree)
+  become: true
+  ansible.builtin.package:
+    name:
+      - "https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-{{ ansible_distribution_major_version }}.noarch.rpm"
+      - "https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-{{ ansible_distribution_major_version }}.noarch.rpm"
+    state: present
+    disable_gpg_check: true
+  when: enable_rpmfusion | bool
+  tags: [repos]
+
+- name: Install base packages
+  become: true
+  ansible.builtin.package:
+    name: "{{ base_packages }}"
+    state: present
+
+- name: Install optional packages (best effort)
+  become: true
+  ansible.builtin.package:
+    name: "{{ item }}"
+    state: present
+  loop: "{{ base_optional_packages }}"
+  register: base_optional_result
+  failed_when: false
+  changed_when: base_optional_result is changed
+
+- name: Report optional packages that could not be installed
+  ansible.builtin.debug:
+    msg: >-
+      Skipped (not available in the configured repos):
+      {{ base_optional_result.results | selectattr('failed', 'defined')
+         | selectattr('failed') | map(attribute='item') | list | join(', ') }}
+  when: >-
+    base_optional_result.results | selectattr('failed', 'defined')
+    | selectattr('failed') | list | length > 0
+
+# --- Locale, timezone, console ---------------------------------------------
+- name: Install glibc langpacks
+  become: true
+  ansible.builtin.package:
+    name:
+      - "glibc-langpack-{{ dotfiles_locale_default.split('_')[0] }}"
+      - "glibc-langpack-{{ dotfiles_locale_extra.split('_')[0] }}"
+    state: present
+
+- name: Set the timezone
+  become: true
+  community.general.timezone:
+    name: "{{ dotfiles_timezone }}"
+
+- name: Configure system locale
+  become: true
+  ansible.builtin.template:
+    src: locale.conf.j2
+    dest: /etc/locale.conf
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Configure console keymap
+  become: true
+  ansible.builtin.copy:
+    content: "KEYMAP={{ dotfiles_console_keymap }}\n"
+    dest: /etc/vconsole.conf
+    owner: root
+    group: root
+    mode: "0644"
+
+# --- Flatpak ----------------------------------------------------------------
+- name: Install flatpak
+  become: true
+  ansible.builtin.package:
+    name: flatpak
+    state: present
+  when: enable_flathub | bool
+  tags: [flatpak]
+
+- name: Add the flathub remote
+  become: true
+  community.general.flatpak_remote:
+    name: flathub
+    state: present
+    flatpakrepo_url: https://flathub.org/repo/flathub.flatpakrepo
+  when: enable_flathub | bool
+  tags: [flatpak]
+
+- name: Install flatpak applications
+  become: true
+  community.general.flatpak:
+    name: "{{ flatpak_packages }}"
+    state: present
+  when:
+    - enable_flathub | bool
+    - flatpak_packages | length > 0
+  tags: [flatpak]

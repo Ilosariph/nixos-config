@@ -1,0 +1,8 @@
+---
+# Obsidian publishes .deb/.rpm for x86_64 only; on arm64 the official artifact
+# is an AppImage. Leave the version empty to resolve the latest release from
+# the GitHub API at run time, or pin it here.
+obsidian_version: ""
+obsidian_fallback_version: "1.12.7"
+obsidian_arch: "{{ 'arm64' if ansible_architecture == 'aarch64' else 'x86_64' }}"
+obsidian_install_dir: /opt/obsidian

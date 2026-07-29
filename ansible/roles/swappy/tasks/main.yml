@@ -1,0 +1,24 @@
+---
+- name: Install swappy
+  become: true
+  ansible.builtin.package:
+    name: swappy
+    state: present
+
+- name: Create the swappy config directory
+  ansible.builtin.file:
+    path: "{{ dotfiles_home }}/.config/swappy"
+    state: directory
+    mode: "0755"
+
+- name: Create the screenshot directory
+  ansible.builtin.file:
+    path: "{{ screenshot_dir }}"
+    state: directory
+    mode: "0755"
+
+- name: Write the swappy configuration
+  ansible.builtin.template:
+    src: config.j2
+    dest: "{{ dotfiles_home }}/.config/swappy/config"
+    mode: "0644"

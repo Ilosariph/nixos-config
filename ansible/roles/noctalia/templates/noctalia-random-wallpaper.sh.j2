@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+# Pick a random wallpaper once the noctalia IPC socket is up.
+# Ported from the randomWallpaperScript in modules/packages/noctalia/noctalia.nix.
+# Managed by Ansible.
+set -eu
+
+for _ in $(seq 1 30); do
+  if noctalia msg wallpaper-random >/dev/null 2>&1; then
+    exit 0
+  fi
+  sleep 1
+done
+
+exit 1

@@ -1,0 +1,70 @@
+---
+- name: Install yazi from the Fedora repos
+  become: true
+  ansible.builtin.package:
+    name: yazi
+    state: present
+  register: yazi_pkg
+  failed_when: false
+
+- name: Install yazi from the upstream release when it is not packaged
+  when: yazi_pkg is failed
+  block:
+    - name: Ensure ~/.local/bin exists
+      ansible.builtin.file:
+        path: "{{ dotfiles_home }}/.local/bin"
+        state: directory
+        mode: "0755"
+
+    - name: Download and unpack the yazi release
+      ansible.builtin.unarchive:
+        src: "{{ yazi_release_url }}"
+        dest: /tmp
+        remote_src: true
+        creates: "/tmp/yazi-{{ 'aarch64' if ansible_architecture == 'aarch64' else 'x86_64' }}-unknown-linux-gnu"
+
+    - name: Install the yazi binaries
+      ansible.builtin.copy:
+        src: "/tmp/yazi-{{ 'aarch64' if ansible_architecture == 'aarch64' else 'x86_64' }}-unknown-linux-gnu/{{ item }}"
+        dest: "{{ dotfiles_home }}/.local/bin/{{ item }}"
+        mode: "0755"
+        remote_src: true
+      loop:
+        - yazi
+        - ya
+
+- name: Install preview helpers (best effort)
+  become: true
+  ansible.builtin.package:
+    name: "{{ item }}"
+    state: present
+  loop: "{{ yazi_preview_packages }}"
+  register: yazi_preview_result
+  failed_when: false
+  changed_when: yazi_preview_result is changed
+
+- name: Create the yazi config directory
+  ansible.builtin.file:
+    path: "{{ dotfiles_home }}/.config/yazi"
+    state: directory
+    mode: "0755"
+
+- name: Write the yazi configuration
+  ansible.builtin.template:
+    src: yazi.toml.j2
+    dest: "{{ dotfiles_home }}/.config/yazi/yazi.toml"
+    mode: "0644"
+
+- name: Write the yazi keymap
+  ansible.builtin.copy:
+    src: keymap.toml
+    dest: "{{ dotfiles_home }}/.config/yazi/keymap.toml"
+    mode: "0644"
+
+# programs.yazi.shellWrapperName = "yy"
+- name: Install the yy shell wrapper
+  ansible.builtin.copy:
+    src: yy.fish
+    dest: "{{ dotfiles_home }}/.config/fish/functions/yy.fish"
+    mode: "0644"
+  when: enable_fish | bool

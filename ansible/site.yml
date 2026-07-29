@@ -1,0 +1,73 @@
+---
+- name: Niri + noctalia workstation
+  hosts: workstations
+  gather_facts: true
+
+  pre_tasks:
+    - name: Verify this is a dnf-based distro
+      ansible.builtin.assert:
+        that: ansible_pkg_mgr in ['dnf', 'dnf5']
+        fail_msg: >-
+          This playbook targets Fedora (including Fedora Asahi Remix).
+          Detected package manager: {{ ansible_pkg_mgr }}.
+        success_msg: "{{ ansible_distribution }} {{ ansible_distribution_version }} ({{ ansible_architecture }})"
+      tags: always
+
+  roles:
+    - role: base
+      tags: [base]
+
+    - role: fonts
+      tags: [fonts, desktop]
+
+    - role: desktop
+      tags: [desktop]
+
+    - role: shell
+      tags: [shell, fish]
+      when: enable_fish | bool
+
+    - role: kitty
+      tags: [kitty, terminal]
+      when: enable_kitty | bool
+
+    - role: niri
+      tags: [niri, wm]
+
+    - role: noctalia
+      tags: [noctalia, bar]
+      when: wm_statusbar == 'noctalia'
+
+    - role: wofi
+      tags: [wofi]
+      when: enable_wofi | bool
+
+    - role: yazi
+      tags: [yazi]
+      when: enable_yazi | bool
+
+    - role: git
+      tags: [git]
+
+    - role: onepassword
+      tags: [1password, onepassword]
+      when: enable_1password | bool
+
+    - role: proton
+      tags: [proton]
+
+    - role: obsidian
+      tags: [obsidian]
+      when: enable_obsidian | bool
+
+    - role: zed
+      tags: [zed, editor]
+      when: enable_zed | bool
+
+    - role: mpv
+      tags: [mpv, media]
+      when: enable_mpv | bool
+
+    - role: swappy
+      tags: [swappy, screenshot]
+      when: enable_swappy | bool

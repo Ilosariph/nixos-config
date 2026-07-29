@@ -1,0 +1,26 @@
+---
+# ============================================================================
+# Fedora Asahi Remix on the MacBook (aarch64).
+#
+# Mirrors modules/machines/macbook/options.nix, except for the directional
+# keybindings: this machine uses qwerty, mainpc uses colemak.
+# ============================================================================
+
+wm_keyboard_layout: qwerty
+wm_statusbar: noctalia
+wm_main_monitor: eDP-1
+
+wm_monitors:
+  - name: eDP-1
+    mode: 2560x1600@60.00000
+    position_x: 0
+    position_y: 0
+    scale: 1.3333334
+
+# dotfiles.vpn.accounts on the macbook
+wireguard_accounts:
+  - home
+  - proton
+
+# Apple Silicon has no discrete GPU switching and the touchbar/keyboard
+# backlight are handled by the Asahi kernel, so nothing extra is needed here.

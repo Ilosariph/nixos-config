@@ -1,0 +1,11 @@
+[Unit]
+Description=Pick a random Noctalia wallpaper on session start
+After=graphical-session.target
+PartOf=graphical-session.target
+
+[Service]
+Type=oneshot
+ExecStart={{ dotfiles_home }}/.local/bin/noctalia-random-wallpaper
+
+[Install]
+WantedBy=graphical-session.target

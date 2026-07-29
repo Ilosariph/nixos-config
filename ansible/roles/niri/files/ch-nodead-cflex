@@ -1,0 +1,8 @@
+// Swiss German with non-dead circumflex, grave and tilde.
+// Ported from services.xserver.xkb.extraLayouts.ch-nodead-cflex
+// in modules/packages/base/base.nix. Managed by Ansible.
+default partial alphanumeric_keys
+xkb_symbols "basic" {
+  include "ch(de)"
+  key <AE12> { [ asciicircum, grave, asciitilde ] };
+};

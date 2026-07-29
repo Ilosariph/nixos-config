@@ -1,0 +1,84 @@
+---
+- name: Install NetworkManager and WireGuard tooling
+  become: true
+  ansible.builtin.package:
+    name:
+      - NetworkManager
+      - NetworkManager-tui
+      - wireguard-tools
+    state: present
+
+- name: Install the Proton VPN GUI app
+  when: protonvpn_install_gui | bool
+  block:
+    - name: Add the Proton VPN repository
+      become: true
+      ansible.builtin.package:
+        name: "{{ protonvpn_release_rpm_url }}"
+        state: present
+        disable_gpg_check: true
+
+    - name: Install the Proton VPN desktop app
+      become: true
+      ansible.builtin.package:
+        name: "{{ protonvpn_gui_package }}"
+        state: present
+
+- name: Report that the Proton VPN app is skipped on this architecture
+  ansible.builtin.debug:
+    msg: >-
+      Proton VPN's Fedora packages are x86_64-only, so the GUI app is skipped on
+      {{ ansible_architecture }}. The WireGuard configs below give you the same
+      connections through NetworkManager.
+  when: not (protonvpn_install_gui | bool)
+
+# --- WireGuard profiles -----------------------------------------------------
+# Same behaviour as system.activationScripts.importWireguardVPNS in
+# modules/packages/vpn/vpn.nix: import each /etc/wireguard/<name>.conf into
+# NetworkManager with autoconnect disabled. The config files themselves are
+# never generated here — drop them in place yourself.
+- name: Check which WireGuard config files exist
+  become: true
+  ansible.builtin.stat:
+    path: "{{ wireguard_config_dir }}/{{ item }}.conf"
+  register: wireguard_files
+  loop: "{{ wireguard_accounts }}"
+
+- name: List the existing NetworkManager connections
+  ansible.builtin.command: nmcli -g NAME connection show
+  register: nm_connections
+  changed_when: false
+
+- name: Import WireGuard profiles into NetworkManager
+  become: true
+  ansible.builtin.command: >-
+    nmcli connection import type wireguard file {{ wireguard_config_dir }}/{{ item.item }}.conf
+  loop: "{{ wireguard_files.results }}"
+  loop_control:
+    label: "{{ item.item }}"
+  when:
+    - item.stat.exists
+    - item.item not in nm_connections.stdout_lines
+  register: wireguard_imported
+  changed_when: wireguard_imported.rc == 0
+
+- name: Disable autoconnect on the WireGuard profiles
+  become: true
+  ansible.builtin.command: >-
+    nmcli connection modify {{ item.item }} connection.autoconnect no
+  loop: "{{ wireguard_files.results }}"
+  loop_control:
+    label: "{{ item.item }}"
+  when: item.stat.exists
+  changed_when: false
+
+- name: Report missing WireGuard configs
+  ansible.builtin.debug:
+    msg: >-
+      No config at {{ wireguard_config_dir }}/{{ item.item }}.conf — skipped.
+      Download it from the Proton VPN account page (or copy it from another
+      machine) and re-run with `--tags vpn`.
+  loop: "{{ wireguard_files.results }}"
+  loop_control:
+    label: "{{ item.item }}"
+  when: not item.stat.exists

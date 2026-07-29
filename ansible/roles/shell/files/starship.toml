@@ -1,0 +1,19 @@
+# Ported from programs.starship.settings in modules/packages/fish/fish.nix.
+# Managed by Ansible.
+
+add_newline = false
+
+[character]
+success_symbol = "[➜](bold green)"
+error_symbol = "[➜](bold red)"
+
+[git_branch]
+symbol = " "
+style = "bold purple"
+
+[package]
+disabled = true
+
+[directory]
+truncation_length = 3
+style = "bold cyan"

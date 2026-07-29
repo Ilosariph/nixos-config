@@ -1,0 +1,30 @@
+---
+- name: Install mpv
+  become: true
+  ansible.builtin.package:
+    name: mpv
+    state: present
+
+- name: Create the mpv config directory
+  ansible.builtin.file:
+    path: "{{ dotfiles_home }}/.config/mpv"
+    state: directory
+    mode: "0755"
+
+- name: Create the screenshot directory
+  ansible.builtin.file:
+    path: "{{ dotfiles_home }}/Documents/enc"
+    state: directory
+    mode: "0755"
+
+- name: Write the mpv configuration
+  ansible.builtin.template:
+    src: mpv.conf.j2
+    dest: "{{ dotfiles_home }}/.config/mpv/mpv.conf"
+    mode: "0644"
+
+- name: Write the mpv key bindings
+  ansible.builtin.copy:
+    src: input.conf
+    dest: "{{ dotfiles_home }}/.config/mpv/input.conf"
+    mode: "0644"

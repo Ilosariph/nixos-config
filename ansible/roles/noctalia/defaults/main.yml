@@ -1,0 +1,17 @@
+---
+# Noctalia v5 is a standalone native binary (it no longer runs on Quickshell).
+# Fedora gets it from a COPR; there is no package in the official repos.
+noctalia_copr: zhangyi6324/noctalia-shell
+noctalia_package: noctalia-shell
+
+# Start the shell from a systemd user unit rather than niri's spawn-at-startup,
+# matching programs.noctalia.systemd.enable in modules/packages/noctalia/noctalia.nix.
+noctalia_use_systemd: true
+
+# Pick a random wallpaper on session start (systemd.user.services.noctalia-random-wallpaper).
+noctalia_random_wallpaper: true
+
+# Power/battery integration used by the bar's battery and power_profile widgets.
+noctalia_support_packages:
+  - power-profiles-daemon
+  - upower

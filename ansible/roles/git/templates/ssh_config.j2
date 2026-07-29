@@ -1,0 +1,28 @@
+# Ported from programs.ssh in modules/packages/git/git.nix.
+# Managed by Ansible.
+
+Host nucserver
+	ForwardAgent yes
+	ServerAliveInterval 0
+	ServerAliveCountMax 3
+	Compression no
+	AddKeysToAgent no
+	HashKnownHosts no
+	ControlMaster no
+	ControlPersist no
+{% if enable_1password and enable_1password_ssh_agent %}
+	IdentityAgent ~/.1password/agent.sock
+{% endif %}
+
+Host *
+	ForwardAgent no
+	ServerAliveInterval 0
+	ServerAliveCountMax 3
+	Compression no
+	AddKeysToAgent no
+	HashKnownHosts no
+	ControlMaster no
+	ControlPersist no
+{% if enable_1password and enable_1password_ssh_agent %}
+	IdentityAgent ~/.1password/agent.sock
+{% endif %}

@@ -1,0 +1,12 @@
+# Ported from programs.kitty in modules/packages/kitty/kitty.nix.
+# Managed by Ansible.
+
+include tokyo-night-night.conf
+
+font_family      {{ terminal_font }}
+font_size        11.0
+
+background_opacity 0.9
+
+shell /usr/bin/fish
+shell_integration enabled

@@ -1,0 +1,67 @@
+{#
+  Ported from xdg.mimeApps.defaultApplications in modules/packages/desktop/desktop.nix.
+  Managed by Ansible.
+#}
+[Default Applications]
+image/png={{ desktop_id_image }}
+image/webp={{ desktop_id_image }}
+image/jpeg={{ desktop_id_image }}
+image/gif={{ desktop_id_image }}
+image/svg+xml={{ desktop_id_image }}
+image/avif={{ desktop_id_image }}
+image/bmp={{ desktop_id_image }}
+image/tiff={{ desktop_id_image }}
+image/x-icon={{ desktop_id_image }}
+
+inode/directory={{ desktop_id_files }}
+
+video/avi={{ desktop_id_video }}
+video/flv={{ desktop_id_video }}
+video/x-flv={{ desktop_id_video }}
+video/mp4={{ desktop_id_video }}
+video/mpeg={{ desktop_id_video }}
+video/webm={{ desktop_id_video }}
+video/vnd.avi={{ desktop_id_video }}
+video/x-msvideo={{ desktop_id_video }}
+video/x-matroska={{ desktop_id_video }}
+video/quicktime={{ desktop_id_video }}
+video/ogg={{ desktop_id_video }}
+video/3gpp={{ desktop_id_video }}
+
+audio/mpeg={{ desktop_id_video }}
+audio/flac={{ desktop_id_video }}
+audio/ogg={{ desktop_id_video }}
+audio/wav={{ desktop_id_video }}
+audio/x-wav={{ desktop_id_video }}
+audio/aac={{ desktop_id_video }}
+audio/mp4={{ desktop_id_video }}
+audio/x-m4a={{ desktop_id_video }}
+audio/webm={{ desktop_id_video }}
+
+application/pdf={{ desktop_id_browser }}
+text/plain={{ desktop_id_editor }}
+text/markdown={{ desktop_id_editor }}
+application/vnd.openxmlformats-officedocument.wordprocessingml.document=libreoffice-writer.desktop
+application/vnd.openxmlformats-officedocument.spreadsheetml.sheet=libreoffice-calc.desktop
+application/vnd.openxmlformats-officedocument.presentationml.presentation=libreoffice-impress.desktop
+application/msword=libreoffice-writer.desktop
+application/vnd.ms-excel=libreoffice-calc.desktop
+application/vnd.ms-powerpoint=libreoffice-impress.desktop
+application/vnd.oasis.opendocument.text=libreoffice-writer.desktop
+application/vnd.oasis.opendocument.spreadsheet=libreoffice-calc.desktop
+application/vnd.oasis.opendocument.presentation=libreoffice-impress.desktop
+
+application/zip={{ desktop_id_files }}
+application/x-tar={{ desktop_id_files }}
+application/gzip={{ desktop_id_files }}
+application/x-bzip2={{ desktop_id_files }}
+application/x-7z-compressed={{ desktop_id_files }}
+application/vnd.rar={{ desktop_id_files }}
+application/x-xz={{ desktop_id_files }}
+
+text/html={{ desktop_id_browser }}
+x-scheme-handler/http={{ desktop_id_browser }}
+x-scheme-handler/https={{ desktop_id_browser }}
+x-scheme-handler/about={{ desktop_id_browser }}
+x-scheme-handler/unknown={{ desktop_id_browser }}
+x-scheme-handler/ftp={{ desktop_id_ftp }}

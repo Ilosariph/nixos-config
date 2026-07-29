@@ -1,0 +1,18 @@
+---
+# 1Password publishes rpms for x86_64 only. On arm64 the supported route is the
+# tarball, which ships an after-install.sh that creates the onepassword groups,
+# the polkit policy and the browser-integration helper.
+# https://support.1password.com/install-linux/
+onepassword_arch: "{{ 'aarch64' if ansible_architecture == 'aarch64' else 'x86_64' }}"
+onepassword_tarball_url: "https://downloads.1password.com/linux/tar/stable/{{ onepassword_arch }}/1password-latest.tar.gz"
+onepassword_install_dir: /opt/1Password
+
+# The CLI is served from the rpm repo where available, otherwise from the
+# release zip. Bump when you want a newer CLI on arm64.
+onepassword_cli_version: "2.31.1"
+onepassword_cli_zip_url: >-
+  https://cache.agilebits.com/dist/1P/op2/pkg/v{{ onepassword_cli_version }}/op_linux_{{
+  'arm64' if ansible_architecture == 'aarch64' else 'amd64'
+  }}_v{{ onepassword_cli_version }}.zip
+
+onepassword_install_cli: true

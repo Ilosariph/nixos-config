@@ -1,0 +1,23 @@
+# Ported from programs.git in modules/packages/git/git.nix.
+# Managed by Ansible.
+
+[user]
+	name = {{ git_user_name }}
+	email = {{ git_user_email }}
+{% if enable_1password %}
+	signingKey = {{ git_signing_key }}
+{% endif %}
+
+[init]
+	defaultBranch = {{ git_default_branch }}
+
+{% if enable_1password %}
+[gpg]
+	format = ssh
+
+[gpg "ssh"]
+	program = /opt/1Password/op-ssh-sign
+
+[commit]
+	gpgsign = true
+{% endif %}

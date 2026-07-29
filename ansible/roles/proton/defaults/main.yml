@@ -1,0 +1,24 @@
+---
+# --- Proton Mail ------------------------------------------------------------
+# Proton ships x86_64 rpms only.
+protonmail_official_rpm_url: https://proton.me/download/mail/linux/ProtonMail-desktop-beta.rpm
+
+# Used when protonmail_install_method == "community_rpm". Proton publishes no
+# arm64 build; third-party rebuilds exist (e.g.
+# https://github.com/ArchitektApx/protonmail-desktop/releases) but they are not
+# from Proton, so this playbook will not pick one for you — paste the exact
+# release URL here if you want to trust one.
+protonmail_community_rpm_url: ""
+
+protonmail_webapp_url: https://mail.proton.me/
+
+# --- Proton VPN -------------------------------------------------------------
+# Version of the repo-release rpm from https://protonvpn.com/support/official-linux-vpn-fedora
+protonvpn_release_rpm_version: "1.0.3-1"
+protonvpn_release_rpm_url: >-
+  https://repo.protonvpn.com/fedora-{{ ansible_distribution_major_version }}-stable/protonvpn-stable-release/protonvpn-stable-release-{{
+  protonvpn_release_rpm_version }}.noarch.rpm
+protonvpn_gui_package: proton-vpn-gnome-desktop
+
+# WireGuard configs are read from here, one file per account.
+wireguard_config_dir: /etc/wireguard

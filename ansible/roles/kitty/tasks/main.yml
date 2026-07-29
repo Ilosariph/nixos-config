@@ -1,0 +1,24 @@
+---
+- name: Install kitty
+  become: true
+  ansible.builtin.package:
+    name: kitty
+    state: present
+
+- name: Create the kitty config directory
+  ansible.builtin.file:
+    path: "{{ dotfiles_home }}/.config/kitty"
+    state: directory
+    mode: "0755"
+
+- name: Write the kitty configuration
+  ansible.builtin.template:
+    src: kitty.conf.j2
+    dest: "{{ dotfiles_home }}/.config/kitty/kitty.conf"
+    mode: "0644"
+
+- name: Write the Tokyo Night colour scheme
+  ansible.builtin.copy:
+    src: tokyo-night-night.conf
+    dest: "{{ dotfiles_home }}/.config/kitty/tokyo-night-night.conf"
+    mode: "0644"

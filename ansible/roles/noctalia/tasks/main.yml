@@ -1,0 +1,132 @@
+---
+- name: Enable the noctalia COPR
+  become: true
+  community.general.copr:
+    name: "{{ noctalia_copr }}"
+    state: enabled
+  tags: [noctalia_install]
+
+- name: Install noctalia-shell
+  become: true
+  ansible.builtin.package:
+    name: "{{ noctalia_package }}"
+    state: present
+  register: noctalia_install
+  failed_when: false
+  tags: [noctalia_install]
+
+- name: Explain how to proceed when the COPR has no build for this platform
+  ansible.builtin.fail:
+    msg: |
+      Could not install {{ noctalia_package }} from copr:{{ noctalia_copr }} on
+      {{ ansible_distribution }} {{ ansible_distribution_major_version }} / {{ ansible_architecture }}.
+
+      That COPR does not build for every Fedora release and architecture. Options:
+        * check for an aarch64 chroot / newer release at
+          https://copr.fedorainfracloud.org/coprs/{{ noctalia_copr }}/
+        * point `noctalia_copr` at another COPR that does build for this platform
+        * install it by hand following https://docs.noctalia.dev/v5/getting-started/installation/
+          and re-run with `--skip-tags noctalia_install` to apply just the config
+
+      Everything else in this playbook is independent of noctalia; you can run
+      `ansible-playbook site.yml -K --skip-tags noctalia` in the meantime.
+  when: noctalia_install is defined and noctalia_install is failed
+  tags: [noctalia_install]
+
+- name: Ensure ~/.local/bin exists
+  ansible.builtin.file:
+    path: "{{ dotfiles_home }}/.local/bin"
+    state: directory
+    mode: "0755"
+
+- name: Install power and battery integration
+  become: true
+  ansible.builtin.package:
+    name: "{{ noctalia_support_packages }}"
+    state: present
+
+- name: Enable power-profiles-daemon
+  become: true
+  ansible.builtin.systemd_service:
+    name: power-profiles-daemon.service
+    enabled: true
+    state: started
+
+- name: Locate the noctalia binary
+  ansible.builtin.command: command -v noctalia
+  register: noctalia_bin
+  changed_when: false
+  failed_when: false
+
+# --- Configuration ----------------------------------------------------------
+- name: Create the noctalia config directory
+  ansible.builtin.file:
+    path: "{{ dotfiles_home }}/.config/noctalia"
+    state: directory
+    mode: "0755"
+
+- name: Write the noctalia settings
+  ansible.builtin.template:
+    src: 10-dotfiles.toml.j2
+    dest: "{{ dotfiles_home }}/.config/noctalia/10-dotfiles.toml"
+    mode: "0644"
+
+# --- systemd user units -----------------------------------------------------
+- name: Create the systemd user unit directory
+  ansible.builtin.file:
+    path: "{{ dotfiles_home }}/.config/systemd/user"
+    state: directory
+    mode: "0755"
+
+# The COPR package may already ship a user unit. Prefer it — it knows the right
+# ExecStart for the packaged binary — and only fall back to our own.
+- name: Look for a packaged noctalia user unit
+  ansible.builtin.stat:
+    path: "/usr/lib/systemd/user/{{ item }}.service"
+  register: noctalia_packaged_units
+  loop:
+    - noctalia
+    - noctalia-shell
+
+- name: Select the noctalia service unit to enable
+  ansible.builtin.set_fact:
+    noctalia_service_name: >-
+      {{ (noctalia_packaged_units.results | selectattr('stat.exists') | map(attribute='item') | list | first | default('noctalia')) ~ '.service' }}
+    noctalia_unit_is_packaged: "{{ noctalia_packaged_units.results | selectattr('stat.exists') | list | length > 0 }}"
+
+- name: Install a noctalia user service (only when the package ships none)
+  ansible.builtin.template:
+    src: noctalia.service.j2
+    dest: "{{ dotfiles_home }}/.config/systemd/user/noctalia.service"
+    mode: "0644"
+  when:
+    - noctalia_use_systemd | bool
+    - noctalia_bin.rc == 0
+    - not (noctalia_unit_is_packaged | bool)
+
+- name: Install the random-wallpaper helper
+  ansible.builtin.template:
+    src: noctalia-random-wallpaper.sh.j2
+    dest: "{{ dotfiles_home }}/.local/bin/noctalia-random-wallpaper"
+    mode: "0755"
+  when: noctalia_random_wallpaper | bool
+
+- name: Install the random-wallpaper user service
+  ansible.builtin.template:
+    src: noctalia-random-wallpaper.service.j2
+    dest: "{{ dotfiles_home }}/.config/systemd/user/noctalia-random-wallpaper.service"
+    mode: "0644"
+  when: noctalia_random_wallpaper | bool
+
+- name: Enable the noctalia user services
+  ansible.builtin.systemd_service:
+    name: "{{ item }}"
+    scope: user
+    enabled: true
+    daemon_reload: true
+  loop:
+    - "{{ noctalia_service_name }}"
+    - noctalia-random-wallpaper.service
+  when:
+    - noctalia_use_systemd | bool
+    - noctalia_bin.rc == 0
