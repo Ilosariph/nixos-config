@@ -16,6 +16,9 @@
           ];
         };
         programs.yazi.settings = {
+          mgr = {
+            linemode = "size";
+          };
           preview = {
             cache_dir = "${config.xdg.cacheHome}/yazi/preview-cache";
             max_width = 1920;
