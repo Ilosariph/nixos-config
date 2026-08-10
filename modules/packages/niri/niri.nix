@@ -244,7 +244,7 @@ ${lib.optionalString (osConfig.dotfiles.audio.routing == "pipewire-virtual") ''
               Mod+Shift+O hotkey-overlay-title="Switch audio output" { spawn "audio-output"; }
               Mod+Shift+M hotkey-overlay-title="Switch audio input" { spawn "audio-input"; }
               Mod+Shift+D hotkey-overlay-title="Switch audio device (in+out)" { spawn "audio-device"; }
-              Mod+Shift+I hotkey-overlay-title="Toggle microphone mute" { spawn "mic-mute"; }
+              Mod+Shift+A hotkey-overlay-title="Toggle microphone mute" { spawn "mic-mute"; }
 ''}
 
               // Focus movement with custom keybindings

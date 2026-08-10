@@ -240,8 +240,12 @@
         gtk = {
           enable = true;
           theme = {
-            name = "Tokyonight-Dark";
-            package = pkgs.tokyonight-gtk-theme;
+            name = "Colloid-Dark-Dracula";
+            package = pkgs.colloid-gtk-theme.override {
+              themeVariants = [ "default" ];
+              colorVariants = [ "dark" ];
+              tweaks = [ "dracula" ];
+            };
           };
           gtk3.extraConfig.gtk-application-prefer-dark-theme = 1;
           gtk4 = {
@@ -278,7 +282,7 @@
         dconf.settings = {
           "org/gnome/desktop/interface" = {
             color-scheme = "prefer-dark";
-            gtk-theme = "Tokyonight-Dark";
+            gtk-theme = "Colloid-Dark-Dracula";
           };
         };
 
@@ -288,7 +292,7 @@
           BROWSER = "firefox";
           GTK_USE_PORTAL = "1";
           XCURSOR_SIZE = 35;
-          GTK_THEME = "Tokyonight-Dark";
+          GTK_THEME = "Colloid-Dark-Dracula";
           NIXOS_OZONE_WL = "1";
         };
       };
