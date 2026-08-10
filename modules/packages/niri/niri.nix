@@ -244,6 +244,7 @@ ${lib.optionalString (osConfig.dotfiles.audio.routing == "pipewire-virtual") ''
               Mod+Shift+O hotkey-overlay-title="Switch audio output" { spawn "audio-output"; }
               Mod+Shift+M hotkey-overlay-title="Switch audio input" { spawn "audio-input"; }
               Mod+Shift+D hotkey-overlay-title="Switch audio device (in+out)" { spawn "audio-device"; }
+              Mod+Shift+I hotkey-overlay-title="Toggle microphone mute" { spawn "mic-mute"; }
 ''}
 
               // Focus movement with custom keybindings
@@ -326,7 +327,7 @@ ${lib.optionalString (osConfig.dotfiles.audio.routing == "pipewire-virtual") ''
               XF86AudioRaiseVolume allow-when-locked=true { spawn "wpctl" "set-volume" "-l" "1" "@DEFAULT_AUDIO_SINK@" "5%+"; }
               XF86AudioLowerVolume allow-when-locked=true { spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "5%-"; }
               XF86AudioMute allow-when-locked=true { spawn "wpctl" "set-mute" "@DEFAULT_AUDIO_SINK@" "toggle"; }
-              XF86AudioMicMute allow-when-locked=true { spawn "wpctl" "set-mute" "@DEFAULT_AUDIO_SOURCE@" "toggle"; }
+              XF86AudioMicMute allow-when-locked=true { spawn "mic-mute"; }
               XF86MonBrightnessUp allow-when-locked=true { spawn "brightnessctl" "-e4" "-n2" "set" "5%+"; }
               XF86MonBrightnessDown allow-when-locked=true { spawn "brightnessctl" "-e4" "-n2" "set" "5%-"; }
               XF86AudioNext allow-when-locked=true { spawn "playerctl" "next"; }
