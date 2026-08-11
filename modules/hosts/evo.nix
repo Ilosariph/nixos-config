@@ -9,6 +9,7 @@
       inputs.sops-nix.nixosModules.sops
       inputs.home-manager.nixosModules.home-manager
       inputs.nix-index-database.nixosModules.nix-index
+      inputs.comfyui-nix.nixosModules.default
       (inputs.import-tree ../machines/evo)
     ] ++ (builtins.attrValues config.flake.nixosModules) ++ [
       {

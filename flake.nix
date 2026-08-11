@@ -50,6 +50,11 @@
     };
 
     yeetmouse.url = "github:AndyFilter/YeetMouse?dir=nix";
+
+    comfyui-nix = {
+      url = "github:Ilosariph/comfyui-nix/claude/comfyui-ryzen-ai-max-395-vrc0t7";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = inputs:
