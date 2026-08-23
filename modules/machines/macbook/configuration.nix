@@ -28,6 +28,12 @@
     options hid_apple iso_layout=1 swap_opt_cmd=1 swap_fn_leftctrl=1
   '';
 
+  # Workaround for intermittent early-boot hard lockups on multiple CPUs
+  # (RCU stalls, udev-worker soft lockups during coldplug). Serializing
+  # udev workers avoids the race; if this doesn't fix it, revert and
+  # capture a real panic trace via netconsole instead of guessing further.
+  boot.kernelParams = [ "udev.children-max=1" ];
+
   # Apple Silicon requires canTouchEfiVariables = false
   boot.loader.efi.canTouchEfiVariables = false;
 }
