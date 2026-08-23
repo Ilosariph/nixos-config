@@ -98,6 +98,7 @@ graphical machines). Generated from the `dotfiles.windowManager` options in
 | `Print` | Screenshot selection → edit in Swappy |
 | `Shift + Print` | Screenshot full screen → edit in Swappy |
 | `Ctrl + Print` | Screenshot current output → edit in Swappy |
+| `Mod + Shift + S` | Screenshot selection → edit in Swappy (no Print key needed, e.g. macbook) |
 
 > niri also stores screenshots under `~/Pictures/Screenshots/`.
 

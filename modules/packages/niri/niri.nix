@@ -313,6 +313,8 @@ ${lib.optionalString (osConfig.dotfiles.audio.routing == "pipewire-virtual") ''
               Print { spawn "sh" "-c" "grim -g \"$(slurp)\" - | swappy -f -"; }
               Shift+Print { spawn "sh" "-c" "grim - | swappy -f -"; }
               Ctrl+Print { spawn "sh" "-c" "grim -g \"$(slurp -o)\" - | swappy -f -"; }
+              // Same as Print, for keyboards without a Print key (e.g. macbook)
+              Mod+Shift+S { spawn "sh" "-c" "grim -g \"$(slurp)\" - | swappy -f -"; }
 
               // Session
               Mod+Escape allow-inhibiting=false { toggle-keyboard-shortcuts-inhibit; }
