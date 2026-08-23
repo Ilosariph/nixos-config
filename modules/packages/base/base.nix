@@ -22,6 +22,8 @@
       extraGroups = [ "networkmanager" ] ++ lib.optionals config.dotfiles.user.wheel [ "wheel" ];
     };
 
+    users.users.root.hashedPassword = "!";
+
     services.xserver.xkb = {
       layout = config.dotfiles.locale.xkbLayout;
       variant = config.dotfiles.locale.xkbVariant;
