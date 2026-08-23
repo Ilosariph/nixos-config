@@ -20,7 +20,6 @@
             show_caps_lock = true;
             show_keyboard_layout = true;
             show_login_button = true;
-            show_password_hint = true;
           };
           loginBox = { output, cx, cy }: {
             box_height = 70.0;
