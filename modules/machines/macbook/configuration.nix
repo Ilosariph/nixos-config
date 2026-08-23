@@ -36,4 +36,8 @@
 
   # Apple Silicon requires canTouchEfiVariables = false
   boot.loader.efi.canTouchEfiVariables = false;
+
+  # Hide the LUKS passphrase by default instead of echoing asterisks
+  # (systemd's default "masked" echo mode requires pressing TAB each boot to hide it).
+  boot.initrd.luks.devices."nixos-enc".crypttabExtraOpts = [ "password-echo=no" ];
 }
