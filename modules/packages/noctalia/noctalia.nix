@@ -41,7 +41,7 @@
           randomWallpaperScript = pkgs.writeShellScript "noctalia-random-wallpaper" ''
             set -eu
             for _ in $(seq 1 30); do
-              if ${inputs.noctalia-shell.packages.${pkgs.system}.default}/bin/noctalia msg wallpaper-random >/dev/null 2>&1; then
+              if ${inputs.noctalia-shell.packages.${pkgs.stdenv.hostPlatform.system}.default}/bin/noctalia msg wallpaper-random >/dev/null 2>&1; then
                 exit 0
               fi
               sleep 1

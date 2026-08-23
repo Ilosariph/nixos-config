@@ -20,6 +20,7 @@
     settings.General.EnableNetworkConfiguration = true;
   };
 
+	hardware.asahi.enable = true;
 	hardware.asahi.peripheralFirmwareDirectory = ./firmware;
 	# hardware.asahi.useExperimentalGPUDriver = true;
 
