@@ -5,8 +5,9 @@
 			./touchbar.nix
 		];
 
-  # Asahi kernel is set by apple-silicon-support module (linuxPackages_asahi).
-  # Binary cache avoids rebuilding the kernel locally.
+  # The Asahi kernel is set by the apple-silicon-support module; kernel.nix
+  # points it at the fairydust branch (DisplayPort over USB-C), which the cache
+  # below does not carry — it only spares the rest of the Asahi closure.
   nix.settings = {
     extra-substituters = [ "https://nixos-apple-silicon.cachix.org" ];
     extra-trusted-public-keys = [ "nixos-apple-silicon.cachix.org-1:8psDu5SA5dAD7qA0zMy5UT292TxeEPzIz8VVEr2Js20=" ];
