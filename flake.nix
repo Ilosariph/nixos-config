@@ -39,6 +39,14 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # Asahi kernel branch carrying the experimental DisplayPort-over-USB-C
+    # support. Consumed by modules/machines/macbook/kernel.nix, which builds it
+    # in place of the released linux-asahi.
+    linux-asahi-fairydust = {
+      url = "github:AsahiLinux/linux/fairydust";
+      flake = false;
+    };
+
     deploy-rs = {
       url = "github:serokell/deploy-rs";
       inputs.nixpkgs.follows = "nixpkgs";

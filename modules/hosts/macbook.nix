@@ -4,6 +4,8 @@
       system = "aarch64-linux";
       config.allowUnfree = true;
     };
+    # kernel.nix pins the Asahi kernel source to a flake input
+    specialArgs = { inherit inputs; };
     modules = [
       { nixpkgs.hostPlatform = "aarch64-linux"; }
       inputs.apple-silicon.nixosModules.apple-silicon-support
