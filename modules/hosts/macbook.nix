@@ -4,6 +4,7 @@
       system = "aarch64-linux";
       config.allowUnfree = true;
     };
+    specialArgs = { inherit inputs; };
     modules = [
       { nixpkgs.hostPlatform = "aarch64-linux"; }
       inputs.apple-silicon.nixosModules.apple-silicon-support

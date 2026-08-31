@@ -43,6 +43,26 @@
         "type": "github"
       }
     },
+    "dfrd": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1788214916,
+        "narHash": "sha256-yITNpanc0HSjxOl2D0/5HVvjk/t+LWRS1mE96WCTUcw=",
+        "owner": "Ilosariph",
+        "repo": "dfrd",
+        "rev": "c1e6e8b142cd0d36e7318e19426002b8b254e401",
+        "type": "github"
+      },
+      "original": {
+        "owner": "Ilosariph",
+        "repo": "dfrd",
+        "type": "github"
+      }
+    },
     "flake-compat": {
       "locked": {
         "lastModified": 1761640442,
@@ -339,6 +359,7 @@
       "inputs": {
         "apple-silicon": "apple-silicon",
         "deploy-rs": "deploy-rs",
+        "dfrd": "dfrd",
         "flake-parts": "flake-parts",
         "home-manager": "home-manager",
         "import-tree": "import-tree",

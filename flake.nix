@@ -39,6 +39,14 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # Fork of tiny-dfr adding configurable multi-layer touch bar buttons
+    # (Exec/SwitchLayer/CycleLayer actions, named layers).
+    # https://github.com/Ilosariph/dfrd
+    dfrd = {
+      url = "github:Ilosariph/dfrd";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     deploy-rs = {
       url = "github:serokell/deploy-rs";
       inputs.nixpkgs.follows = "nixpkgs";
