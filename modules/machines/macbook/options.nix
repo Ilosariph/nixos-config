@@ -17,4 +17,11 @@
       "eDP-1, 2560x1600@60.00000, 0x0, 1.3333334"
     ];
   };
+  dotfiles.shares = [
+    {
+      mountPoint = "/mnt/simon";
+      share = "simon_data";
+      credentials = "/etc/nixos/smb-s";
+    }
+  ];
 }
