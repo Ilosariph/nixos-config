@@ -32,13 +32,13 @@
           # stops opening anything. Orphaning each spawn avoids that.
           opener = {
             image = [
-              { run = ''for f in "$@"; do setsid qview "$f" >/dev/null 2>&1 & done''; orphan = true; desc = "View images"; for = "unix"; }
+              { run = ''for f in %s; do setsid qview "$f" >/dev/null 2>&1 & done''; orphan = true; desc = "View images"; for = "unix"; }
             ];
             video = [
-              { run = ''for f in "$@"; do setsid mpv "$f" >/dev/null 2>&1 & done''; orphan = true; desc = "Play videos"; for = "unix"; }
+              { run = ''for f in %s; do setsid mpv "$f" >/dev/null 2>&1 & done''; orphan = true; desc = "Play videos"; for = "unix"; }
             ];
             open = [
-              { run = ''for f in "$@"; do setsid xdg-open "$f" >/dev/null 2>&1 & done''; orphan = true; desc = "Open"; for = "unix"; }
+              { run = ''for f in %s; do setsid xdg-open "$f" >/dev/null 2>&1 & done''; orphan = true; desc = "Open"; for = "unix"; }
             ];
           };
           open = {
