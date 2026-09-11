@@ -13,6 +13,11 @@
               ];
               on = "y";
             }
+            {
+              run = "cd /mnt";
+              on = [ "g" "m" ];
+              desc = "Go to /mnt";
+            }
           ];
         };
         programs.yazi.settings = {
