@@ -124,3 +124,43 @@ sudo mkdir -p /etc/nixos/secrets
 sudo bash -c 'echo "SERVER_SECRET=$(openssl rand -hex 32)" > /etc/nixos/secrets/pangolin.env'
 sudo chmod 600 /etc/nixos/secrets/pangolin.env
 ```
+
+---
+
+# Atuin (shell history)
+
+Enabled everywhere by default (`dotfiles.programs.atuin.enable`). Replaces the
+fish/bash history search on `Ctrl + R`; history lives in a SQLite DB under
+`~/.local/share/atuin/`.
+
+`config.toml` is generated from the module and force-overwritten on every
+rebuild (atuin rewrites that file itself after each command), so change
+settings in `modules/packages/atuin/atuin.nix`, not in `~/.config/atuin/`.
+
+## One-time per machine
+
+Import the existing shell history:
+```bash
+atuin import auto
+```
+
+## Sync (optional, off by default)
+
+Set in the machine's `options.nix`:
+```nix
+dotfiles.programs.atuin.sync.enable = true;
+# optional, defaults to the public atuin server:
+# dotfiles.programs.atuin.sync.address = "https://atuin.example.com";
+```
+
+Enabling sync also starts the `atuin-daemon` user service. The account and the
+encryption key are *not* declarative — after the rebuild, run once per machine:
+```bash
+# first machine
+atuin register -u <username> -e <email>
+atuin key          # print the encryption key, store it in a password manager
+
+# every other machine
+atuin login -u <username>   # asks for password + the key printed above
+atuin sync
+```

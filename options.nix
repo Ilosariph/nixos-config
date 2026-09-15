@@ -350,6 +350,35 @@
           description = "Enable tmux terminal multiplexer configuration.";
         };
       };
+      atuin = {
+        enable = lib.mkOption {
+          type = lib.types.bool;
+          default = true;
+          description = "Enable atuin shell history (Ctrl-R search, SQLite-backed history).";
+        };
+        sync = {
+          enable = lib.mkOption {
+            type = lib.types.bool;
+            default = false;
+            description = ''
+              Enable encrypted history sync with an atuin server. Requires a one-time
+              `atuin register` / `atuin login` on each machine; the encryption key lives
+              in ~/.local/share/atuin/key and is never managed declaratively.
+              Also starts the atuin daemon for background syncing.
+            '';
+          };
+          address = lib.mkOption {
+            type = lib.types.str;
+            default = "https://api.atuin.sh";
+            description = "Atuin sync server address.";
+          };
+          frequency = lib.mkOption {
+            type = lib.types.str;
+            default = "5m";
+            description = "How often to sync with the server (atuin duration, e.g. '5m', '1h', '0' for every command).";
+          };
+        };
+      };
 
       # Utilities
       udiskie = {

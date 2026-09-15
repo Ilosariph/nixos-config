@@ -125,6 +125,7 @@ Each aspect in `modules/packages/<aspect>/<aspect>.nix` is a **flake-parts modul
 │       ├── kitty/kitty.nix
 │       ├── fish/fish.nix
 │       ├── bash/bash.nix
+│       ├── atuin/atuin.nix       # Shell history (Ctrl-R), optional sync
 │       ├── mpv/mpv.nix
 │       ├── yazi/yazi.nix
 │       ├── zed/zed.nix
@@ -169,7 +170,7 @@ Machine-specific settings are defined via custom `dotfiles.*` options in `option
 - **`dotfiles.services.ssh.enable`**: Enable OpenSSH (server machines)
 - **`dotfiles.services.fail2ban.enable`**: Enable fail2ban (server machines)
 - **`dotfiles.programs.*`**: Per-program enable flags
-  - Shell: `fish`, `bash`, `tmux` (default true)
+  - Shell: `fish`, `bash`, `tmux`, `atuin` (default true; `atuin.sync.enable` opt-in)
   - Utilities: `udiskie` (default `desktop.enable`)
   - Specialized: `vr`, `steam`, `thonny`, `blog`, `yeetmouse` (default false)
   - Desktop GUI programs (kitty, mpv, yazi, zed, swappy, orca-slicer) have no per-program flag — they install whenever `desktop.enable` is set (yazi installs everywhere, it's a TUI)

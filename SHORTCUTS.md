@@ -170,6 +170,25 @@ graphical machines). Generated from the `dotfiles.windowManager` options in
 
 | Shortcut | Action |
 |----------|--------|
-| `Ctrl + R` | Fuzzy search command history |
 | `Ctrl + T` | Fuzzy search files in current directory |
 | `Alt + C` | Fuzzy cd into subdirectory |
+
+`Ctrl + R` is taken over by atuin (see below); fzf's own history widget is
+shadowed because its fish init loads before atuin's.
+
+---
+
+## atuin (Shell History)
+
+| Shortcut | Action |
+|----------|--------|
+| `Ctrl + R` | Open atuin history search |
+| `Ctrl + R` (in search) | Cycle filter mode (global / host / session / directory / workspace) |
+| `Ctrl + S` (in search) | Cycle search mode (fuzzy / prefix / full-text / skim) |
+| `Enter` / `Tab` | Put the selected command on the prompt line without running it (`enter_accept = false`) |
+| `Ctrl + O` | Toggle the inspector for the selected command |
+| `Ctrl + Y` | Copy the selected command to the clipboard |
+| `Ctrl + D` (in inspector) | Delete the selected command from history |
+| `Esc` / `Ctrl + C` | Close the search, keeping the current prompt line |
+
+The up arrow is left to fish's prefix search (`--disable-up-arrow`).
