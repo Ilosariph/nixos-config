@@ -3,5 +3,6 @@ pkgs.mkShell {
   buildInputs = with pkgs; [
     python312
     python312Packages.pyserial
+    mpremote
   ];
 }
