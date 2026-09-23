@@ -360,6 +360,38 @@
         };
       };
 
+      # CAD / 3D printing
+      cad = {
+        kicad = {
+          enable = lib.mkOption {
+            type = lib.types.bool;
+            default = false;
+            description = "Enable KiCad EDA suite (schematic capture and PCB layout).";
+          };
+        };
+        freecad = {
+          enable = lib.mkOption {
+            type = lib.types.bool;
+            default = false;
+            description = "Enable FreeCAD parametric 3D modeller (Wayland build).";
+          };
+        };
+        openscad = {
+          enable = lib.mkOption {
+            type = lib.types.bool;
+            default = false;
+            description = "Enable OpenSCAD script-based 3D modeller.";
+          };
+        };
+        prusa-slicer = {
+          enable = lib.mkOption {
+            type = lib.types.bool;
+            default = false;
+            description = "Enable PrusaSlicer 3D print slicer.";
+          };
+        };
+      };
+
       # Specialized
       vr = {
         enable = lib.mkOption {

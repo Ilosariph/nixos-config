@@ -31,6 +31,10 @@
     # Comms through the effects bus; Discord etc. select this sink in-app (no rule).
     { name = "comms"; description = "Comms"; effects = true; }
   ];
+  dotfiles.programs.cad.kicad.enable = true;
+  dotfiles.programs.cad.freecad.enable = true;
+  dotfiles.programs.cad.openscad.enable = true;
+  dotfiles.programs.cad.prusa-slicer.enable = true;
   dotfiles.programs.thonny.enable = true;
   dotfiles.programs.blog.enable = true;
   dotfiles.programs.yeetmouse.enable = true;
