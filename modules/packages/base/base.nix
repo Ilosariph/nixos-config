@@ -41,12 +41,29 @@
     };
     console.keyMap = config.dotfiles.locale.keyMap;
 
+    # Out-of-tree module packages are built with
+    # `boot.kernelPackages.callPackage`, so C++ build flags for them must be
+    # set on this package set's stdenv. yeetmouse's GUI needs -std=c++17:
+    # upstream passes CXXFLAGS to make as an override, clobbering its own
+    # Makefile's -std=c++17, and gcc 16 defaults to C++23 where u8"" is
+    # const char8_t* and no longer converts to const char*.
+    # NIX_CXXSTDLIB_COMPILE is gated on isCxx in the cc-wrapper, so the C
+    # kernel-module builds are unaffected.
     boot.kernelPackages = lib.mkIf (config.dotfiles.kernel != "none") (
-      {
-        default = pkgs.linuxPackages_latest;
-        stable = pkgs.linuxPackages_6_6;
-        gaming = pkgs.linuxPackages_xanmod_latest;
-      }.${config.dotfiles.kernel}
+      (
+        {
+          default = pkgs.linuxPackages_latest;
+          stable = pkgs.linuxPackages_6_6;
+          gaming = pkgs.linuxPackages_xanmod_latest;
+        }.${config.dotfiles.kernel}
+      ).extend (_: kprev: {
+        stdenv = pkgs.stdenvAdapters.overrideMkDerivationArgs (args: {
+          env = (args.env or { }) // {
+            NIX_CXXSTDLIB_COMPILE =
+              (args.env.NIX_CXXSTDLIB_COMPILE or "") + " -std=c++17";
+          };
+        }) kprev.stdenv;
+      })
     );
 
     boot.kernelModules = lib.mkIf (config.dotfiles.kernel == "gaming") [ "ntsync" ];
@@ -84,7 +101,6 @@
 
       kitty.terminfo
 
-      gemini-cli
       claude-code
       uv
     ];
