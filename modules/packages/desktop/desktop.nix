@@ -179,6 +179,8 @@
               "video/vnd.avi" = vidViewer;
               "video/x-msvideo" = vidViewer;
               "video/x-matroska" = vidViewer;
+              "video/matroska" = vidViewer;
+              "video/matroska-3d" = vidViewer;
               "video/quicktime" = vidViewer;
               "video/ogg" = vidViewer;
               "video/3gpp" = vidViewer;
