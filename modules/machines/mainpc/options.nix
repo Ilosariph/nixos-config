@@ -1,4 +1,4 @@
-{ lib, pkgs, ... }:
+{ lib, pkgs, config, ... }:
 {
   dotfiles.sops.enable = true;
   dotfiles.sops.defaultSecretsFile = ../../../secrets/secrets.yaml;
@@ -56,54 +56,56 @@
     "streamcontroller"
     "xrandr --output DP-3 --primary"
   ];
-  dotfiles.direnv.shells = [
+  dotfiles.direnv.shells = let
+    shellsDir = config.dotfiles.direnv.shellsDir;
+  in [
     {
       dir = "Projects";
-      shellFile = ../../../shells/python312.nix;
+      shellFile = shellsDir + "/python312.nix";
     }
     {
       dir = "Projects/motorized-faders";
-      shellFile = ../../../shells/motorized-faders.nix;
+      shellFile = shellsDir + "/motorized-faders.nix";
     }
     {
       dir = "Projects/nonogram";
-      shellFile = ../../../shells/nonogram.nix;
+      shellFile = shellsDir + "/nonogram.nix";
     }
     {
       dir = "Projects/rate";
-      shellFile = ../../../shells/rate.nix;
+      shellFile = shellsDir + "/rate.nix";
     }
     {
       dir = "Projects/sortvids";
-      shellFile = ../../../shells/sortvids.nix;
+      shellFile = shellsDir + "/sortvids.nix";
     }
     {
       dir = "Projects/Website";
-      shellFile = ../../../shells/website.nix;
+      shellFile = shellsDir + "/website.nix";
     }
     {
       dir = "Projects/Website-Admin";
-      shellFile = ../../../shells/website-admin.nix;
+      shellFile = shellsDir + "/website-admin.nix";
     }
     {
       dir = "Projects/proton-drive-sync";
-      shellFile = ../../../shells/node24.nix;
+      shellFile = shellsDir + "/node24.nix";
     }
     {
       dir = "Projects/vps-manager";
-      shellFile = ../../../shells/node24.nix;
+      shellFile = shellsDir + "/node24.nix";
     }
     {
       dir = "Projects/monkeytype";
-      shellFile = ../../../shells/monkeytype.nix;
+      shellFile = shellsDir + "/monkeytype.nix";
     }
     {
       dir = "Projects/sudoku";
-      shellFile = ../../../shells/sudoku.nix;
+      shellFile = shellsDir + "/sudoku.nix";
     }
     {
       dir = "Projects/vid-finder";
-      shellFile = ../../../shells/vid-finder.nix;
+      shellFile = shellsDir + "/vid-finder.nix";
     }
   ];
 

@@ -1,4 +1,4 @@
-{ lib, pkgs, ... }:
+{ lib, pkgs, config, ... }:
 {
   dotfiles.kernel = "none";
   dotfiles.desktop.enable = true;
@@ -22,6 +22,14 @@
       mountPoint = "/mnt/simon";
       share = "simon_data";
       credentials = "/etc/nixos/smb-s";
+    }
+  ];
+  dotfiles.direnv.shells = let
+    shellsDir = config.dotfiles.direnv.shellsDir;
+  in [
+    {
+      dir = "Projects/touchbar";
+      shellFile = shellsDir + "/touchbar.nix";
     }
   ];
 }

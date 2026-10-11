@@ -564,6 +564,11 @@
       };
     };
     direnv = {
+      shellsDir = lib.mkOption {
+        type = lib.types.path;
+        default = ./shells;
+        description = "Directory of reusable shell.nix files for dotfiles.direnv.shells entries (e.g. config.dotfiles.direnv.shellsDir + \"/touchbar.nix\").";
+      };
       shells = lib.mkOption {
         type = lib.types.listOf (lib.types.submodule {
           options = {
