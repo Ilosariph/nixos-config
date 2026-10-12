@@ -1,6 +1,8 @@
-{ ... }: {
-  flake.nixosModules.yeetmouse = { config, lib, pkgs, ... }:
-    lib.mkIf config.dotfiles.programs.yeetmouse.enable {
+{ inputs, ... }: {
+  flake.nixosModules.yeetmouse = { config, lib, pkgs, ... }: {
+    imports = [ inputs.yeetmouse.nixosModules.default ];
+
+    config = lib.mkIf config.dotfiles.programs.yeetmouse.enable {
       hardware.yeetmouse = {
         enable = true;
         sensitivity = 0.257;
@@ -41,4 +43,5 @@
         };
       };
     };
+  };
 }

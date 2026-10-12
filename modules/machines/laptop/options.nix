@@ -1,5 +1,7 @@
 { lib, pkgs, ... }:
 {
+  dotfiles.sops.enable = true;
+  dotfiles.sops.defaultSecretsFile = ../../../secrets/secrets.yaml;
   dotfiles.desktop.enable = true;
   dotfiles.programs.tmux.enable = false;
   dotfiles.windowManager.type = "niri";

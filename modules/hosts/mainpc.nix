@@ -21,7 +21,6 @@
       inputs.nixpkgs-xr.nixosModules.nixpkgs-xr
       inputs.home-manager.nixosModules.home-manager
       inputs.nix-index-database.nixosModules.nix-index
-      inputs.yeetmouse.nixosModules.default
       (inputs.import-tree ../machines/mainpc)
     ] ++ (builtins.attrValues config.flake.nixosModules) ++ [
       ({ pkgs, ... }: {
