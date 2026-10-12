@@ -1,6 +1,6 @@
 { pkgs, inputs, config, ... }:
 let
-  dfrdPkg = inputs.dfrd.packages.${pkgs.system}.default;
+  dfrdPkg = inputs.dfrd.packages.${pkgs.stdenv.hostPlatform.system}.default;
 
   # Workaround for a flaky boot-time race in the apple-z2 kernel driver
   # (the touch bar controller): it sometimes fails to probe on boot with

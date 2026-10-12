@@ -28,8 +28,20 @@
     shellsDir = config.dotfiles.direnv.shellsDir;
   in [
     {
+      dir = "Projects";
+      shellFile = shellsDir + "/python312.nix";
+    }
+    {
       dir = "Projects/touchbar";
       shellFile = shellsDir + "/touchbar.nix";
+    }
+    {
+      dir = "Projects/nonogram";
+      shellFile = shellsDir + "/nonogram.nix";
+    }
+    {
+      dir = "Projects/sudoku";
+      shellFile = shellsDir + "/sudoku.nix";
     }
   ];
 }
