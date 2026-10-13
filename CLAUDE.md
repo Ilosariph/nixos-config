@@ -13,17 +13,20 @@ Desktop systems use the Niri window manager (`dotfiles.windowManager.type`).
 ### Building NixOS System Configuration
 ```bash
 # Using the build script (recommended)
-./build.sh [flake-name] [nix|home|vm] [optional-label]
+./build.sh [flake-name] [nix|boot|test|home|vm] [optional-label]
 
 # Examples:
 ./build.sh mainpc nix          # Build and switch NixOS config for mainpc
+./build.sh mainpc boot         # Build, activate on next boot
 ./build.sh laptop home         # Build and switch home-manager config for laptop
 ./build.sh mainpc vm           # Build a VM for testing
 
-# Manual commands (from project root):
-sudo nixos-rebuild switch --flake .#mainpc
-sudo nixos-rebuild switch --flake .#nucserver
+# Manual commands (from project root, no sudo — nh elevates itself):
+nh os switch . -H mainpc
+nh os switch . -H nucserver -a   # show diff, ask before activating
 ```
+
+`build.sh` wraps [nh](https://github.com/nix-community/nh) (enabled on all hosts by `modules/packages/nh/nh.nix`, incl. weekly `nh clean`). See `docs/nh.md`.
 
 ### Deploying Remote Machines (deploy-rs)
 
@@ -119,6 +122,7 @@ Each aspect in `modules/packages/<aspect>/<aspect>.nix` is a **flake-parts modul
 │       ├── docker/docker.nix
 │       ├── desktop/desktop.nix      # Desktop system + home-manager config
 │       ├── git/git.nix
+│       ├── nh/nh.nix                # nh CLI helper + weekly GC
 │       ├── neovim/neovim.nix + nvim/
 │       ├── 1password/1password.nix
 │       ├── home-base/home-base.nix  # Sets home.username/homeDirectory/stateVersion

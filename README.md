@@ -16,8 +16,9 @@ Put wireguard conf into `/etc/wireguard/home.conf` and `/etc/wireguard/proton.co
 # Build nixos config
 From project root:
 ```bash
-sudo nixos-rebuild switch --flake .#simon
+./build.sh <host> nix   # or: nh os switch . -H <host>
 ```
+See [docs/nh.md](./docs/nh.md).
 
 # Build home-manager config
 From project root:

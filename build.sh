@@ -1,55 +1,55 @@
 #!/usr/bin/env bash
+# Usage: ./build.sh [flake-name] [nix|boot|test|home|vm] [optional-label]
+# Wraps nh (https://github.com/nix-community/nh). nh elevates with sudo itself
+# only for the activation step, so do not run this script with sudo.
+set -euo pipefail
 
 FLAKE_NAME="mainpc"
-BUILD_CMD="nixos-rebuild"
-ACTION="switch"
-USE_SUDO=true
-LABEL=""
+MODE="nix"
 
 # 1. Flake Config Name
-if [[ -n "$1" && "$1" != "nix" && "$1" != "home" && "$1" != "vm" ]]; then
+if [[ -n "${1:-}" && ! "$1" =~ ^(nix|boot|test|home|vm)$ ]]; then
   FLAKE_NAME="$1"
   shift
 fi
 
 # 2. Mode Selection
-case "$1" in
-  nix)
-    BUILD_CMD="nixos-rebuild"
-    ACTION="switch"
-    USE_SUDO=true
-    shift
-    ;;
-  home)
-    BUILD_CMD="home-manager"
-    ACTION="switch"
-    USE_SUDO=false
-    shift
-    ;;
+if [[ -n "${1:-}" && "$1" =~ ^(nix|boot|test|home|vm)$ ]]; then
+  MODE="$1"
+  shift
+fi
+
+LABEL="$*"
+
+# Before the first nh-enabled rebuild, nh isn't installed yet. Fall back to nh
+# from this flake's locked nixpkgs (not the system channel, which may be
+# missing or too old for this CLI).
+if command -v nh >/dev/null 2>&1; then
+  NH=(nh)
+else
+  echo "nh not found, running it from the flake's nixpkgs..."
+  NH=(nix --extra-experimental-features "nix-command flakes" run --inputs-from . nixpkgs#nh --)
+fi
+
+case "$MODE" in
+  nix)  CMD=("${NH[@]}" os switch . -H "$FLAKE_NAME") ;;
+  boot) CMD=("${NH[@]}" os boot . -H "$FLAKE_NAME") ;;
+  test) CMD=("${NH[@]}" os test . -H "$FLAKE_NAME") ;;
+  home) CMD=("${NH[@]}" home switch . -c "$FLAKE_NAME") ;;
   vm)
     echo "Cleaning up previous VM builds..."
     rm -rf ./result
     find . -maxdepth 1 -name "*.qcow2" -delete
-    BUILD_CMD="nixos-rebuild"
-    ACTION="build-vm"
-    USE_SUDO=true
-    shift
+    CMD=("${NH[@]}" os build-vm . -H "$FLAKE_NAME")
     ;;
 esac
 
-LABEL="$*"
-
-# --- Command Execution ---
-
-FULL_COMMAND=""
-
-# Note: We pass NIXOS_LABEL directly inside sudo to ensure it isn't scrubbed 
-# by the security policy.
-if [[ "$USE_SUDO" == true ]]; then
-		FULL_COMMAND="sudo NIXOS_LABEL=$LABEL $BUILD_CMD $ACTION --flake .#$FLAKE_NAME"
-else
-		FULL_COMMAND="NIXOS_LABEL=$LABEL $BUILD_CMD $ACTION --flake .#$FLAKE_NAME"
+# system.nixos.label reads NIXOS_LABEL via builtins.getEnv, which only sees
+# the environment under impure evaluation.
+if [[ -n "$LABEL" ]]; then
+  export NIXOS_LABEL="$LABEL"
+  CMD+=(-- --impure)
 fi
 
-echo $FULL_COMMAND
-$FULL_COMMAND
+echo "${CMD[*]}"
+"${CMD[@]}"
