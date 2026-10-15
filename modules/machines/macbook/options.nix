@@ -5,6 +5,7 @@
   dotfiles.sops.defaultSecretsFile = ../../../secrets/secrets.yaml;
   dotfiles.desktop.enable = true;
   dotfiles.programs.tmux.enable = false;
+  dotfiles.programs.gnirehtet.enable = true;
   dotfiles.windowManager.type = "niri";
   dotfiles.bluetooth.enable = true;
   dotfiles.windowManager.mainMonitor = "eDP-1";

@@ -428,6 +428,13 @@
           description = "Enable YeetMouse kernel-level mouse acceleration (compositor-agnostic).";
         };
       };
+      gnirehtet = {
+        enable = lib.mkOption {
+          type = lib.types.bool;
+          default = false;
+          description = "Enable gnirehtet reverse USB tethering (share this machine's internet with an Android phone over adb).";
+        };
+      };
     };
     audio = {
       routing = lib.mkOption {
