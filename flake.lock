@@ -182,6 +182,23 @@
         "type": "github"
       }
     },
+    "linux-asahi-fairydust": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1788902783,
+        "narHash": "sha256-W3yMSUe6xa+M/X0k86kbCS4g3d7jJmO3WV9L/5rQRhI=",
+        "owner": "AsahiLinux",
+        "repo": "linux",
+        "rev": "ce9f2eba72c061a50b2d790450e90af3439d8c24",
+        "type": "github"
+      },
+      "original": {
+        "owner": "AsahiLinux",
+        "ref": "fairydust",
+        "repo": "linux",
+        "type": "github"
+      }
+    },
     "nix-flatpak": {
       "locked": {
         "lastModified": 1790428548,
@@ -363,6 +380,7 @@
         "flake-parts": "flake-parts",
         "home-manager": "home-manager",
         "import-tree": "import-tree",
+        "linux-asahi-fairydust": "linux-asahi-fairydust",
         "nix-flatpak": "nix-flatpak",
         "nix-index-database": "nix-index-database",
         "nixpkgs": "nixpkgs",

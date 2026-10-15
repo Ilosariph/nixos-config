@@ -12,10 +12,8 @@
 #     second USB-C display won't work, and cold/hot plug is quirky.
 #   - nixos-apple-silicon.cachix.org has no build of this kernel, so the first
 #     rebuild after switching compiles it locally — expect a long build.
-#   - `version` below must match the Makefile of the pinned branch. After a
-#     `nix flake update linux-asahi-fairydust`, check
-#     https://raw.githubusercontent.com/AsahiLinux/linux/fairydust/Makefile
-#     and bump it, or the build fails on a modDirVersion mismatch.
+#   - The source is pinned in flake.lock; `nix flake update linux-asahi-fairydust`
+#     moves it to the branch tip. `version` is read from its Makefile.
 #
 # The expression mirrors apple-silicon-support/packages/linux-asahi/default.nix
 # from nixos-apple-silicon. It has to be copied rather than `.override`n: that
@@ -40,13 +38,19 @@
               buildLinux,
               ...
             }:
+            let
+              # Read the version from the pinned source so `nix flake update`
+              # can't leave it out of sync (buildLinux fails on a mismatch).
+              makefile = builtins.readFile "${inputs.linux-asahi-fairydust}/Makefile";
+              field = name: builtins.head (builtins.match ".*\n${name} =[ ]?([^\n]*)\n.*" makefile);
+            in
             buildLinux rec {
               inherit stdenv lib;
 
               pname = "linux-asahi";
-              version = "7.1.9";
+              version = "${field "VERSION"}.${field "PATCHLEVEL"}.${field "SUBLEVEL"}${field "EXTRAVERSION"}";
               modDirVersion = version;
-              extraMeta.branch = "7.1";
+              extraMeta.branch = lib.versions.majorMinor version;
 
               src = inputs.linux-asahi-fairydust;
 
