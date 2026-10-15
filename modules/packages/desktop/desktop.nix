@@ -274,8 +274,8 @@
           enable = true;
           packages = [
             "com.github.iwalton3.jellyfin-media-player"
-          ] ++ lib.optionals (pkgs.stdenv.hostPlatform.system == "x86_64-linux") [
             "app.grayjay.Grayjay"
+          ] ++ lib.optionals (pkgs.stdenv.hostPlatform.system == "x86_64-linux") [
             "page.codeberg.libre_menu_editor.LibreMenuEditor"
 						"net.sapples.LiveCaptions"
           ];
