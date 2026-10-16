@@ -359,6 +359,13 @@
           description = "Enable udiskie USB automounter.";
         };
       };
+      plezy = {
+        enable = lib.mkOption {
+          type = lib.types.bool;
+          default = config.dotfiles.desktop.enable;
+          description = "Enable Plezy media client (Plex/Jellyfin/Emby).";
+        };
+      };
 
       # CAD / 3D printing
       cad = {
