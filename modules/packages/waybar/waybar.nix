@@ -3,7 +3,10 @@
     lib.mkIf (config.dotfiles.desktop.enable && config.dotfiles.windowManager.statusbar == "waybar") {
       home-manager.users.${config.dotfiles.user.name} = { pkgs, ... }:
         let
-          workspacesModule = "niri/workspaces";
+          # umbriel exposes workspaces via ext-workspace-v1
+          workspacesModule =
+            if config.dotfiles.windowManager.type == "umbriel" then "ext/workspaces"
+            else "niri/workspaces";
           sessionTarget = "graphical-session.target";
         in {
         programs.waybar = {

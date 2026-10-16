@@ -1,8 +1,24 @@
 # Keybindings
 
-Window-manager bindings below are for **niri** (the desktop WM used on all
-graphical machines). Generated from the `dotfiles.windowManager` options in
+Window-manager bindings below are for **niri** (the default desktop WM).
+Generated from the `dotfiles.windowManager` options in
 `modules/packages/niri/niri.nix`.
+
+**Umbriel** (`dotfiles.windowManager.type = "umbriel"`) uses the same bindings
+(`modules/packages/umbriel/umbriel.nix`), with these differences:
+
+| Shortcut | Umbriel behaviour |
+|----------|-------------------|
+| `Mod + Shift + /` | Umbriel keybind cheatsheet |
+| `Mod + F1` | Show/hide the "tools" scratchpad (StreamController opens there hidden) |
+| `Mod + Shift + F1` | Move focused window into / out of the "tools" scratchpad |
+| `Mod + T` | Stack focused window into the column to the left |
+| `Mod + Shift + T` | Expel window from column (or stack into column right) |
+| `Mod + ,` / `Mod + .` | Stack focused window into the column left / right *(`.` only on Colemak, where `,` is down)* |
+| `Mod + Shift + ,` / `Mod + Shift + .` | Expel window to the left / right (or stack into that column if alone) *(`.` only on Colemak)* |
+| `Mod + Shift + R` | Cycle window height presets |
+| `Mod + Ctrl + R` | *(unbound, no equivalent)* |
+| `Mod + Shift + E`, `Ctrl + Alt + Delete` | Quit Umbriel (asks for confirmation) |
 
 > `Mod` = **Super** (Windows key)
 >
@@ -36,8 +52,8 @@ graphical machines). Generated from the `dotfiles.windowManager` options in
 |----------|--------|
 | `Mod + C` | Close active window |
 | `Mod + Alt + L` | Lock screen |
-| `Mod + Super + Escape` | Lock screen |
-| `Mod + Escape` | Toggle keyboard-shortcuts inhibit |
+| `Mod + Escape` | Lock screen |
+| `Mod + Shift + Escape` | Toggle keyboard-shortcuts inhibit |
 | `Mod + Shift + E` | Quit niri (exit session) |
 | `Ctrl + Alt + Delete` | Quit niri (exit session) |
 

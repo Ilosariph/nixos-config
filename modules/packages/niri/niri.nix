@@ -317,7 +317,8 @@ ${lib.optionalString (osConfig.dotfiles.audio.routing == "pipewire-virtual") ''
               Mod+Shift+S { spawn "sh" "-c" "grim -g \"$(slurp)\" - | swappy -f -"; }
 
               // Session
-              Mod+Escape allow-inhibiting=false { toggle-keyboard-shortcuts-inhibit; }
+              // Not Mod+Escape: Mod is Super, that chord is the lock above
+              Mod+Shift+Escape allow-inhibiting=false { toggle-keyboard-shortcuts-inhibit; }
               Mod+Shift+E { quit; }
               Ctrl+Alt+Delete { quit; }
 
