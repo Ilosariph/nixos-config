@@ -773,6 +773,21 @@
         default = "/home/${config.dotfiles.user.name}/microvm/${config.dotfiles.agentVm.name}";
         description = "Host dir holding the VM's workspace/, home/ and ssh-host-keys/ (shared via virtiofs).";
       };
+      address = lib.mkOption {
+        type = lib.types.str;
+        default = "192.168.1.104/24";
+        description = "Static LAN address (CIDR) of the VM.";
+      };
+      gateway = lib.mkOption {
+        type = lib.types.str;
+        default = "192.168.1.1";
+        description = "LAN gateway for the VM.";
+      };
+      bridge = lib.mkOption {
+        type = lib.types.str;
+        default = "br0";
+        description = "Host bridge (holding dotfiles.network.interface) the VM's tap joins.";
+      };
       githubOwner = lib.mkOption {
         type = lib.types.str;
         default = "Ilosariph";

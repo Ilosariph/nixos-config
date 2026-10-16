@@ -6,21 +6,22 @@
   #   writable store overlay on a volume (nix-shell/direnv work inside)
   # - <stateDir>/workspace -> /workspace (repos cloned here on boot, visible on host)
   # - <stateDir>/home      -> /home/<user> (claude/gh logins persist across rebuilds)
-  # - tap vm-<name>, host 192.168.83.1, guest 192.168.83.2, NAT out of dotfiles.network.interface
+  # - tap vm-<name> bridged (br0) onto the LAN, static dotfiles.agentVm.address
   #
   # Usage (host):
   #   sudo systemctl start microvm@<name>
   #   ssh <name>                       # /etc/hosts entry
   #   cd /workspace && claude --dangerously-skip-permissions
-  # Dev servers are reachable from the host at http://<name>:<port> (3000-9999 open).
+  # Dev servers reachable at http://<name>:<port> (3000-9999 open, LAN-wide).
   flake.nixosModules.agent-vm = { config, lib, pkgs, ... }:
     let
       cfg = config.dotfiles.agentVm;
       user = config.dotfiles.user.name;
       tap = "vm-${cfg.name}";
-      hostAddr = "192.168.83.1";
-      guestAddr = "192.168.83.2";
+      lanIf = config.dotfiles.network.interface;
+      guestIp = lib.head (lib.splitString "/" cfg.address);
       hostStateVersion = config.system.stateVersion;
+      hostNameservers = config.dotfiles.network.nameservers;
     in {
       imports = [ inputs.microvm.nixosModules.host ];
 
@@ -30,7 +31,7 @@
         (lib.mkIf cfg.enable {
           assertions = [{
             assertion = config.dotfiles.network.interface != null;
-            message = "dotfiles.agentVm needs dotfiles.network.interface for NAT.";
+            message = "dotfiles.agentVm needs dotfiles.network.interface (NIC bridged into ${cfg.bridge}).";
           }];
 
           # Host-side share dirs. Guest user has uid 1000 → must match host user's uid
@@ -43,25 +44,35 @@
             "d ${cfg.stateDir}/ssh-host-keys 0700 root root -"
           ];
 
-          # Host networking for the tap: networkd only manages vm-*, NM keeps the rest.
+          # Host networking: NM bridges the LAN NIC into br0 (host DHCPs on br0), the
+          # VM's tap is enslaved to br0 by tap-up below → VM sits on the LAN itself.
           networking.networkmanager.unmanaged = [ "interface-name:vm-*" ];
-          # networkd would pull in resolved (mkDefault); host DNS stays as before.
-          services.resolved.enable = false;
-          systemd.network = {
-            enable = true;
-            wait-online.enable = false;
-            networks."30-microvm" = {
-              matchConfig.Name = "vm-*";
-              address = [ "${hostAddr}/24" ];
-              networkConfig.ConfigureWithoutCarrier = true;
+          networking.networkmanager.ensureProfiles.profiles = {
+            ${cfg.bridge} = {
+              connection = {
+                id = cfg.bridge;
+                type = "bridge";
+                interface-name = cfg.bridge;
+                autoconnect = true;
+              };
+              bridge.stp = false;
+              ipv4.method = "auto";
+              ipv6.method = "auto";
+            };
+            "${cfg.bridge}-port-${lanIf}" = {
+              connection = {
+                id = "${cfg.bridge}-port-${lanIf}";
+                type = "ethernet";
+                interface-name = lanIf;
+                master = cfg.bridge;
+                slave-type = "bridge";
+                autoconnect = true;
+                # Beat NM's auto "Wired connection 1" on the same NIC.
+                autoconnect-priority = 100;
+              };
             };
           };
-          networking.nat = {
-            enable = true;
-            internalInterfaces = [ tap ];
-            externalInterface = config.dotfiles.network.interface;
-          };
-          networking.hosts.${guestAddr} = [ cfg.name ];
+          networking.hosts.${guestIp} = [ cfg.name ];
 
           microvm.vms.${cfg.name} = {
             inherit (cfg) autostart;
@@ -76,8 +87,11 @@
                 interfaces = [{
                   type = "tap";
                   id = tap;
-                  mac = "02:00:00:00:83:02";
+                  mac = "02:00:00:00:01:04";
                 }];
+                binScripts.tap-up = lib.mkAfter ''
+                  ${lib.getExe' pkgs.iproute2 "ip"} link set '${tap}' master '${cfg.bridge}'
+                '';
                 shares = [
                   {
                     proto = "virtiofs";
@@ -116,9 +130,9 @@
               networking.useNetworkd = true;
               systemd.network.networks."20-lan" = {
                 matchConfig.Type = "ether";
-                address = [ "${guestAddr}/24" ];
-                gateway = [ hostAddr ];
-                dns = [ "1.1.1.1" "1.0.0.1" ];
+                address = [ cfg.address ];
+                gateway = [ cfg.gateway ];
+                dns = hostNameservers;
               };
               networking.firewall = {
                 allowedTCPPorts = [ 22 ];
@@ -161,6 +175,7 @@
                 tmux
                 neovim
                 curl
+                ffmpeg
               ];
 
               # Clone missing repos into the shared workspace (never touches existing ones).

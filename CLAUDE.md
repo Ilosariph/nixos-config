@@ -223,7 +223,7 @@ Age keys must be placed at `/home/simon/.config/sops/age/keys.txt`.
 
 ### Agent VM (mainpc: `gamedev`)
 - Aspect file: `modules/packages/agent-vm/agent-vm.nix`, after stapelberg's coding-agent microvm.nix post
-- cloud-hypervisor guest; host `/nix/store` shared ro, writable overlay volume; tap `vm-<name>`, guest `192.168.83.2` (NAT via `dotfiles.network.interface`)
+- cloud-hypervisor guest; host `/nix/store` shared ro, writable overlay volume; tap `vm-<name>` joins host bridge `br0` (NM bridges `dotfiles.network.interface`), guest on LAN at `dotfiles.agentVm.address` (192.168.1.104)
 - Host dirs under `~/microvm/<name>/`: `workspace/` → `/workspace`, `home/` → guest home (claude/gh logins persist), `ssh-host-keys/`
 - `dotfiles.agentVm.repos` are cloned over https into `/workspace` on boot if missing
 - `sudo systemctl start microvm@gamedev`, then `ssh gamedev`, `cd /workspace && claude --dangerously-skip-permissions`
