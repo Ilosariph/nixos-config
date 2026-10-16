@@ -76,8 +76,12 @@ in {
           mode = "0444";
         };
 
+        # The secret holds a plain `trusted-public-keys = ...` line, which
+        # replaces the whole list. Re-append the declared keys afterwards so
+        # cache.nixos.org substitutes stay trusted.
         nix.extraOptions = ''
           !include /etc/nix/trusted-public-key
+          extra-trusted-public-keys = ${lib.concatStringsSep " " config.nix.settings.trusted-public-keys}
         '';
 
         nix.settings.trusted-public-keys = [
