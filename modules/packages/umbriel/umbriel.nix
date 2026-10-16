@@ -106,7 +106,7 @@
               (lib.nameValuePair "Mod+Shift+${ws}" "column-move-to-workspace:${ws}")
             ]) 9));
 
-          regionShot = ''sh -c "grim -g \"$(slurp)\" - | swappy -f -"'';
+          regionShot = "screenshot-region";
 
           settings = {
             general = {
@@ -264,7 +264,7 @@
               # Screenshots
               "Print" = once "spawn:${regionShot}";
               "Shift+Print" = once ''spawn:sh -c "grim - | swappy -f -"'';
-              "Ctrl+Print" = once ''spawn:sh -c "grim -g \"$(slurp -o)\" - | swappy -f -"'';
+              "Ctrl+Print" = once "spawn:screenshot-region -o";
               # Same as Print, for keyboards without a Print key (e.g. macbook)
               "Mod+Shift+S" = once "spawn:${regionShot}";
 
