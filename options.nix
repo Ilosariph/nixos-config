@@ -671,6 +671,16 @@
       '';
     };
 
+    asahiFairydust.enable = lib.mkOption {
+      type = lib.types.bool;
+      default = false;
+      description = ''
+        Apple Silicon only: build the Asahi kernel from the `fairydust` branch
+        (experimental DisplayPort over USB-C) instead of the released
+        linux-asahi. Not in the nixos-apple-silicon cache, so it compiles locally.
+      '';
+    };
+
     deploy = {
       target = {
         enable = lib.mkOption {

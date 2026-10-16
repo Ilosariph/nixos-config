@@ -1,6 +1,7 @@
 { lib, pkgs, config, ... }:
 {
   dotfiles.kernel = "none";
+  dotfiles.asahiFairydust.enable = true;
   dotfiles.sops.enable = true;
   dotfiles.sops.defaultSecretsFile = ../../../secrets/secrets.yaml;
   dotfiles.desktop.enable = true;

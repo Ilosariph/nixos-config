@@ -12,6 +12,8 @@
 #     second USB-C display won't work, and cold/hot plug is quirky.
 #   - nixos-apple-silicon.cachix.org has no build of this kernel, so the first
 #     rebuild after switching compiles it locally — expect a long build.
+#   - Toggled by `dotfiles.asahiFairydust.enable` (options.nix); off falls back
+#     to the released, cached linux-asahi.
 #   - The source is pinned in flake.lock; `nix flake update linux-asahi-fairydust`
 #     moves it to the branch tip. `version` is read from its Makefile.
 #
@@ -19,8 +21,8 @@
 # from nixos-apple-silicon. It has to be copied rather than `.override`n: that
 # file's argument set has no `...`, so `src` cannot be passed through it. Re-sync
 # the kernel config below if upstream changes it.
-{ inputs, ... }:
-{
+{ inputs, config, lib, ... }:
+lib.mkIf config.dotfiles.asahiFairydust.enable {
   nixpkgs.overlays = [
     (final: _prev: {
       linux-asahi = final.callPackage (
