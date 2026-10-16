@@ -134,6 +134,7 @@ Each aspect in `modules/packages/<aspect>/<aspect>.nix` is a **flake-parts modul
 │       ├── zed/zed.nix
 │       ├── swappy/swappy.nix
 │       ├── udiskie/udiskie.nix
+│       ├── plezy/plezy.nix          # Plex/Jellyfin/Emby client
 │       ├── orca-slicer/orca-slicer.nix
 │       ├── easyeffects/easyeffects.nix
 │       ├── niri/niri.nix
@@ -174,7 +175,7 @@ Machine-specific settings are defined via custom `dotfiles.*` options in `option
 - **`dotfiles.services.fail2ban.enable`**: Enable fail2ban (server machines)
 - **`dotfiles.programs.*`**: Per-program enable flags
   - Shell: `fish`, `bash`, `tmux` (default true)
-  - Utilities: `udiskie` (default `desktop.enable`)
+  - Utilities: `udiskie`, `plezy` (default `desktop.enable`)
   - Specialized: `vr`, `steam`, `thonny`, `blog`, `yeetmouse`, `gnirehtet` (default false)
   - Desktop GUI programs (kitty, mpv, yazi, zed, swappy, orca-slicer) have no per-program flag — they install whenever `desktop.enable` is set (yazi installs everywhere, it's a TUI)
 - **`dotfiles.vpn`**: Enable/disable, WireGuard account list
