@@ -174,6 +174,12 @@
                 match.app_id = "^steam_app_\\d+$";
                 default_fullscreen = true;
               }
+              # kitty (and yazi, which runs in kitty) takes the full width on
+              # an empty workspace, otherwise the default 50%
+              {
+                match = { app_id = "^kitty$"; is_alone = true; };
+                default_scrolling_extent = 1.0;
+              }
               {
                 match.app_id = "^com\\.core447\\.StreamController$";
                 default_scratchpad = "tools";
