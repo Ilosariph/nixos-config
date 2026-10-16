@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is a NixOS configuration repository using **flake-parts** + **import-tree** (dendritic pattern). Each feature/program lives in a single file under `modules/packages/<aspect>/` covering both NixOS system config and home-manager config. Auto-discovery via `import-tree` removes manual import wiring.
 
-Desktop systems use the Niri window manager (`dotfiles.windowManager.type`).
+Desktop systems use the Niri window manager by default; Umbriel is an alternative (`dotfiles.windowManager.type`).
 
 ## Build Commands
 
@@ -137,6 +137,7 @@ Each aspect in `modules/packages/<aspect>/<aspect>.nix` is a **flake-parts modul
 │       ├── orca-slicer/orca-slicer.nix
 │       ├── easyeffects/easyeffects.nix
 │       ├── niri/niri.nix
+│       ├── umbriel/umbriel.nix      # Umbriel compositor (niri alternative)
 │       ├── waybar/waybar.nix        # Waybar + mako
 │       ├── wofi/wofi.nix            # Wofi launcher/menu styling (WM/statusbar-independent)
 │       ├── noctalia/noctalia.nix
@@ -168,7 +169,7 @@ Every file in `modules/packages/` is a **flake-parts module**:
 Machine-specific settings are defined via custom `dotfiles.*` options in `options.nix`:
 
 - **`dotfiles.desktop.enable`**: Enable desktop environment (audio, printing, flatpak, GUI programs, WM)
-- **`dotfiles.windowManager.type`**: `"niri"` (the only supported window manager)
+- **`dotfiles.windowManager.type`**: `"niri"` (default) or `"umbriel"`
 - **`dotfiles.windowManager.*`**: Monitor layouts, statusbar, keybindings (QWERTY/Colemak), mouse settings
 - **`dotfiles.services.ssh.enable`**: Enable OpenSSH (server machines)
 - **`dotfiles.services.fail2ban.enable`**: Enable fail2ban (server machines)
@@ -224,6 +225,14 @@ Age keys must be placed at `/home/simon/.config/sops/age/keys.txt`.
 - Self-guarded: only activates when `dotfiles.windowManager.type == "niri"`
 - Config generated from `dotfiles.windowManager` options
 - See `SHORTCUTS.md` for the full keybinding list
+
+### Umbriel
+- Aspect file: `modules/packages/umbriel/umbriel.nix`
+- Self-guarded: only activates when `dotfiles.windowManager.type == "umbriel"`
+- Uses nixpkgs `programs.umbriel` (session for greetd, xdg-desktop-portal-umbriel); Xwayland started on demand by Umbriel itself
+- `~/.config/umbriel/config.toml` generated from the same `dotfiles.windowManager` options as niri (monitors, keys, execOnce, window rules); "tools" is a scratchpad (StreamController opens hidden there, `Mod+F1` toggles, like Hyprland's old `special:tools`); keybinds mirror niri's
+- Waybar uses `ext/workspaces` under Umbriel instead of `niri/workspaces`
+- Validate generated config: `umbriel validate`
 
 ### Status Bars & Notifications
 - Waybar + mako: `modules/packages/waybar/waybar.nix` (guarded by `statusbar == "waybar"`)

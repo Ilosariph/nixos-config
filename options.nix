@@ -24,9 +24,9 @@
 
     windowManager = {
       type = lib.mkOption {
-        type = lib.types.enum [ "niri" ];
+        type = lib.types.enum [ "niri" "umbriel" ];
         default = "niri";
-        description = "Window manager to use on desktop systems.";
+        description = "Window manager (Wayland compositor) to use on desktop systems.";
       };
       mainMonitor = lib.mkOption {
         type = lib.types.str;
