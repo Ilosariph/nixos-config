@@ -21,6 +21,28 @@
         "type": "github"
       }
     },
+    "comfyui-nix": {
+      "inputs": {
+        "flake-parts": "flake-parts_comfy",
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1786483830,
+        "narHash": "sha256-NKwhj9Dzj9lkC5RffCh/Bed3sttKFcOX6AhehlvPcl0=",
+        "owner": "Ilosariph",
+        "repo": "comfyui-nix",
+        "rev": "a092ce7d64b3519739152b06b3975c3fad8b9abc",
+        "type": "github"
+      },
+      "original": {
+        "owner": "Ilosariph",
+        "ref": "claude/comfyui-ryzen-ai-max-395-vrc0t7",
+        "repo": "comfyui-nix",
+        "type": "github"
+      }
+    },
     "deploy-rs": {
       "inputs": {
         "flake-compat": "flake-compat_2",
@@ -118,6 +140,24 @@
         "owner": "hercules-ci",
         "repo": "flake-parts",
         "rev": "024633cd702b10285db5cb19b40ad48d2399ba60",
+        "type": "github"
+      },
+      "original": {
+        "owner": "hercules-ci",
+        "repo": "flake-parts",
+        "type": "github"
+      }
+    },
+    "flake-parts_comfy": {
+      "inputs": {
+        "nixpkgs-lib": "nixpkgs-lib_comfy"
+      },
+      "locked": {
+        "lastModified": 1767609335,
+        "narHash": "sha256-feveD98mQpptwrAEggBQKJTYbvwwglSbOv53uCfH9PY=",
+        "owner": "hercules-ci",
+        "repo": "flake-parts",
+        "rev": "250481aafeb741edfe23d29195671c19b36b6dca",
         "type": "github"
       },
       "original": {
@@ -265,6 +305,21 @@
         "type": "github"
       }
     },
+    "nixpkgs-lib_comfy": {
+      "locked": {
+        "lastModified": 1765674936,
+        "narHash": "sha256-k00uTP4JNfmejrCLJOwdObYC9jHRrr/5M/a/8L2EIdo=",
+        "owner": "nix-community",
+        "repo": "nixpkgs.lib",
+        "rev": "2075416fcb47225d9b68ac469a5c4801a9c4dd85",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-community",
+        "repo": "nixpkgs.lib",
+        "type": "github"
+      }
+    },
     "nixpkgs-musescore": {
       "locked": {
         "lastModified": 1778443072,
@@ -375,6 +430,7 @@
     "root": {
       "inputs": {
         "apple-silicon": "apple-silicon",
+        "comfyui-nix": "comfyui-nix",
         "deploy-rs": "deploy-rs",
         "dfrd": "dfrd",
         "flake-parts": "flake-parts",
