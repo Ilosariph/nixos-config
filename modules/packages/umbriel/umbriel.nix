@@ -180,6 +180,11 @@
                 match = { app_id = "^kitty$"; is_alone = true; };
                 default_scrolling_extent = 1.0;
               }
+              # Plezy always takes the full width
+              {
+                match.app_id = "^com\\.edde746\\.plezy$";
+                default_scrolling_extent = 1.0;
+              }
               {
                 match.app_id = "^com\\.core447\\.StreamController$";
                 default_scratchpad = "tools";
