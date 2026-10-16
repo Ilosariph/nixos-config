@@ -39,6 +39,18 @@
   dotfiles.programs.blog.enable = true;
   dotfiles.programs.yeetmouse.enable = true;
   dotfiles.bluetooth.enable = true;
+  dotfiles.agentVm = {
+    enable = true;
+    name = "gamedev";
+    repos = [
+      "games-landingpage"
+      "tic-tac-toe"
+      "sudoku"
+      "minesweeper"
+      "connect-four"
+      "solitaire"
+    ];
+  };
   dotfiles.security.yubikey.enable = true;
   dotfiles.security.yubikey.sudo.enable = true;
   dotfiles.security.yubikey.systemAuth.enable = true;

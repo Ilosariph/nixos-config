@@ -742,6 +742,56 @@
       };
     };
 
+    agentVm = {
+      enable = lib.mkOption {
+        type = lib.types.bool;
+        default = false;
+        description = "Run a microvm.nix sandbox VM for a coding agent (modeled on stapelberg's coding-agent-microvm-nix post).";
+      };
+      name = lib.mkOption {
+        type = lib.types.str;
+        default = "gamedev";
+        description = "VM name: microvm@<name>.service, tap vm-<name>, hostname inside the VM.";
+      };
+      vcpu = lib.mkOption {
+        type = lib.types.ints.positive;
+        default = 8;
+        description = "vCPUs given to the VM.";
+      };
+      mem = lib.mkOption {
+        type = lib.types.ints.positive;
+        default = 8192;
+        description = "RAM in MiB given to the VM.";
+      };
+      autostart = lib.mkOption {
+        type = lib.types.bool;
+        default = false;
+        description = "Start the VM at boot. Otherwise: sudo systemctl start microvm@<name>.";
+      };
+      stateDir = lib.mkOption {
+        type = lib.types.str;
+        default = "/home/${config.dotfiles.user.name}/microvm/${config.dotfiles.agentVm.name}";
+        description = "Host dir holding the VM's workspace/, home/ and ssh-host-keys/ (shared via virtiofs).";
+      };
+      githubOwner = lib.mkOption {
+        type = lib.types.str;
+        default = "Ilosariph";
+        description = "GitHub owner of the repos cloned into the workspace.";
+      };
+      repos = lib.mkOption {
+        type = lib.types.listOf lib.types.str;
+        default = [ ];
+        description = "Repos cloned (over https, if missing) into /workspace on VM boot.";
+      };
+      authorizedKeys = lib.mkOption {
+        type = lib.types.listOf lib.types.str;
+        default = [
+          "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDk/LW0RX25BW64tJrsU7VFMqlSPR6zto9lAYghBLvie"
+        ];
+        description = "SSH public keys allowed to log into the VM.";
+      };
+    };
+
     network = {
       wakeOnLan = lib.mkOption {
         type = lib.types.bool;

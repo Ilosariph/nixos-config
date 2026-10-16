@@ -67,6 +67,12 @@
 
     yeetmouse.url = "github:AndyFilter/YeetMouse?dir=nix";
 
+    # Sandbox VM for coding agents (modules/packages/agent-vm).
+    microvm = {
+      url = "github:microvm-nix/microvm.nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     comfyui-nix = {
       url = "github:Ilosariph/comfyui-nix/claude/comfyui-ryzen-ai-max-395-vrc0t7";
       inputs.nixpkgs.follows = "nixpkgs";

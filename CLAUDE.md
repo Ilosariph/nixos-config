@@ -142,6 +142,7 @@ Each aspect in `modules/packages/<aspect>/<aspect>.nix` is a **flake-parts modul
 │       ├── waybar/waybar.nix        # Waybar + mako
 │       ├── wofi/wofi.nix            # Wofi launcher/menu styling (WM/statusbar-independent)
 │       ├── noctalia/noctalia.nix
+│       ├── agent-vm/agent-vm.nix    # microvm.nix sandbox VM for coding agents
 │       └── vr/vr.nix
 │
 └── shells/                      # Dev shells
@@ -183,6 +184,7 @@ Machine-specific settings are defined via custom `dotfiles.*` options in `option
 - **`dotfiles.bluetooth.enable`**
 - **`dotfiles.bootloader`**: `"systemd"` (default) or `"grub"`
 - **`dotfiles.network`**: hostname, interface, staticIP, gateway, nameservers
+- **`dotfiles.agentVm`**: microvm.nix coding-agent sandbox (name, vcpu, mem, repos cloned into `/workspace`)
 
 ### Adding a New Machine
 
@@ -218,6 +220,13 @@ Age keys must be placed at `/home/simon/.config/sops/age/keys.txt`.
 ### Mainpc
 - Includes VR support via `nixpkgs-xr` (`dotfiles.programs.vr.enable = true`)
 - Gaming configuration with Steam in `modules/_machines/mainpc/gaming/`
+
+### Agent VM (mainpc: `gamedev`)
+- Aspect file: `modules/packages/agent-vm/agent-vm.nix`, after stapelberg's coding-agent microvm.nix post
+- cloud-hypervisor guest; host `/nix/store` shared ro, writable overlay volume; tap `vm-<name>`, guest `192.168.83.2` (NAT via `dotfiles.network.interface`)
+- Host dirs under `~/microvm/<name>/`: `workspace/` → `/workspace`, `home/` → guest home (claude/gh logins persist), `ssh-host-keys/`
+- `dotfiles.agentVm.repos` are cloned over https into `/workspace` on boot if missing
+- `sudo systemctl start microvm@gamedev`, then `ssh gamedev`, `cd /workspace && claude --dangerously-skip-permissions`
 
 ## Window Manager Configuration
 
