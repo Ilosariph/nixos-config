@@ -4,7 +4,7 @@
 # Backend: llama.cpp built with the Vulkan (RADV) backend — ~40% faster than Ollama-ROCm
 # on this iGPU at standard context. A single llama-swap proxy on 127.0.0.1:8081 fronts
 # both models (one OpenAI-compatible endpoint, /v1/models lists both):
-#   - Qwen3.6-27B   ttl 0    always resident (Hermes default / coding model)
+#   - Qwen3.8-27B   ttl 0    always resident (Hermes default / coding model)
 #   - Gemma4-26B    ttl 1800 loads on demand, unloads after 30 min idle (frees VRAM for
 #                            image-gen). llama-swap spawns/kills the llama-server per model.
 #
@@ -13,9 +13,9 @@ let
   llamaVulkan = pkgs.llama-cpp.override { vulkanSupport = true; };
 
   qwenGguf = pkgs.fetchurl {
-    name = "qwen3.6-27b-q4km.gguf";
-    url = "https://huggingface.co/unsloth/Qwen3.6-27B-GGUF/resolve/main/Qwen3.6-27B-Q4_K_M.gguf";
-    hash = "sha256-XtYNCvRlCoVLF1W9OS+a70hyZD3CWiVLxoBD+mODkqA=";
+    name = "qwen3.8-27b-q4km.gguf";
+    url = "https://huggingface.co/unsloth/Qwen3.8-27B-GGUF/resolve/main/Qwen3.8-27B-UD-Q4_K_M.gguf";
+    hash = "sha256-Mi4ZT/eXQce6pJfCQPZ39UsgGw76tEyo5Q8SKzkSNII=";
   };
 
   gemmaGguf = pkgs.fetchurl {
@@ -30,15 +30,15 @@ let
   # llama-swap: one OpenAI-compatible endpoint (:8081) fronting per-model llama-server
   # processes. It lists every model at /v1/models — so both show up in the Hermes picker
   # and open-webui — and load/unloads them on demand via per-model `ttl`:
-  #   - qwen3.6-27b : ttl 0  -> never unloaded, always resident (Hermes default/coding)
+  #   - qwen3.8-27b : ttl 0  -> never unloaded, always resident (Hermes default/coding)
   #   - gemma4-26b  : ttl 1800 -> unloads after 30 min idle, freeing VRAM for image-gen
   # ${PORT} is auto-assigned by llama-swap and injected into each cmd.
   swapConfig = pkgs.writeText "llama-swap.yaml" ''
     models:
-      "qwen3.6-27b":
+      "qwen3.8-27b":
         cmd: >
           ${llamaVulkan}/bin/llama-server --port ''${PORT}
-          --model ${qwenGguf} ${llamaFlags} --alias qwen3.6-27b
+          --model ${qwenGguf} ${llamaFlags} --alias qwen3.8-27b
         ttl: 0
       "gemma4-26b":
         cmd: >
@@ -61,7 +61,7 @@ in
   systemd.services.llama-swap = {
     wantedBy = [ "multi-user.target" ];
     after = [ "network.target" ];
-    description = "llama-swap (Qwen3.6-27B resident + Gemma4-26B on-demand) on :8081";
+    description = "llama-swap (Qwen3.8-27B resident + Gemma4-26B on-demand) on :8081";
     serviceConfig = common // {
       ExecStart = "${pkgs.llama-swap}/bin/llama-swap --config ${swapConfig} --listen 127.0.0.1:8081";
     };

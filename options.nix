@@ -185,6 +185,33 @@
           description = "Nous Research Hermes agent (Discord input + local llama.cpp backend).";
         };
       };
+      nixEval = {
+        enable = lib.mkOption {
+          type = lib.types.bool;
+          default = false;
+          description = "Localhost endpoint letting Hermes eval/build the nixos-config it edits (POST /build).";
+        };
+        repoDir = lib.mkOption {
+          type = lib.types.str;
+          default = "/mnt/hermes-projects/nixos-config";
+          description = "Hermes' working copy of nixos-config (host path).";
+        };
+        hosts = lib.mkOption {
+          type = lib.types.listOf lib.types.str;
+          default = [ "evo" "mainpc" "laptop" "macbook" "nucserver" "laptopserver" ];
+          description = "nixosConfigurations Hermes may eval/build.";
+        };
+        port = lib.mkOption {
+          type = lib.types.port;
+          default = 9120;
+          description = "Port on 127.0.0.1 (not opened in the firewall).";
+        };
+        timeout = lib.mkOption {
+          type = lib.types.int;
+          default = 3600;
+          description = "Max seconds per eval/build.";
+        };
+      };
     };
 
     vpn = {

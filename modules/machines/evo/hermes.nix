@@ -1,21 +1,36 @@
-{ config, lib, ... }:
+{ config, lib, pkgs, ... }:
 # Nous Research Hermes agent on evo.
 #
 # Runs as an oci-container (podman, the repo default) with Discord as the input channel
 # and a basic-auth web dashboard on :9119. Talks to the local llama.cpp servers
 # (see ./ollama.nix) over the host network:
-#   - default/coding model : Qwen3.6-27B  @ 127.0.0.1:8081
+#   - default/coding model : Qwen3.8-27B  @ 127.0.0.1:8081
 #   - manual-switch model  : Gemma4-26B   @ 127.0.0.1:8082
 #
-# Hermes does not auto-route models per task, so Qwen3.6 is the default; Gemma4 is
+# Hermes does not auto-route models per task, so Qwen3.8 is the default; Gemma4 is
 # selectable in-chat (/model) or via the dashboard.
 #
-# Secrets (sops): hermes-discord-token, hermes-dashboard-password.
+# Secrets (sops): hermes-discord-token, hermes-dashboard-password (+ hermes-nix-eval-token
+# when dotfiles.services.nixEval is enabled, see modules/packages/nix-eval).
 let
   cfg = config.dotfiles.services.hermes;
+  nixEval = config.dotfiles.services.nixEval;
   user = config.dotfiles.user.name;
   configDir = "/home/${user}/.hermes";
   configSrc = config.sops.templates."hermes-config".path;
+  # Helper for the nix-eval endpoint, mounted into the container as /usr/local/bin/nix-check.
+  # Plain /bin/sh shebang: runs inside the Debian container, not against the nix store.
+  # Keeps the token/curl out of SOUL.md (Hermes' prompt-injection scanner flags it).
+  nixCheck = pkgs.writeScript "nix-check" ''
+    #!/bin/sh
+    host="''${1:-evo}"; mode="''${2:-build}"
+    case "$host" in *[!A-Za-z0-9_-]*|"") echo "bad host: $host" >&2; exit 2 ;; esac
+    case "$mode" in eval|build) ;; *) echo "mode must be eval or build" >&2; exit 2 ;; esac
+    exec curl -sS --max-time ${toString (nixEval.timeout + 60)} \
+      -H "Authorization: Bearer $NIX_EVAL_TOKEN" \
+      -d "{\"host\": \"$host\", \"mode\": \"$mode\"}" \
+      http://127.0.0.1:${toString nixEval.port}/build
+  '';
 in
 lib.mkIf cfg.enable {
   sops.secrets."hermes-discord-token" = { mode = "0400"; restartUnits = [ "podman-hermes.service" ]; };
@@ -34,6 +49,7 @@ lib.mkIf cfg.enable {
   #   - REQUIRE_MENTION=false : respond without @mention in the allowed channel
   sops.templates."hermes-env" = {
     mode = "0400";
+    restartUnits = [ "podman-hermes.service" ];
     content = ''
       DISCORD_BOT_TOKEN=${config.sops.placeholder."hermes-discord-token"}
       DISCORD_ALLOWED_USERS=${config.sops.placeholder."hermes-discord-allowed-users"}
@@ -45,20 +61,24 @@ lib.mkIf cfg.enable {
       HERMES_DASHBOARD_PORT=9119
       HERMES_DASHBOARD_BASIC_AUTH_USERNAME=${config.sops.placeholder."hermes-dashboard-username"}
       HERMES_DASHBOARD_BASIC_AUTH_PASSWORD=${config.sops.placeholder."hermes-dashboard-password"}
+    '' + lib.optionalString nixEval.enable ''
+      NIX_EVAL_TOKEN=${config.sops.placeholder."hermes-nix-eval-token"}
     '';
   };
 
   # config.yaml — model backend, folder access, Discord channel policy.
   sops.templates."hermes-config" = {
     mode = "0444";
+    # Sync service only runs on container start -> restart so config.yaml is re-copied.
+    restartUnits = [ "podman-hermes.service" ];
     content = ''
       # Hermes config — managed by NixOS/sops-nix. Do not edit on disk.
       # Both models are served by one llama-swap endpoint (:8081, see ./ollama.nix), so
-      # /v1/models lists both and they appear in the picker automatically. qwen3.6-27b is
+      # /v1/models lists both and they appear in the picker automatically. qwen3.8-27b is
       # the default; select gemma4-26b via /model or the dashboard.
       model:
         provider: custom
-        model: qwen3.6-27b
+        model: qwen3.8-27b
         base_url: http://127.0.0.1:8081/v1
         api_key: "none"
       # backend: local -> commands run directly inside this container (Debian 13,
@@ -99,6 +119,11 @@ lib.mkIf cfg.enable {
     Pattern: [thing] [action] [reason]. [next step].
 
     Elaborate the following: security warnings, irreversible action confirmations, multi-step sequences where fragment order risks misread, compression creates technical ambiguity. Resume short mode after.
+  '' + lib.optionalString nixEval.enable ''
+
+    # Checking nixos-config changes
+
+    After editing /opt/data/projects/nixos-config, verify it with `nix-check <host> [eval|build]` (no nix in this container; it asks the host). `eval` is fast (drvPath only), `build` does a full build and can take long; default is `build`. Hosts: ${lib.concatStringsSep ", " nixEval.hosts} (macbook is aarch64 → `eval` only). Uncommitted/untracked files are included. Prints JSON: `success`, `stderr` (tail of log). One check at a time.
   '';
 
   # Copy the sops-rendered config + SOUL.md into the writable data dir before the container starts.
@@ -154,13 +179,16 @@ lib.mkIf cfg.enable {
     volumes = [
       "${configDir}:/opt/data"
       "/mnt/hermes-projects:/opt/data/projects"
-    ];
+    ] ++ lib.optional nixEval.enable "${nixCheck}:/usr/local/bin/nix-check:ro";
     ports = [ "9119:9119" ];
     extraOptions = [
       "--network=host"
       "--no-healthcheck"
     ];
   };
+
+  # SOUL.md is copied in by hermes-config-sync on start -> restart when it changes.
+  systemd.services.podman-hermes.restartTriggers = [ config.environment.etc."hermes/SOUL.md".source ];
 
   networking.firewall.allowedTCPPorts = [ 9119 ];
 }
