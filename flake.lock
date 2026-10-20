@@ -85,6 +85,36 @@
         "type": "github"
       }
     },
+    "finix": {
+      "locked": {
+        "lastModified": 1792448191,
+        "narHash": "sha256-+mTcB6uxMLY45h+iAOy+9Pd3uWkThr76FY1fQylcXWc=",
+        "owner": "finix-community",
+        "repo": "finix",
+        "rev": "58c886c9a24d360f3acc51df6e316a2696240223",
+        "type": "github"
+      },
+      "original": {
+        "owner": "finix-community",
+        "repo": "finix",
+        "type": "github"
+      }
+    },
+    "finix-community": {
+      "locked": {
+        "lastModified": 1791743568,
+        "narHash": "sha256-6gcFYf4BFHaApP+sB7N4alek0CJ+opNYBDNyl5MFQfE=",
+        "owner": "finix-community",
+        "repo": "community-modules",
+        "rev": "a23be2c6a777fc0be1a0a857f6a5296db1eb054a",
+        "type": "github"
+      },
+      "original": {
+        "owner": "finix-community",
+        "repo": "community-modules",
+        "type": "github"
+      }
+    },
     "flake-compat": {
       "locked": {
         "lastModified": 1761640442,
@@ -185,6 +215,26 @@
         "owner": "numtide",
         "repo": "flake-utils",
         "type": "github"
+      }
+    },
+    "hjem": {
+      "locked": {
+        "lastModified": 1792374494,
+        "narHash": "sha256-E3vrGA6k5Suh2NDP18PO+HTaL5zCQMfGW5toKoVqcQ8=",
+        "owner": "feel-co",
+        "repo": "hjem",
+        "rev": "7fec35f695f1d8784d2485be6871f85dc0d0f522",
+        "type": "github"
+      },
+      "original": {
+        "owner": "feel-co",
+        "repo": "hjem",
+        "type": "github"
+      },
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
       }
     },
     "home-manager": {
@@ -433,7 +483,10 @@
         "comfyui-nix": "comfyui-nix",
         "deploy-rs": "deploy-rs",
         "dfrd": "dfrd",
+        "finix": "finix",
+        "finix-community": "finix-community",
         "flake-parts": "flake-parts",
+        "hjem": "hjem",
         "home-manager": "home-manager",
         "import-tree": "import-tree",
         "linux-asahi-fairydust": "linux-asahi-fairydust",

@@ -72,6 +72,7 @@ Then rebuild mainpc (loads the signing key) and deploy evo (trusts the public ke
 ### Available Flake Configurations
 - **Desktop**: `mainpc`, `laptop`, `macbook` (aarch64)
 - **Servers**: `nucserver`, `laptopserver`, `evo`
+- **finix (test)**: `mainpc-finix` — mainpc on [finix](https://github.com/finix-community/finix) (finit instead of systemd). See `docs/finix.md`.
 
 ## Architecture
 
@@ -164,6 +165,10 @@ Every file in `modules/packages/` is a **flake-parts module**:
     };
 }
 ```
+
+### finix Aspects
+
+`modules/finix/<aspect>/<aspect>.nix` are flake-parts modules exposing `flake.finixModules.<aspect>` (option declared in `modules/finix/finix-modules.nix`), auto-discovered like `modules/packages`. They implement the same `dotfiles.*` options (shared `options.nix`) for finix: finix modules are imported explicitly via the `modules` arg (`imports = [ modules.greetd ];`), Hjem (`hjem.users.<name>`) replaces home-manager, and there are no user services (session daemons start from Umbriel's autostart). Code used by both NixOS and finix aspects lives in `_`-prefixed files under `modules/packages/` (skipped by import-tree), e.g. `umbriel/_settings.nix`, `noctalia/_settings.nix`, `audio-routing/_audio.nix`.
 
 ### Custom Options System
 

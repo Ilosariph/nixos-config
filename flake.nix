@@ -67,6 +67,19 @@
 
     yeetmouse.url = "github:AndyFilter/YeetMouse?dir=nix";
 
+    # finix: NixOS-like distro with finit as PID 1 (no systemd). Used by the
+    # mainpc-finix test host (modules/hosts/mainpc-finix.nix). The finix and
+    # community-modules flakes have no inputs; they evaluate against our nixpkgs.
+    finix.url = "github:finix-community/finix";
+    finix-community.url = "github:finix-community/community-modules";
+
+    # Hjem: home-manager replacement with first-party finix support (files only,
+    # no user services)
+    hjem = {
+      url = "github:feel-co/hjem";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     comfyui-nix = {
       url = "github:Ilosariph/comfyui-nix/claude/comfyui-ryzen-ai-max-395-vrc0t7";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -80,6 +93,8 @@
         { flake.nixosModules.options = ./options.nix; }
         # Auto-discover all aspect modules under modules/packages/
         (inputs.import-tree ./modules/packages)
+        # Auto-discover finix aspect modules (flake.finixModules.*)
+        (inputs.import-tree ./modules/finix)
         # Auto-discover all host instantiations (passed directly, bypassing _ skip)
         (inputs.import-tree ./modules/hosts)
       ];
