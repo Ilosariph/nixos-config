@@ -30,6 +30,33 @@ normal SSH setup of the user running the evaluation:
 - Optional, for a headless machine that builds itself: add a read-only
   **deploy key** to the nix-secrets repo instead of your personal key.
 
+### evo nix-eval service (deploy key)
+
+evo's `nix-eval` service (Hermes' eval/build endpoint) evaluates the flake on
+evo as a systemd `DynamicUser` — no personal SSH key there. It fetches
+nix-secrets with a dedicated **read-only deploy key** instead:
+
+- sops secret `nix-secrets-deploy-key` (private key) → handed to the service
+  via `LoadCredential`, used through `GIT_SSH_COMMAND`.
+- GitHub's ed25519 host key pinned in `programs.ssh.knownHosts`.
+
+One-time setup:
+
+```bash
+ssh-keygen -t ed25519 -N "" -C "evo nix-eval (read-only)" -f /tmp/nix-secrets-deploy
+# GitHub → Ilosariph/nix-secrets → Settings → Deploy keys → Add deploy key:
+#   paste /tmp/nix-secrets-deploy.pub, leave "Allow write access" UNCHECKED
+./secrets.sh edit
+#   nix-secrets-deploy-key: |
+#     <contents of /tmp/nix-secrets-deploy, indented>
+rm /tmp/nix-secrets-deploy /tmp/nix-secrets-deploy.pub
+deploy .#evo
+```
+
+Scope: the key can read nix-secrets only (encrypted `secrets.yaml` +
+`private.nix`). Hermes-edited code is evaluated in pure mode, so it can't read
+the credential file directly; builds run in the nix sandbox.
+
 Fetched content is stored in `/nix/store` like any input. Still encrypted,
 decrypted only at activation with the age key.
 
