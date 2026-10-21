@@ -16,6 +16,7 @@ let
   cfg = config.dotfiles.services.hermes;
   nixEval = config.dotfiles.services.nixEval;
   user = config.dotfiles.user.name;
+  private = config.dotfiles.private.hermes;
   configDir = "/home/${user}/.hermes";
   configSrc = config.sops.templates."hermes-config".path;
   # Helper for the nix-eval endpoint, mounted into the container as /usr/local/bin/nix-check.
@@ -34,16 +35,13 @@ let
 in
 lib.mkIf cfg.enable {
   sops.secrets."hermes-discord-token" = { mode = "0400"; restartUnits = [ "podman-hermes.service" ]; };
-  sops.secrets."hermes-discord-allowed-users" = { mode = "0400"; restartUnits = [ "podman-hermes.service" ]; };
-  sops.secrets."hermes-discord-channel" = { mode = "0400"; restartUnits = [ "podman-hermes.service" ]; };
-  sops.secrets."hermes-dashboard-username" = { mode = "0400"; restartUnits = [ "podman-hermes.service" ]; };
   sops.secrets."hermes-dashboard-password" = { mode = "0400"; restartUnits = [ "podman-hermes.service" ]; };
 
   # Environment file for the container (secrets + dashboard/discord config).
   #
   # Discord access control lives here (not in config.yaml) — env keys are the
   # schema-verified surface (see Hermes messaging docs):
-  #   - ALLOWED_USERS  : comma-separated user-ID allowlist (sops, multiple accounts)
+  #   - ALLOWED_USERS  : comma-separated user-ID allowlist (private.nix, multiple accounts)
   #   - ALLOWED_CHANNELS: restrict bot to the home channel only
   #   - HOME_CHANNEL   : default channel for automated/job delivery
   #   - REQUIRE_MENTION=false : respond without @mention in the allowed channel
@@ -52,14 +50,14 @@ lib.mkIf cfg.enable {
     restartUnits = [ "podman-hermes.service" ];
     content = ''
       DISCORD_BOT_TOKEN=${config.sops.placeholder."hermes-discord-token"}
-      DISCORD_ALLOWED_USERS=${config.sops.placeholder."hermes-discord-allowed-users"}
-      DISCORD_ALLOWED_CHANNELS=${config.sops.placeholder."hermes-discord-channel"}
-      DISCORD_HOME_CHANNEL=${config.sops.placeholder."hermes-discord-channel"}
+      DISCORD_ALLOWED_USERS=${private.discordAllowedUsers}
+      DISCORD_ALLOWED_CHANNELS=${private.discordChannel}
+      DISCORD_HOME_CHANNEL=${private.discordChannel}
       DISCORD_REQUIRE_MENTION=false
       HERMES_DASHBOARD=1
       HERMES_DASHBOARD_HOST=0.0.0.0
       HERMES_DASHBOARD_PORT=9119
-      HERMES_DASHBOARD_BASIC_AUTH_USERNAME=${config.sops.placeholder."hermes-dashboard-username"}
+      HERMES_DASHBOARD_BASIC_AUTH_USERNAME=${private.dashboardUsername}
       HERMES_DASHBOARD_BASIC_AUTH_PASSWORD=${config.sops.placeholder."hermes-dashboard-password"}
     '' + lib.optionalString nixEval.enable ''
       NIX_EVAL_TOKEN=${config.sops.placeholder."hermes-nix-eval-token"}
@@ -144,7 +142,7 @@ lib.mkIf cfg.enable {
   # left untouched — file_mode is a per-mount option, so a second mount is the only way
   # to widen perms for hermes without affecting the other folders on that share.
   fileSystems."/mnt/hermes-projects" = {
-    device = "//192.168.1.148/p/hermes";
+    device = "//${config.dotfiles.sharesDefaultServer}/p/hermes";
     fsType = "cifs";
     options = [
       "x-systemd.automount,noauto,x-systemd.idle-timeout=60,x-systemd.device-timeout=5s,x-systemd.mount-timeout=5s"

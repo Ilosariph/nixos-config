@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 # Usage: ./secrets.sh [edit [file]|update]
 #   edit [file]  Pull the private nix-secrets clone, open <file> (default
-#                secrets.yaml) in sops, commit + push if changed, then bump the
-#                nix-secrets input in flake.lock.
+#                secrets.yaml) in sops (*.yaml/*.json) or $EDITOR (anything
+#                else, e.g. private.nix), commit + push if changed, then bump
+#                the nix-secrets input in flake.lock.
 #   update       Only bump the nix-secrets input (secrets changed elsewhere).
 # Clone location: $NIX_SECRETS_DIR (default ~/nix-secrets). See docs/secrets.md.
 set -euo pipefail
@@ -25,7 +26,10 @@ case "$MODE" in
     fi
     git -C "$SECRETS_DIR" pull --ff-only
     # Run from inside the clone so sops picks up its .sops.yaml.
-    (cd "$SECRETS_DIR" && sops "$FILE")
+    case "$FILE" in
+      *.yaml|*.json) (cd "$SECRETS_DIR" && sops "$FILE") ;;
+      *)             (cd "$SECRETS_DIR" && "${EDITOR:-nano}" "$FILE") ;;
+    esac
     if [[ -z "$(git -C "$SECRETS_DIR" status --porcelain)" ]]; then
       echo "No changes."
       exit 0

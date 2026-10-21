@@ -52,19 +52,18 @@ deploy-rs pushes store paths from mainpc to target machines. Target machines rej
 # Generate the signing key pair
 sudo nix-store --generate-binary-cache-key mainpc /tmp/signing-key.sec /tmp/signing-key.pub
 
-# Add both to sops secrets (private nix-secrets repo)
+# Private key → sops secrets (private nix-secrets repo)
 ./secrets.sh edit
 # Add:
 #   mainpc-nix-signing-key: "<contents of /tmp/signing-key.sec>"
-#   mainpc-nix-signing-key-pub: "trusted-public-keys = <contents of /tmp/signing-key.pub>"
+
+# Public key → eval-time private.nix (not secret)
+./secrets.sh edit private.nix
+# Set:
+#   nix.mainpcSigningPublicKey = "<contents of /tmp/signing-key.pub>";   # mainpc:base64=
 
 # Clean up plain-text key files
 rm /tmp/signing-key.sec /tmp/signing-key.pub
-```
-
-Note: `mainpc-nix-signing-key-pub` must be in nix.conf format, i.e.:
-```
-trusted-public-keys = mainpc:base64pubkey=
 ```
 
 Then rebuild mainpc (loads the signing key) and deploy evo (trusts the public key).
@@ -205,6 +204,8 @@ Machine-specific settings are defined via custom `dotfiles.*` options in `option
 Uses `sops-nix` with age encryption. Secrets live in the private repo `Ilosariph/nix-secrets`, consumed as the non-flake input `nix-secrets` (fetched via `git+ssh`, so the user's SSH key/agent authenticates — no PAT). `modules/packages/sops/sops.nix` defaults `dotfiles.sops.defaultSecretsFile` to `${inputs.nix-secrets}/secrets.yaml`. Repo layout:
 - `.sops.yaml` — sops config (age key, path rules)
 - `secrets.yaml` — general secrets (SSH keys, signing keys, VPN, etc.)
+
+`private.nix` in the same repo holds private-but-not-secret values (LAN IPs, domains, public keys, Discord IDs), imported at eval time into `config.dotfiles.private` by `modules/packages/private/private.nix`. They land in the nix store, so never put passwords/tokens there. Use `config.dotfiles.private.*` instead of hard-coding IPs/domains in this public repo.
 
 Edit secrets with `./secrets.sh edit` (pulls clone at `~/nix-secrets`, runs sops, commits + pushes, bumps `flake.lock`). Secrets changed elsewhere → `./secrets.sh update`. See `docs/secrets.md`.
 

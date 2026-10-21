@@ -12,7 +12,7 @@
       # own server. Loopback is already in the nixpkgs default, so only the
       # LAN is added here.
       services.fail2ban.ignoreIP = lib.mkIf cfg.enable [
-        "192.168.1.0/24"
+        config.dotfiles.private.lan.subnet
       ];
 
       # Repeat offenders get progressively longer bans instead of retrying

@@ -127,7 +127,7 @@
     {
       mountPoint = "/mnt/scan";
       share = "ScansLaserjet";
-      server = "192.168.1.95";
+      server = config.dotfiles.private.lan.scanner;
       credentials = "/etc/nixos/smb-scan";
     }
   ];

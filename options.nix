@@ -111,10 +111,10 @@
           default = false;
           description = "Enable OpenSSH daemon.";
         };
-        authorizedKeySecret = lib.mkOption {
-          type = lib.types.nullOr lib.types.str;
-          default = null;
-          description = "Name of the sops secret to use as authorized_keys (e.g. 'nucserver-ssh-public-key').";
+        authorizedKeys = lib.mkOption {
+          type = lib.types.listOf lib.types.str;
+          default = [];
+          description = "SSH public keys allowed to log in as the main user (e.g. config.dotfiles.private.ssh.authorizedKeys).";
         };
       };
       fail2ban = {
@@ -643,7 +643,8 @@
 
     sharesDefaultServer = lib.mkOption {
       type = lib.types.str;
-      default = "192.168.1.148";
+      default = config.dotfiles.private.lan.nas;
+      defaultText = lib.literalExpression "config.dotfiles.private.lan.nas";
       description = "Default SMB server IP used when a share does not specify its own server.";
     };
 
@@ -681,6 +682,12 @@
       }));
       default = [];
       description = "List of CIFS/SMB shares to mount.";
+    };
+
+    private = lib.mkOption {
+      type = lib.types.lazyAttrsOf lib.types.anything;
+      default = {};
+      description = "Private, non-secret values imported at eval time from private.nix in the nix-secrets input (LAN IPs, domains, public keys, IDs). Ends up in the nix store; never put real secrets here.";
     };
 
     sops = {
@@ -749,10 +756,10 @@
           default = false;
           description = "Build the system on the remote machine instead of pushing from the deploying machine.";
         };
-        trustedPublicKeySecret = lib.mkOption {
-          type = lib.types.nullOr lib.types.str;
-          default = null;
-          description = "Name of the sops secret containing the deploying machine's nix store public key. Loaded and added to nix.settings.trusted-public-keys at activation time.";
+        trustedPublicKeys = lib.mkOption {
+          type = lib.types.listOf lib.types.str;
+          default = [];
+          description = "Nix store public keys of the deploying machine(s) (e.g. 'mainpc:base64='), added to nix.settings.trusted-public-keys.";
         };
       };
       deployer = {
@@ -798,13 +805,14 @@
       nameservers = lib.mkOption {
         type = lib.types.listOf lib.types.str;
         default = [
-          "192.168.1.148"
-          "fd32:9975:719f:0:7a55:36ff:fe02:15f3"
+          config.dotfiles.private.lan.nas
+          config.dotfiles.private.lan.nasV6
           "1.1.1.1"
           "2606:4700:4700::1111"
           "1.0.0.1"
           "2606:4700:4700::1001"
         ];
+        defaultText = lib.literalExpression "[ private.lan.nas private.lan.nasV6 <cloudflare v4/v6> ]";
         description = "DNS nameservers.";
       };
     };
