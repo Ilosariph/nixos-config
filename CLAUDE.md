@@ -52,8 +52,8 @@ deploy-rs pushes store paths from mainpc to target machines. Target machines rej
 # Generate the signing key pair
 sudo nix-store --generate-binary-cache-key mainpc /tmp/signing-key.sec /tmp/signing-key.pub
 
-# Add both to sops secrets
-sops secrets/secrets.yaml
+# Add both to sops secrets (private nix-secrets repo)
+./secrets.sh edit
 # Add:
 #   mainpc-nix-signing-key: "<contents of /tmp/signing-key.sec>"
 #   mainpc-nix-signing-key-pub: "trusted-public-keys = <contents of /tmp/signing-key.pub>"
@@ -202,9 +202,11 @@ Machine-specific settings are defined via custom `dotfiles.*` options in `option
 
 ### Secrets Management
 
-Uses `sops-nix` with age encryption. All secrets live in the `secrets/` folder:
-- `secrets/.sops.yaml` — sops config (age key, path rules)
-- `secrets/secrets.yaml` — general secrets (SSH keys, signing keys, VPN, etc.)
+Uses `sops-nix` with age encryption. Secrets live in the private repo `Ilosariph/nix-secrets`, consumed as the non-flake input `nix-secrets` (fetched via `git+ssh`, so the user's SSH key/agent authenticates — no PAT). `modules/packages/sops/sops.nix` defaults `dotfiles.sops.defaultSecretsFile` to `${inputs.nix-secrets}/secrets.yaml`. Repo layout:
+- `.sops.yaml` — sops config (age key, path rules)
+- `secrets.yaml` — general secrets (SSH keys, signing keys, VPN, etc.)
+
+Edit secrets with `./secrets.sh edit` (pulls clone at `~/nix-secrets`, runs sops, commits + pushes, bumps `flake.lock`). Secrets changed elsewhere → `./secrets.sh update`. See `docs/secrets.md`.
 
 Age keys must be placed at `/home/simon/.config/sops/age/keys.txt`.
 

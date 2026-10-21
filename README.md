@@ -83,7 +83,7 @@ Keys are stored as `yubikey-u2f-keys` in `secrets.yaml` and deployed to
 
 2. Add/append the output to `yubikey-u2f-keys` in secrets:
    ```bash
-   sops secrets.yaml
+   ./secrets.sh edit
    ```
    Each line is one user; multiple keys for the same user are separated by `:`.
 
@@ -94,7 +94,7 @@ Keys are stored as `yubikey-u2f-keys` in `secrets.yaml` and deployed to
 
 ### Removing a key
 
-Edit `yubikey-u2f-keys` in `secrets.yaml` via `sops secrets.yaml`, delete the
+Edit `yubikey-u2f-keys` in `secrets.yaml` via `./secrets.sh edit`, delete the
 relevant entry, then rebuild.
 
 ## LUKS (disk unlock at boot)

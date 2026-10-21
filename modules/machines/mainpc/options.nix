@@ -1,7 +1,6 @@
 { lib, pkgs, config, ... }:
 {
   dotfiles.sops.enable = true;
-  dotfiles.sops.defaultSecretsFile = ../../../secrets/secrets.yaml;
   dotfiles.deploy.deployer.installTool = true;
   dotfiles.deploy.deployer.signingKeySecret = "mainpc-nix-signing-key";
   dotfiles.desktop.enable = true;

@@ -696,7 +696,7 @@
       };
       defaultSecretsFile = lib.mkOption {
         type = lib.types.path;
-        description = "Default sops secrets file. Must be set to the absolute path of secrets.yaml in the flake.";
+        description = "Default sops secrets file. Defaults to secrets.yaml from the private nix-secrets flake input.";
       };
     };
 
