@@ -697,9 +697,9 @@
         description = "Enable sops-nix secret decryption.";
       };
       ageKeyFile = lib.mkOption {
-        type = lib.types.str;
-        default = "/home/${config.dotfiles.user.name}/.config/sops/age/keys.txt";
-        description = "Path to the age private key file used to decrypt sops secrets.";
+        type = lib.types.nullOr lib.types.str;
+        default = null;
+        description = "Optional extra age private key file for host decryption. Hosts normally decrypt with their SSH host key (/etc/ssh/ssh_host_ed25519_key); only set this as a fallback, never to a file holding YubiKey identity stubs.";
       };
       defaultSecretsFile = lib.mkOption {
         type = lib.types.path;

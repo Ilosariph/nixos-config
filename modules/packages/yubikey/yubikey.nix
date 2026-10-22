@@ -10,6 +10,7 @@
 				yubioath-flutter
 				libfido2
 				pam_u2f
+				age-plugin-yubikey     # sops editing: age identity in the PIV slot
       ];
 
       # udev rules so the YubiKey USB device is accessible without root

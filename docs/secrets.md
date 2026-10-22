@@ -58,7 +58,87 @@ Scope: the key can read nix-secrets only (encrypted `secrets.yaml` +
 the credential file directly; builds run in the nix sandbox.
 
 Fetched content is stored in `/nix/store` like any input. Still encrypted,
-decrypted only at activation with the age key.
+decrypted only at activation (see Keys below).
+
+## Keys
+
+sops encrypts one data key per recipient; **any one** recipient can decrypt.
+
+| Recipient | Used for | Where the private key lives |
+|---|---|---|
+| Host SSH key (`ssh-to-age` of `/etc/ssh/ssh_host_ed25519_key.pub`) | Decrypt at activation | `/etc/ssh/ssh_host_ed25519_key` on that host |
+| YubiKey A / B (`age1yubikey1…`) | You editing (PIN + touch) | PIV slot, never leaves the key |
+| Backup age key (`age1…`) | Recovery if all YubiKeys are lost | Offline (paper / safe), **not** on disk |
+
+- `modules/packages/sops/sops.nix` sets `sops.age.sshKeyPaths` to the ed25519
+  host key and creates it at activation if missing (desktops don't run sshd).
+- `~/.config/sops/age/keys.txt` on editing machines holds only YubiKey
+  identity **stubs** (`AGE-PLUGIN-YUBIKEY-…`, not secret); sops finds them
+  there and calls `age-plugin-yubikey` (installed by the yubikey module, needs
+  `pcscd`). Enable `dotfiles.security.yubikey` on any machine you edit from.
+- Don't point `dotfiles.sops.ageKeyFile` at that file: activation can't touch
+  a YubiKey. It's an optional fallback for a real age key only (default null).
+
+### `.sops.yaml` (in nix-secrets)
+
+```yaml
+keys:
+  # you (editing)
+  - &yubikey_a age1yubikey1q...
+  - &yubikey_b age1yubikey1q...
+  - &backup    age1...
+  # hosts (./secrets.sh recipient <host>)
+  - &mainpc       age1...
+  - &laptop       age1...
+  - &macbook      age1...
+  - &evo          age1...
+  - &nucserver    age1...
+  - &laptopserver age1...
+creation_rules:
+  - path_regex: .*\.yaml$
+    key_groups:
+      - age:
+          - *yubikey_a
+          - *yubikey_b
+          - *backup
+          - *mainpc
+          - *laptop
+          - *macbook
+          - *evo
+          - *nucserver
+          - *laptopserver
+```
+
+After any change: `./secrets.sh rekey` (runs `sops updatekeys` on every file,
+needs one of your keys), then rebuild/deploy.
+
+### YubiKey setup (per key)
+
+```bash
+age-plugin-yubikey            # interactive: pick slot, PIN policy, touch=always
+age-plugin-yubikey --list     # → recipient age1yubikey1… for .sops.yaml
+age-plugin-yubikey --identity >> ~/.config/sops/age/keys.txt   # stub
+```
+
+Repeat with the spare key. Copy `keys.txt` (stubs only) to other machines you
+edit from.
+
+### Reinstalled host / new machine
+
+A fresh install has a new host key → old recipient useless → that host can't
+decrypt until re-keyed (it boots; services needing secrets fail).
+
+```bash
+./secrets.sh recipient evo       # or `local` on the machine itself
+# replace evo's entry in ~/nix-secrets/.sops.yaml
+./secrets.sh rekey
+deploy .#evo                     # or ./build.sh <host>
+```
+
+To skip re-keying, back up the host key and restore it before the first
+rebuild (e.g. `nixos-anywhere --extra-files`). New machine: generate the key
+first (`ssh-keygen -t ed25519 -N "" -f /etc/ssh/ssh_host_ed25519_key`), add
+its recipient, rekey, then install.
 
 ## Repo layout (nix-secrets)
 
@@ -158,6 +238,34 @@ nh os test . -H mainpc -- --override-input nix-secrets path:$HOME/nix-secrets
    ```bash
    git rm -r secrets && git commit -am "secrets: move to private nix-secrets repo"
    ```
+
+## Switching from the shared age key to host keys + YubiKey
+
+Old setup: one age key (`&main`) copied to every host's `keys.txt`. Do this
+**before** deploying the sops.nix change, otherwise hosts can't decrypt.
+
+1. YubiKeys: `nix shell nixpkgs#age-plugin-yubikey`, then the YubiKey setup
+   above for each key. Keep the stubs in a **separate file** for now
+   (`~/.config/sops/age/yubikey.txt`), since `keys.txt` still holds `main`.
+2. Backup key: `age-keygen -o backup.txt` → note the recipient, store the
+   file offline, delete it from disk.
+3. Host recipients:
+   - Servers (sshd already has a key): `./secrets.sh recipient <ip>`.
+   - Desktops (no sshd): on each,
+     `sudo ssh-keygen -t ed25519 -N "" -f /etc/ssh/ssh_host_ed25519_key`
+     then `./secrets.sh recipient local` (needs `nix shell nixpkgs#ssh-to-age`
+     until the next rebuild).
+4. `.sops.yaml`: add all of the above, **keep `&main` for now**.
+   `./secrets.sh rekey` (decrypts with `main`).
+5. Merge the branch, rebuild desktops, `deploy` servers. Check
+   `ls /run/secrets/` on each.
+6. Drop `&main` from `.sops.yaml`, `./secrets.sh rekey` (now via YubiKey:
+   `SOPS_AGE_KEY_FILE=~/.config/sops/age/yubikey.txt ./secrets.sh rekey`).
+7. Replace `keys.txt` with the stubs on editing machines
+   (`mv yubikey.txt keys.txt`), delete it on servers.
+
+`main` can still decrypt old commits of nix-secrets (and of this repo's
+history). If you consider it exposed, rotate the actual secret values.
 
 Note: the encrypted `secrets/` stays in this repo's git history. Fine as long
 as the age key is safe; if the repo goes public and that's a concern, rotate

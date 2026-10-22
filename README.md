@@ -33,11 +33,9 @@ home-manager switch --flake .#simon
 username=username
 password=password
 ```
-# Key file for sops
-`/home/simon/.config/sops/age/keys.txt`
-```
-SECRET-KEY
-```
+# sops keys
+Hosts decrypt with their SSH host key, editing uses a YubiKey. Nothing to copy
+onto a new machine; see `docs/secrets.md` (re-key after reinstall).
 
 # Ollama (evo)
 
