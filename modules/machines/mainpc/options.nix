@@ -1,6 +1,7 @@
 { lib, pkgs, config, ... }:
 {
   dotfiles.sops.enable = true;
+  dotfiles.sops.host = "mainpc";
   dotfiles.deploy.deployer.installTool = true;
   dotfiles.deploy.deployer.signingKeySecret = "mainpc-nix-signing-key";
   dotfiles.desktop.enable = true;

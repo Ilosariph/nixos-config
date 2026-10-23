@@ -1,6 +1,7 @@
 { lib, pkgs, ... }:
 {
   dotfiles.sops.enable = true;
+  dotfiles.sops.host = "laptop";
   dotfiles.desktop.enable = true;
   dotfiles.programs.tmux.enable = false;
   dotfiles.programs.gnirehtet.enable = true;

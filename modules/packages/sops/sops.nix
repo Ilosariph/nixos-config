@@ -8,7 +8,9 @@
       hostKey = "/etc/ssh/ssh_host_ed25519_key";
     in
     lib.mkIf config.dotfiles.sops.enable {
-      dotfiles.sops.defaultSecretsFile = lib.mkDefault "${inputs.nix-secrets}/secrets.yaml";
+      # Per-host file: each host can only decrypt its own secrets (+ shared.yaml).
+      dotfiles.sops.defaultSecretsFile = lib.mkDefault "${inputs.nix-secrets}/hosts/${config.dotfiles.sops.host}.yaml";
+      dotfiles.sops.sharedSecretsFile = lib.mkDefault "${inputs.nix-secrets}/shared.yaml";
       sops.defaultSopsFile = config.dotfiles.sops.defaultSecretsFile;
       sops.age.sshKeyPaths = [ hostKey ];
       sops.age.keyFile = config.dotfiles.sops.ageKeyFile;

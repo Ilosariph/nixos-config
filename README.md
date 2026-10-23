@@ -65,7 +65,7 @@ curl http://localhost:11434/api/tags -H "Authorization: Bearer YOUR_API_KEY_HERE
 
 ## sudo / polkit (system auth prompts)
 
-Keys are stored as `yubikey-u2f-keys` in `secrets.yaml` and deployed to
+Keys are stored as `yubikey-u2f-keys` in nix-secrets `hosts/mainpc.yaml` and deployed to
 `/etc/u2f_keys` automatically on rebuild.
 
 ### Adding a key
@@ -81,7 +81,7 @@ Keys are stored as `yubikey-u2f-keys` in `secrets.yaml` and deployed to
 
 2. Add/append the output to `yubikey-u2f-keys` in secrets:
    ```bash
-   ./secrets.sh edit
+   ./secrets.sh edit mainpc
    ```
    Each line is one user; multiple keys for the same user are separated by `:`.
 
@@ -92,7 +92,7 @@ Keys are stored as `yubikey-u2f-keys` in `secrets.yaml` and deployed to
 
 ### Removing a key
 
-Edit `yubikey-u2f-keys` in `secrets.yaml` via `./secrets.sh edit`, delete the
+Edit `yubikey-u2f-keys` via `./secrets.sh edit mainpc`, delete the
 relevant entry, then rebuild.
 
 ## LUKS (disk unlock at boot)

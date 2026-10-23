@@ -1,6 +1,7 @@
 { config, ... }:
 {
   dotfiles.sops.enable = true;
+  dotfiles.sops.host = "nucserver";
   dotfiles.kernel = "stable";
   dotfiles.bootloader.type = "systemd";
   dotfiles.programs._1password.sshAgent = false;

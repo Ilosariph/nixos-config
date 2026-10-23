@@ -77,7 +77,7 @@ in
   # htpasswd file for the proxy. Generate the entry with:
   #   nix run nixpkgs#apacheHttpd -- htpasswd -nbB simon '<password>'
   # and store the resulting "simon:$2y$..." line as comfyui-htpasswd in
-  # nix-secrets (./secrets.sh edit).
+  # nix-secrets (./secrets.sh edit evo).
   sops.secrets.comfyui-htpasswd = {
     owner = "nginx";
     group = "nginx";

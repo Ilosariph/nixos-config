@@ -27,7 +27,8 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    # Private repo holding the sops-encrypted secrets.yaml (+ .sops.yaml).
+    # Private repo holding the sops-encrypted secrets (hosts/<host>.yaml,
+    # shared.yaml, .sops.yaml) and eval-time private.nix.
     # Fetched over SSH with the user's own key/agent, so no GitHub PAT in
     # nix.conf. Pull new secrets with ./secrets.sh update. See docs/secrets.md.
     nix-secrets = {

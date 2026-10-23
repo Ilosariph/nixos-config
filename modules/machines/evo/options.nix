@@ -1,6 +1,7 @@
 { config, ... }:
 {
   dotfiles.sops.enable = true;
+  dotfiles.sops.host = "evo";
   dotfiles.deploy.target.enable = true;
   dotfiles.deploy.target.trustedPublicKeys = [ config.dotfiles.private.nix.mainpcSigningPublicKey ];
   dotfiles.kernel = "default";

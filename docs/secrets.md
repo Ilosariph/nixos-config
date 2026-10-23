@@ -12,7 +12,9 @@ nix-secrets = {
 ```
 
 `modules/packages/sops/sops.nix` points `sops.defaultSopsFile` at
-`${inputs.nix-secrets}/secrets.yaml`. Machines only need `dotfiles.sops.enable`.
+`${inputs.nix-secrets}/hosts/<dotfiles.sops.host>.yaml`; secrets every host
+needs set `sopsFile = config.dotfiles.sops.sharedSecretsFile` (`shared.yaml`).
+Machines set `dotfiles.sops.enable` + `dotfiles.sops.host`.
 
 ## Auth: SSH instead of a GitHub PAT
 
@@ -46,7 +48,7 @@ One-time setup:
 ssh-keygen -t ed25519 -N "" -C "evo nix-eval (read-only)" -f /tmp/nix-secrets-deploy
 # GitHub → Ilosariph/nix-secrets → Settings → Deploy keys → Add deploy key:
 #   paste /tmp/nix-secrets-deploy.pub, leave "Allow write access" UNCHECKED
-./secrets.sh edit
+./secrets.sh edit evo
 #   nix-secrets-deploy-key: |
 #     <contents of /tmp/nix-secrets-deploy, indented>
 rm /tmp/nix-secrets-deploy /tmp/nix-secrets-deploy.pub
@@ -95,19 +97,32 @@ keys:
   - &nucserver    age1...
   - &laptopserver age1...
 creation_rules:
-  - path_regex: .*\.yaml$
+  # One file per host: only that host + you can decrypt it.
+  - path_regex: hosts/mainpc\.yaml$
+    key_groups: [{ age: [*yubikey_a, *yubikey_b, *backup, *mainpc] }]
+  - path_regex: hosts/laptop\.yaml$
+    key_groups: [{ age: [*yubikey_a, *yubikey_b, *backup, *laptop] }]
+  - path_regex: hosts/macbook\.yaml$
+    key_groups: [{ age: [*yubikey_a, *yubikey_b, *backup, *macbook] }]
+  - path_regex: hosts/evo\.yaml$
+    key_groups: [{ age: [*yubikey_a, *yubikey_b, *backup, *evo] }]
+  - path_regex: hosts/nucserver\.yaml$
+    key_groups: [{ age: [*yubikey_a, *yubikey_b, *backup, *nucserver] }]
+  - path_regex: hosts/laptopserver\.yaml$
+    key_groups: [{ age: [*yubikey_a, *yubikey_b, *backup, *laptopserver] }]
+  # Only secrets every host really needs (docker-registry).
+  - path_regex: shared\.yaml$
     key_groups:
-      - age:
-          - *yubikey_a
-          - *yubikey_b
-          - *backup
-          - *mainpc
-          - *laptop
-          - *macbook
-          - *evo
-          - *nucserver
-          - *laptopserver
+      - age: [*yubikey_a, *yubikey_b, *backup,
+              *mainpc, *laptop, *macbook, *evo, *nucserver, *laptopserver]
 ```
+
+sops can't scope single keys inside one file, so isolation = one file per
+host. A secret two hosts need: copy it into both host files (preferred), or
+move it to `shared.yaml` if (nearly) all need it.
+
+A host without any secrets needs no file (sops-nix only checks files that
+declared secrets use).
 
 After any change: `./secrets.sh rekey` (runs `sops updatekeys` on every file,
 needs one of your keys), then rebuild/deploy.
@@ -144,7 +159,8 @@ its recipient, rekey, then install.
 
 ```
 .sops.yaml      # age recipients + creation rules
-secrets.yaml    # real secrets, sops-encrypted, decrypted at activation
+hosts/<host>.yaml # that host's secrets, sops-encrypted to host + you
+shared.yaml     # secrets every host needs, encrypted to all hosts + you
 private.nix     # private-but-not-secret values, plain Nix, read at eval time
 ```
 
@@ -153,7 +169,7 @@ private.nix     # private-but-not-secret values, plain Nix, read at eval time
 `modules/packages/private/private.nix` imports it into `dotfiles.private`, so
 any module can use e.g. `config.dotfiles.private.lan.nas`. Values land in the
 world-readable `/nix/store` of each machine — fine for IPs, domains, public
-keys, IDs; **never** for passwords/tokens (those stay in `secrets.yaml`).
+keys, IDs; **never** for passwords/tokens (those stay in sops files).
 
 Expected shape (all keys used by this repo):
 
@@ -190,8 +206,9 @@ but opens the plain file in `$EDITOR` instead of sops.
 ## Day-to-day
 
 ```bash
-./secrets.sh edit            # pull ~/nix-secrets, sops secrets.yaml,
+./secrets.sh edit evo        # pull ~/nix-secrets, sops hosts/evo.yaml,
                              # commit + push, nix flake update nix-secrets
+./secrets.sh edit shared     # shared.yaml
 ./secrets.sh edit private.nix # eval-time values, plain $EDITOR
 ./secrets.sh update          # secrets pushed from another machine → bump lock
 ```
@@ -255,13 +272,28 @@ Old setup: one age key (`&main`) copied to every host's `keys.txt`. Do this
      `sudo ssh-keygen -t ed25519 -N "" -f /etc/ssh/ssh_host_ed25519_key`
      then `./secrets.sh recipient local` (needs `nix shell nixpkgs#ssh-to-age`
      until the next rebuild).
-4. `.sops.yaml`: add all of the above, **keep `&main` for now**.
-   `./secrets.sh rekey` (decrypts with `main`).
-5. Merge the branch, rebuild desktops, `deploy` servers. Check
+4. `.sops.yaml`: per-host + shared rules as above, **plus** a temporary last
+   rule for the old file, **with `&main`**:
+   ```yaml
+     - path_regex: secrets\.yaml$
+       key_groups: [{ age: [*main, *yubikey_a, *yubikey_b, *backup] }]
+   ```
+   Commit + push it.
+5. Split (with this branch checked out in `~/nixos-config`, needs
+   `nix shell nixpkgs#jq`):
+   ```bash
+   ./secrets.sh split
+   ```
+   Decrypts `secrets.yaml` (via `main`), asks each host's config which
+   secrets it declares and from which file, writes `hosts/<host>.yaml` +
+   `shared.yaml` encrypted per the rules, pushes, bumps the lock. It prints
+   secrets missing from `secrets.yaml` (add them with `edit <host>`) and
+   secrets no host uses (left behind). Plaintext stays in memory/pipes.
+6. Merge the branch, rebuild desktops, `deploy` servers. Check
    `ls /run/secrets/` on each.
-6. Drop `&main` from `.sops.yaml`, `./secrets.sh rekey` (now via YubiKey:
-   `SOPS_AGE_KEY_FILE=~/.config/sops/age/yubikey.txt ./secrets.sh rekey`).
-7. Replace `keys.txt` with the stubs on editing machines
+7. Delete `secrets.yaml` and its rule (`&main` goes with it), commit + push.
+   `main` is now no recipient of anything.
+8. Replace `keys.txt` with the stubs on editing machines
    (`mv yubikey.txt keys.txt`), delete it on servers.
 
 `main` can still decrypt old commits of nix-secrets (and of this repo's

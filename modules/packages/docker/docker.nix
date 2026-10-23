@@ -67,7 +67,11 @@
       })
 
       (lib.mkIf (config.dotfiles.programs.docker.enable && config.dotfiles.sops.enable) {
-        sops.secrets.${registrySecret}.owner = config.dotfiles.user.name;
+        sops.secrets.${registrySecret} = {
+          # Every host runs docker -> lives in shared.yaml, not the per-host file.
+          sopsFile = config.dotfiles.sops.sharedSecretsFile;
+          owner = config.dotfiles.user.name;
+        };
       })
     ];
 }

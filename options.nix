@@ -701,9 +701,17 @@
         default = null;
         description = "Optional extra age private key file for host decryption. Hosts normally decrypt with their SSH host key (/etc/ssh/ssh_host_ed25519_key); only set this as a fallback, never to a file holding YubiKey identity stubs.";
       };
+      host = lib.mkOption {
+        type = lib.types.str;
+        description = "Name of this host's secrets file in nix-secrets (hosts/<host>.yaml). Only this host's key (plus yours) is a recipient of it.";
+      };
       defaultSecretsFile = lib.mkOption {
         type = lib.types.path;
-        description = "Default sops secrets file. Defaults to secrets.yaml from the private nix-secrets flake input.";
+        description = "Default sops secrets file. Defaults to hosts/<dotfiles.sops.host>.yaml from the private nix-secrets flake input.";
+      };
+      sharedSecretsFile = lib.mkOption {
+        type = lib.types.path;
+        description = "sops file for secrets every host needs (set sopsFile to this). Defaults to shared.yaml from the nix-secrets flake input.";
       };
     };
 
