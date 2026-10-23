@@ -14,8 +14,9 @@
 #                current recipients (sops updatekeys), commit + push, bump lock.
 #   split        One-time: split the old all-hosts secrets.yaml into
 #                hosts/<host>.yaml + shared.yaml, using the sopsFile each host's
-#                config declares per secret. Needs the per-host rules in
-#                .sops.yaml first. Leaves secrets.yaml in place.
+#                config declares per secret; undeclared ones go to unused.yaml
+#                (you-only). Needs the per-host rules in .sops.yaml first.
+#                Leaves secrets.yaml in place.
 # Clone location: $NIX_SECRETS_DIR (default ~/nix-secrets). See docs/secrets.md.
 set -euo pipefail
 
@@ -107,8 +108,17 @@ case "$MODE" in
       mv "$f.tmp" "$f"
       echo "wrote $f: $(jq -r 'join(" ")' <<<"$want")"
     done
-    unused=$(jq -r --argjson all "$(jq -c '[.[]] | add // []' <<<"$FILES")" 'keys - $all | join(" ")' <<<"$PLAIN")
-    [[ -n "$unused" ]] && echo "Not used by any host (left only in secrets.yaml): $unused"
+    # Secrets no host declares go to unused.yaml (encrypted to you only), so
+    # nothing is lost when secrets.yaml is deleted. Move them to a host file or
+    # shared.yaml once something needs them.
+    all=$(jq -c '[.[]] | add // []' <<<"$FILES")
+    unused=$(jq -r --argjson all "$all" 'keys - $all | join(" ")' <<<"$PLAIN")
+    if [[ -n "$unused" && ! -e unused.yaml ]]; then
+      jq --argjson all "$all" 'with_entries(select(.key as $k | $all | index($k) | not))' <<<"$PLAIN" \
+        | sops -e --input-type json --output-type yaml --filename-override unused.yaml /dev/stdin > unused.yaml.tmp
+      mv unused.yaml.tmp unused.yaml
+      echo "wrote unused.yaml (no host uses these): $unused"
+    fi
     commit_push "split secrets.yaml per host"
     update_lock
     ;;

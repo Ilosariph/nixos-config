@@ -121,6 +121,12 @@ sops can't scope single keys inside one file, so isolation = one file per
 host. A secret two hosts need: copy it into both host files (preferred), or
 move it to `shared.yaml` if (nearly) all need it.
 
+`unused.yaml` (you-only, from the split) parks sops values no host uses yet;
+move one into a host file / `shared.yaml` when a host needs it.
+
+Non-secret values like IPs, domains and public keys don't go in sops at all:
+they live in `private.nix`, which every host imports (shared by design).
+
 A host without any secrets needs no file (sops-nix only checks files that
 declared secrets use).
 
@@ -160,6 +166,7 @@ its recipient, rekey, then install.
 ```
 .sops.yaml      # age recipients + creation rules
 hosts/<host>.yaml # that host's secrets, sops-encrypted to host + you
+unused.yaml     # parked secrets no host uses, encrypted to you only
 shared.yaml     # secrets every host needs, encrypted to all hosts + you
 private.nix     # private-but-not-secret values, plain Nix, read at eval time
 ```
@@ -287,8 +294,9 @@ Old setup: one age key (`&main`) copied to every host's `keys.txt`. Do this
    Decrypts `secrets.yaml` (via `main`), asks each host's config which
    secrets it declares and from which file, writes `hosts/<host>.yaml` +
    `shared.yaml` encrypted per the rules, pushes, bumps the lock. It prints
-   secrets missing from `secrets.yaml` (add them with `edit <host>`) and
-   secrets no host uses (left behind). Plaintext stays in memory/pipes.
+   secrets missing from `secrets.yaml` (add them with `edit <host>`).
+   Secrets no host declares go to `unused.yaml` (encrypted to you only), so
+   nothing is lost in step 7. Plaintext stays in memory/pipes.
 6. Merge the branch, rebuild desktops, `deploy` servers. Check
    `ls /run/secrets/` on each.
 7. Delete `secrets.yaml` and its rule (`&main` goes with it), commit + push.
