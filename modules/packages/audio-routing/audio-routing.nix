@@ -527,6 +527,19 @@
           "pulse.rules" = pulseRules;
         };
 
+        # Native PipeWire clients bypass pulse.rules. libmpv (e.g. Plezy) defaults to
+        # ao=pipewire since it ignores mpv.conf, so route it to the catch-all sink here.
+        # client.conf isn't read by the daemon or pipewire-pulse, so loopback/filter nodes
+        # can't match. Kept to mpv: a catch-all would also retarget native capture streams.
+        services.pipewire.extraConfig.client."20-app-routing" = lib.mkIf (defaultSinkName != null) {
+          "stream.rules" = [
+            {
+              matches = [ { "application.name" = "mpv"; } ];
+              actions.update-props."target.object" = defaultSinkName;
+            }
+          ];
+        };
+
         # Prefer outputSink as the default device so a fresh state picks it over other real
         # outputs (e.g. HDMI/DP monitor audio). An explicit `wpctl set-default` choice (the
         # output switcher) still wins and persists; if it disconnects, selection falls back to
