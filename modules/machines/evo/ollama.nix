@@ -8,20 +8,20 @@
 #   - Gemma4-26B    ttl 1800 loads on demand, unloads after 30 min idle (frees VRAM for
 #                            image-gen). llama-swap spawns/kills the llama-server per model.
 #
-# GGUF weights are fetched declaratively (pinned hash) into the nix store.
+# GGUF weights are fetched declaratively (pinned commit + hash) into the nix store.
 let
   llamaVulkan = pkgs.llama-cpp.override { vulkanSupport = true; };
 
   qwenGguf = pkgs.fetchurl {
     name = "qwen3.8-27b-q4km.gguf";
-    url = "https://huggingface.co/unsloth/Qwen3.8-27B-GGUF/resolve/main/Qwen3.8-27B-UD-Q4_K_M.gguf";
+    url = "https://huggingface.co/unsloth/Qwen3.8-27B-GGUF/resolve/4ca720788d1e01f1bff70c033e0d0028fd02e502/Qwen3.8-27B-UD-Q4_K_M.gguf";
     hash = "sha256-Mi4ZT/eXQce6pJfCQPZ39UsgGw76tEyo5Q8SKzkSNII=";
   };
 
   gemmaGguf = pkgs.fetchurl {
     name = "gemma-4-26b-a4b-it-q4km.gguf";
-    url = "https://huggingface.co/unsloth/gemma-4-26B-A4B-it-GGUF/resolve/main/gemma-4-26B-A4B-it-UD-Q4_K_M.gguf";
-    hash = "sha256-NMdGsdUKuBPinNRsR5bj9Dx0GQGlgvk6Z7Vbn8loezU=";
+    url = "https://huggingface.co/unsloth/gemma-4-26B-A4B-it-GGUF/resolve/c099eb48e663fd284577b04978a94ffccb261841/gemma-4-26B-A4B-it-UD-Q4_K_M.gguf";
+    hash = "sha256-8sKLPcR3aTGsb4eeEfID3sY36g8UJnqG7I9hZfY/KT8=";
   };
 
   # Shared llama-server flags for both models.

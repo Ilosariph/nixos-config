@@ -68,7 +68,7 @@
     yeetmouse.url = "github:AndyFilter/YeetMouse?dir=nix";
 
     comfyui-nix = {
-      url = "github:Ilosariph/comfyui-nix/claude/comfyui-ryzen-ai-max-395-vrc0t7";
+      url = "github:Ilosariph/comfyui-nix/backrefs-fix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
