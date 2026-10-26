@@ -1,13 +1,13 @@
-{ ... }:
+{ config, ... }:
 {
   dotfiles.sops.enable = true;
-  dotfiles.sops.defaultSecretsFile = ../../../secrets/secrets.yaml;
+  dotfiles.sops.host = "laptopserver";
   dotfiles.kernel = "stable";
   dotfiles.bootloader.type = "grub";
   dotfiles.bootloader.grubDevice = "/dev/nvme0n1";
   dotfiles.programs._1password.sshAgent = false;
   dotfiles.services.ssh.enable = true;
-  dotfiles.services.ssh.authorizedKeySecret = "nucserver-ssh-public-key";
+  dotfiles.services.ssh.authorizedKeys = config.dotfiles.private.ssh.authorizedKeys;
   dotfiles.services.fail2ban.enable = true;
   dotfiles.network.wakeOnLan = true;
 }

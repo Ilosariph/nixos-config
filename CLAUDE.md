@@ -52,19 +52,18 @@ deploy-rs pushes store paths from mainpc to target machines. Target machines rej
 # Generate the signing key pair
 sudo nix-store --generate-binary-cache-key mainpc /tmp/signing-key.sec /tmp/signing-key.pub
 
-# Add both to sops secrets
-sops secrets/secrets.yaml
+# Private key → mainpc's sops file (private nix-secrets repo)
+./secrets.sh edit mainpc
 # Add:
 #   mainpc-nix-signing-key: "<contents of /tmp/signing-key.sec>"
-#   mainpc-nix-signing-key-pub: "trusted-public-keys = <contents of /tmp/signing-key.pub>"
+
+# Public key → eval-time private.nix (not secret)
+./secrets.sh edit private.nix
+# Set:
+#   nix.mainpcSigningPublicKey = "<contents of /tmp/signing-key.pub>";   # mainpc:base64=
 
 # Clean up plain-text key files
 rm /tmp/signing-key.sec /tmp/signing-key.pub
-```
-
-Note: `mainpc-nix-signing-key-pub` must be in nix.conf format, i.e.:
-```
-trusted-public-keys = mainpc:base64pubkey=
 ```
 
 Then rebuild mainpc (loads the signing key) and deploy evo (trusts the public key).
@@ -202,11 +201,18 @@ Machine-specific settings are defined via custom `dotfiles.*` options in `option
 
 ### Secrets Management
 
-Uses `sops-nix` with age encryption. All secrets live in the `secrets/` folder:
-- `secrets/.sops.yaml` — sops config (age key, path rules)
-- `secrets/secrets.yaml` — general secrets (SSH keys, signing keys, VPN, etc.)
+Uses `sops-nix` with age encryption. Secrets live in the private repo `Ilosariph/nix-secrets`, consumed as the non-flake input `nix-secrets` (fetched via `git+ssh`, so the user's SSH key/agent authenticates — no PAT). Secrets are split per host so each host can only decrypt its own: `modules/packages/sops/sops.nix` defaults `dotfiles.sops.defaultSecretsFile` to `${inputs.nix-secrets}/hosts/${dotfiles.sops.host}.yaml` (each machine's options.nix sets `dotfiles.sops.host`). Secrets every host needs set `sopsFile = config.dotfiles.sops.sharedSecretsFile` (`shared.yaml`, e.g. docker-registry). Repo layout:
+- `.sops.yaml` — sops config (recipients: YubiKeys, backup key, host keys; one creation rule per host file)
+- `hosts/<host>.yaml` — that host's secrets (encrypted to that host + you)
+- `shared.yaml` — secrets all hosts need
 
-Age keys must be placed at `/home/simon/.config/sops/age/keys.txt`.
+New secret: declare it in the host's module (default file) and add it with `./secrets.sh edit <host>`; for a shared one also set `sopsFile` and use `./secrets.sh edit shared`.
+
+`private.nix` in the same repo holds private-but-not-secret values (LAN IPs, domains, public keys, Discord IDs), imported at eval time into `config.dotfiles.private` by `modules/packages/private/private.nix`. They land in the nix store, so never put passwords/tokens there. Use `config.dotfiles.private.*` instead of hard-coding IPs/domains in this public repo.
+
+Edit secrets with `./secrets.sh edit <host|shared|private.nix>` (pulls clone at `~/nix-secrets`, runs sops, commits + pushes, bumps `flake.lock`). Secrets changed elsewhere → `./secrets.sh update`. See `docs/secrets.md`.
+
+Keys: hosts decrypt with their SSH host key `/etc/ssh/ssh_host_ed25519_key` (`sops.age.sshKeyPaths`; generated at activation if missing, e.g. desktops without sshd). Editing uses YubiKeys via `age-plugin-yubikey` (identity stubs in `~/.config/sops/age/keys.txt`), plus an offline backup age key. Recipients are in `nix-secrets/.sops.yaml`; `./secrets.sh recipient <host>` prints a host's recipient, `./secrets.sh rekey` re-encrypts after changing them. A reinstalled host has a new host key → re-key (see `docs/secrets.md`).
 
 ## Special Machines
 

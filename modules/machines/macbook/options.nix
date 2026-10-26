@@ -3,7 +3,7 @@
   dotfiles.kernel = "none";
   dotfiles.asahiFairydust.enable = true;
   dotfiles.sops.enable = true;
-  dotfiles.sops.defaultSecretsFile = ../../../secrets/secrets.yaml;
+  dotfiles.sops.host = "macbook";
   dotfiles.desktop.enable = true;
   dotfiles.programs.tmux.enable = false;
   dotfiles.programs.gnirehtet.enable = true;

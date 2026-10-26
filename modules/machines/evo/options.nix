@@ -1,17 +1,17 @@
-{ ... }:
+{ config, ... }:
 {
   dotfiles.sops.enable = true;
-  dotfiles.sops.defaultSecretsFile = ../../../secrets/secrets.yaml;
+  dotfiles.sops.host = "evo";
   dotfiles.deploy.target.enable = true;
-  dotfiles.deploy.target.trustedPublicKeySecret = "mainpc-nix-signing-key-pub";
+  dotfiles.deploy.target.trustedPublicKeys = [ config.dotfiles.private.nix.mainpcSigningPublicKey ];
   dotfiles.kernel = "default";
   dotfiles.bootloader.type = "systemd";
   dotfiles.programs._1password.sshAgent = false;
   dotfiles.services.ssh.enable = true;
-  dotfiles.services.ssh.authorizedKeySecret = "nucserver-ssh-public-key";
+  dotfiles.services.ssh.authorizedKeys = config.dotfiles.private.ssh.authorizedKeys;
   dotfiles.services.jellyfin = {
 		enable = true;
-		publishedServerUrl = "https://jellyfin.simon-wick.ch";
+		publishedServerUrl = "https://${config.dotfiles.private.domains.jellyfin}";
 	};
   dotfiles.services.fail2ban.enable = true;
   dotfiles.services.hermes.enable = true;
@@ -29,7 +29,7 @@
   ];
   dotfiles.services.pangolinNewt = {
     enable = true;
-    endpoint = "https://pangolin.simon-wick.ch";
+    endpoint = "https://${config.dotfiles.private.domains.pangolin}";
     idSecret = "evo-newt-id";
     secretSecret = "evo-newt-secret";
   };
@@ -57,8 +57,8 @@
 	dotfiles.network = {
 		hostname = "evo";
 		interface = "eno1";
-		staticIP = "192.168.1.105/24";
-		gateway = "192.168.1.1";
+		staticIP = "${config.dotfiles.private.hosts.evo}/24";
+		gateway = config.dotfiles.private.lan.gateway;
 		wakeOnLan = true;
 	};
 }

@@ -10,30 +10,31 @@
 #   - GET/HEAD only (limit_except) -> no writes, no login/token endpoints (all POST/PUT)
 #   - only /api/v1/ is proxied, everything else 404
 #
-# Secrets (sops):
-#   vikunja-host      : bare hostname of the instance, e.g. tasks.example.com
+# Host: config.dotfiles.private.domains.vikunja (private.nix, bare hostname of the
+# instance, e.g. tasks.example.com).
+# Secret (sops):
 #   vikunja-api-token : Vikunja API token (tk_...). Create it in Vikunja under
 #                       Settings -> API Tokens with read-only permissions only, so writes
 #                       fail upstream too even if this proxy were misconfigured.
 let
   port = 9121;
+  vikunjaHost = config.dotfiles.private.domains.vikunja;
   # nginx needs a resolver for a variable proxy_pass. Variable (not literal) upstream so
   # nginx still starts when the VPS/DNS is unreachable at boot (the comfyui vhost shares it).
   # IPv4 only: evo has no IPv6 default route (v6 resolvers/AAAA upstreams -> "Network is unreachable").
   resolvers = lib.filter (ns: !lib.hasInfix ":" ns) config.networking.nameservers;
 in
 lib.mkIf config.dotfiles.services.hermes.enable {
-  sops.secrets."vikunja-host" = { };
   sops.secrets."vikunja-api-token" = { };
 
-  # Rendered nginx snippet holding host + token; readable by nginx only.
+  # Rendered nginx snippet holding the token; readable by nginx only.
   sops.templates."vikunja-proxy.conf" = {
     owner = "nginx";
     group = "nginx";
     mode = "0400";
     restartUnits = [ "nginx.service" ];
     content = ''
-      set $vikunja_host "${config.sops.placeholder."vikunja-host"}";
+      set $vikunja_host "${vikunjaHost}";
       proxy_pass https://$vikunja_host;
       proxy_set_header Host $vikunja_host;
       proxy_set_header Authorization "Bearer ${config.sops.placeholder."vikunja-api-token"}";

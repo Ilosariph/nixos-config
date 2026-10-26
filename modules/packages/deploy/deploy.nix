@@ -69,24 +69,11 @@ in {
         }];
       })
 
-      (lib.mkIf (t.trustedPublicKeySecret != null) {
-        sops.secrets.${t.trustedPublicKeySecret} = {
-          path = "/etc/nix/trusted-public-key";
-          owner = "root";
-          mode = "0444";
-        };
-
-        # The secret holds a plain `trusted-public-keys = ...` line, which
-        # replaces the whole list. Re-append the declared keys afterwards so
-        # cache.nixos.org substitutes stay trusted.
-        nix.extraOptions = ''
-          !include /etc/nix/trusted-public-key
-          extra-trusted-public-keys = ${lib.concatStringsSep " " config.nix.settings.trusted-public-keys}
-        '';
-
+      (lib.mkIf (t.trustedPublicKeys != []) {
+        # Setting the option drops its cache.nixos.org default, so re-add it.
         nix.settings.trusted-public-keys = [
           "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
-        ];
+        ] ++ t.trustedPublicKeys;
       })
     ];
 

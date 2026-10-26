@@ -274,6 +274,24 @@
         "type": "github"
       }
     },
+    "nix-secrets": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1793043704,
+        "narHash": "sha256-howxeLO8/JIXzpq+uIh2Dk6f+P8TjiCJ1G1x6KA7Vt0=",
+        "ref": "main",
+        "rev": "b640ca9a4330d016278c2169f94d6b6dbc816e05",
+        "shallow": true,
+        "type": "git",
+        "url": "ssh://git@github.com/Ilosariph/nix-secrets.git"
+      },
+      "original": {
+        "ref": "main",
+        "shallow": true,
+        "type": "git",
+        "url": "ssh://git@github.com/Ilosariph/nix-secrets.git"
+      }
+    },
     "nixpkgs": {
       "locked": {
         "lastModified": 1790822859,
@@ -439,6 +457,7 @@
         "linux-asahi-fairydust": "linux-asahi-fairydust",
         "nix-flatpak": "nix-flatpak",
         "nix-index-database": "nix-index-database",
+        "nix-secrets": "nix-secrets",
         "nixpkgs": "nixpkgs",
         "nixpkgs-musescore": "nixpkgs-musescore",
         "nixpkgs-xr": "nixpkgs-xr",

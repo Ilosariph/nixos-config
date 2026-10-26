@@ -33,11 +33,9 @@ home-manager switch --flake .#simon
 username=username
 password=password
 ```
-# Key file for sops
-`/home/simon/.config/sops/age/keys.txt`
-```
-SECRET-KEY
-```
+# sops keys
+Hosts decrypt with their SSH host key, editing uses a YubiKey. Nothing to copy
+onto a new machine; see `docs/secrets.md` (re-key after reinstall).
 
 # Ollama (evo)
 
@@ -67,7 +65,7 @@ curl http://localhost:11434/api/tags -H "Authorization: Bearer YOUR_API_KEY_HERE
 
 ## sudo / polkit (system auth prompts)
 
-Keys are stored as `yubikey-u2f-keys` in `secrets.yaml` and deployed to
+Keys are stored as `yubikey-u2f-keys` in nix-secrets `hosts/mainpc.yaml` and deployed to
 `/etc/u2f_keys` automatically on rebuild.
 
 ### Adding a key
@@ -83,7 +81,7 @@ Keys are stored as `yubikey-u2f-keys` in `secrets.yaml` and deployed to
 
 2. Add/append the output to `yubikey-u2f-keys` in secrets:
    ```bash
-   sops secrets.yaml
+   ./secrets.sh edit mainpc
    ```
    Each line is one user; multiple keys for the same user are separated by `:`.
 
@@ -94,7 +92,7 @@ Keys are stored as `yubikey-u2f-keys` in `secrets.yaml` and deployed to
 
 ### Removing a key
 
-Edit `yubikey-u2f-keys` in `secrets.yaml` via `sops secrets.yaml`, delete the
+Edit `yubikey-u2f-keys` via `./secrets.sh edit mainpc`, delete the
 relevant entry, then rebuild.
 
 ## LUKS (disk unlock at boot)

@@ -27,6 +27,15 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # Private repo holding the sops-encrypted secrets (hosts/<host>.yaml,
+    # shared.yaml, .sops.yaml) and eval-time private.nix.
+    # Fetched over SSH with the user's own key/agent, so no GitHub PAT in
+    # nix.conf. Pull new secrets with ./secrets.sh update. See docs/secrets.md.
+    nix-secrets = {
+      url = "git+ssh://git@github.com/Ilosariph/nix-secrets.git?ref=main&shallow=1";
+      flake = false;
+    };
+
     # TODO: noctalia v5 dropped the keybind-cheatsheet plugin; Mod+Slash bind
     # is commented out in niri.nix. Re-enable once a v5 cheatsheet plugin ships.
     noctalia-shell = {
