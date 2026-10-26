@@ -29,11 +29,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1792892216,
-        "narHash": "sha256-5OCu23Ph3/e5HLB58Tkft4WLn7QsKxUrWDShFiQPmEE=",
+        "lastModified": 1793043926,
+        "narHash": "sha256-RjG0J/b6iy8tAg3knOrv5hqr7XOzr3irmhBgC3V0kkU=",
         "owner": "Ilosariph",
         "repo": "comfyui-nix",
-        "rev": "940c12468a3cdbe7805e698ec9fed5f79cda420a",
+        "rev": "d1428fb858e3f02f4ec693a2883dff1774ff81fc",
         "type": "github"
       },
       "original": {
