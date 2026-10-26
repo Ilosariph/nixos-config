@@ -3,6 +3,14 @@
     imports = [ inputs.yeetmouse.nixosModules.default ];
 
     config = lib.mkIf config.dotfiles.programs.yeetmouse.enable {
+      # Upstream nix/package.nix still uses pkgs.xorg.xhost, which warns at eval
+      # (xorg package set deprecated). Point it at top-level xhost until fixed.
+      nixpkgs.overlays = [
+        (final: prev: {
+          xorg = prev.xorg // { inherit (prev) xhost; };
+        })
+      ];
+
       hardware.yeetmouse = {
         enable = true;
         sensitivity = 0.257;
