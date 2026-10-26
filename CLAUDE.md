@@ -78,7 +78,7 @@ Then rebuild mainpc (loads the signing key) and deploy evo (trusts the public ke
 
 `flake.nix` uses `flake-parts` as orchestrator:
 - `import-tree ./modules/packages` auto-discovers all aspect modules
-- `modules/_hosts/*.nix` are explicitly loaded (skipped by import-tree due to `_` prefix)
+- `import-tree ./modules/hosts` auto-discovers the host files
 - Each host file instantiates `nixpkgs.lib.nixosSystem` referencing all `config.flake.nixosModules.*`
 
 ### Module Loading Pattern
@@ -93,7 +93,7 @@ Each aspect in `modules/packages/<aspect>/<aspect>.nix` is a **flake-parts modul
 ├── options.nix                  # All dotfiles.* option definitions
 │
 ├── modules/
-│   ├── _hosts/                  # Host instantiation (explicit, not auto-discovered)
+│   ├── hosts/                   # Host instantiation (own import-tree call in flake.nix)
 │   │   ├── mainpc.nix
 │   │   ├── laptop.nix
 │   │   ├── macbook.nix
@@ -101,7 +101,7 @@ Each aspect in `modules/packages/<aspect>/<aspect>.nix` is a **flake-parts modul
 │   │   ├── laptopserver.nix
 │   │   └── evo.nix
 │   │
-│   ├── _machines/               # Per-machine options + hardware (skipped by import-tree)
+│   ├── machines/                # Per-machine options + hardware (imported by each host file)
 │   │   ├── mainpc/
 │   │   ├── laptop/
 │   │   ├── macbook/
@@ -146,7 +146,7 @@ Each aspect in `modules/packages/<aspect>/<aspect>.nix` is a **flake-parts modul
 └── shells/                      # Dev shells
 ```
 
-**Key convention**: `_`-prefixed directories are skipped by import-tree. `_hosts/` and `_machines/` must be loaded explicitly.
+**Key convention**: `modules/machines/` is never scanned top-level; each host file pulls in its own dir via `import-tree ../machines/<name>`. Inside it, `_`-prefixed files (e.g. `_home.nix`) are skipped by import-tree and imported explicitly (home-manager).
 
 ### Aspect File Pattern
 
@@ -185,13 +185,12 @@ Machine-specific settings are defined via custom `dotfiles.*` options in `option
 
 ### Adding a New Machine
 
-1. Create `modules/_machines/{machine-name}/` with:
+1. Create `modules/machines/{machine-name}/` with:
    - `options.nix` - Set `dotfiles.*` options
    - `configuration.nix` - NixOS system config
    - `hardware-configuration.nix` - Hardware config
-   - `home.nix` - Home-manager config
-2. Create `modules/_hosts/{machine-name}.nix` instantiating `nixpkgs.lib.nixosSystem` with all shared `config.flake.nixosModules.*`
-3. Add the host file to the explicit imports in `flake.nix`
+   - `_home.nix` - Home-manager config (`_` keeps it out of import-tree)
+2. Create `modules/hosts/{machine-name}.nix` instantiating `nixpkgs.lib.nixosSystem` with all shared `config.flake.nixosModules.*`, `import-tree ../machines/{machine-name}` and `home-manager.users.<user>.imports = [ ../machines/{machine-name}/_home.nix ]` (auto-discovered, no `flake.nix` change)
 
 ### Adding a New Aspect/Program
 
@@ -218,12 +217,12 @@ Keys: hosts decrypt with their SSH host key `/etc/ssh/ssh_host_ed25519_key` (`so
 
 ### Macbook (Apple Silicon)
 - Uses `aarch64-linux` architecture
-- Has custom `apple-silicon-support` submodule in `modules/_machines/macbook/`
-- Requires manual WireGuard configuration files
+- Hardware support via the `apple-silicon` flake input (`nixos-apple-silicon`, module `apple-silicon-support`); machine extras (kernel, touchbar, firmware) in `modules/machines/macbook/`
+- Requires manual WireGuard configuration files (`/etc/wireguard/<account>.conf`, imported into NetworkManager by `modules/packages/vpn/vpn.nix`)
 
 ### Mainpc
 - Includes VR support via `nixpkgs-xr` (`dotfiles.programs.vr.enable = true`)
-- Gaming configuration with Steam in `modules/_machines/mainpc/gaming/`
+- Steam via `modules/packages/steam/steam.nix` (`dotfiles.programs.steam.enable`)
 
 ## Window Manager Configuration
 
