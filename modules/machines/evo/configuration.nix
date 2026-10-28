@@ -1,10 +1,8 @@
-{ pkgs, config, ... }:
+{ pkgs, ... }:
 {
   imports = [
     ./ollama.nix
   ];
-
-  users.users.${config.dotfiles.user.name}.extraGroups = [ "docker" ];
 
   environment.systemPackages = with pkgs; [
     nodejs_22
