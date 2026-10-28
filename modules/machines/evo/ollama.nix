@@ -4,7 +4,8 @@
 # Backend: llama.cpp built with the Vulkan (RADV) backend — ~40% faster than Ollama-ROCm
 # on this iGPU at standard context. A single llama-swap proxy on 127.0.0.1:8081 fronts
 # both models (one OpenAI-compatible endpoint, /v1/models lists both):
-#   - Qwen3.8-27B   ttl 0    always resident (Hermes default / coding model)
+#   - Qwen3.8-27B   ttl 0    never idle-unloaded (Hermes default / coding model); swapped
+#                            out while Gemma runs (one model at a time)
 #   - Gemma4-26B    ttl 1800 loads on demand, unloads after 30 min idle (frees VRAM for
 #                            image-gen). llama-swap spawns/kills the llama-server per model.
 #
