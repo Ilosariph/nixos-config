@@ -264,6 +264,10 @@
                 systemd-cryptenroll --fido2-device=auto /dev/<partition>   # key 2
                 systemd-cryptenroll --fido2-device=auto /dev/<partition>   # key 3
 
+              "More than one FIDO device found": pcscd exposes the key a second time
+              (pcsc://); pick its /dev/hidrawN from `systemd-cryptenroll --fido2-device=list`
+              and pass that instead of auto.
+
               List enrolled tokens and their slot numbers:
                 systemd-cryptenroll /dev/<partition>
 

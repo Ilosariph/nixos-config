@@ -251,5 +251,3 @@ Open:
   out in `.sops.yaml`). Before reactivating one: add its recipient + rule,
   add it to the `shared.yaml` rule, `./secrets.sh rekey` (it needs
   `docker-registry`).
-- yubikey_b (5C Nano) is a recipient but only `hosts/macbook.yaml` is encrypted
-  to it yet: run `./secrets.sh rekey` with yubikey_a or the backup key.
