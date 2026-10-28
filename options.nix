@@ -178,6 +178,13 @@
           description = "Published server URL for Jellyfin autodiscovery (JELLYFIN_PublishedServerUrl).";
         };
       };
+      seerr = {
+        enable = lib.mkOption {
+          type = lib.types.bool;
+          default = false;
+          description = "Enable Seerr media request container (successor of Jellyseerr).";
+        };
+      };
       hermes = {
         enable = lib.mkOption {
           type = lib.types.bool;
