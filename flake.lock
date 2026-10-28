@@ -277,10 +277,10 @@
     "nix-secrets": {
       "flake": false,
       "locked": {
-        "lastModified": 1793043704,
-        "narHash": "sha256-howxeLO8/JIXzpq+uIh2Dk6f+P8TjiCJ1G1x6KA7Vt0=",
+        "lastModified": 1793212753,
+        "narHash": "sha256-gqSiU3Dajnud+L3s6/tc2Aom67Q6/fIkyWO1QxG+CZw=",
         "ref": "main",
-        "rev": "b640ca9a4330d016278c2169f94d6b6dbc816e05",
+        "rev": "ab94c991683e6107d1f0796ff5e1a4bd86639523",
         "shallow": true,
         "type": "git",
         "url": "ssh://git@github.com/Ilosariph/nix-secrets.git"

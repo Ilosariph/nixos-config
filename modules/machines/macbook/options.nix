@@ -9,6 +9,8 @@
   dotfiles.programs.gnirehtet.enable = true;
   dotfiles.windowManager.type = "umbriel";
   dotfiles.bluetooth.enable = true;
+  dotfiles.security.yubikey.enable = true;
+  dotfiles.security.yubikey.sudo.enable = true;
   dotfiles.windowManager.mainMonitor = "eDP-1";
 	dotfiles.windowManager.statusbar = "noctalia";
   dotfiles.vpn = {
