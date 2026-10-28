@@ -50,7 +50,13 @@
       };
     in
     lib.mkMerge [
-      { virtualisation.docker.enable = config.dotfiles.programs.docker.enable; }
+      {
+        virtualisation.docker.enable = config.dotfiles.programs.docker.enable;
+        # Rootless, daemonless `podman build` for agents to verify Dockerfiles without sudo
+        virtualisation.podman.enable = config.dotfiles.programs.docker.enable;
+        # Resolve short names (node:22-alpine) like docker does; docker.io only, so no ambiguity prompt
+        virtualisation.containers.registries.settings.unqualified-search-registries = [ "docker.io" ];
+      }
 
       (lib.mkIf config.dotfiles.programs.docker.enable {
         environment.systemPackages = [ dockerPushScript ];
