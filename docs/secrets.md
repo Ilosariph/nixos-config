@@ -110,7 +110,7 @@ creation_rules:
     key_groups: [{ age: [*yubikey_a, *yubikey_b, *backup, *nucserver] }]
   - path_regex: hosts/laptopserver\.yaml$
     key_groups: [{ age: [*yubikey_a, *yubikey_b, *backup, *laptopserver] }]
-  # Only secrets every host really needs (docker-registry).
+  # Only secrets every host really needs (currently none).
   - path_regex: shared\.yaml$
     key_groups:
       - age: [*yubikey_a, *yubikey_b, *backup,
@@ -249,5 +249,4 @@ actual values.
 Open:
 - laptop, nucserver, laptopserver have no recipient/host file yet (commented
   out in `.sops.yaml`). Before reactivating one: add its recipient + rule,
-  add it to the `shared.yaml` rule, `./secrets.sh rekey` (it needs
-  `docker-registry`).
+  add it to the `shared.yaml` rule, `./secrets.sh rekey`.

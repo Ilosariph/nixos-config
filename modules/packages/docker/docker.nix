@@ -1,7 +1,7 @@
 { ... }: {
   flake.nixosModules.docker = { config, lib, pkgs, ... }:
     let
-      registrySecret = "docker-registry";
+      registry = config.dotfiles.private.docker.registry;
 
       dockerPushScript = pkgs.writeShellApplication {
         name = "docker-push";
@@ -9,7 +9,7 @@
         text = ''
           # docker-push <image> [-r registry] [-t tag] [-p platform]
           #   Builds the Dockerfile in the current dir with buildx and pushes it.
-          #   registry defaults to the sops secret ${registrySecret}.
+          #   registry defaults to dotfiles.private.docker.registry.
           #   tag defaults to "latest" + the short commit hash (when in a git repo).
           usage() {
             echo "usage: docker-push <image> [-r registry] [-t tag] [-p platform]" >&2
@@ -21,7 +21,7 @@
           image="$1"
           shift
 
-          registry=""
+          registry="${registry}"
           tag=""
           platform="linux/amd64"
           while getopts "r:t:p:h" opt; do
@@ -32,16 +32,6 @@
               *) usage ;;
             esac
           done
-
-          if [ -z "$registry" ]; then
-            secret="/run/secrets/${registrySecret}"
-            if [ -r "$secret" ]; then
-              registry="$(cat "$secret")"
-            else
-              echo "docker-push: no registry given and $secret not readable" >&2
-              exit 1
-            fi
-          fi
 
           tags=()
           if [ -n "$tag" ]; then
@@ -64,14 +54,6 @@
 
       (lib.mkIf config.dotfiles.programs.docker.enable {
         environment.systemPackages = [ dockerPushScript ];
-      })
-
-      (lib.mkIf (config.dotfiles.programs.docker.enable && config.dotfiles.sops.enable) {
-        sops.secrets.${registrySecret} = {
-          # Every host runs docker -> lives in shared.yaml, not the per-host file.
-          sopsFile = config.dotfiles.sops.sharedSecretsFile;
-          owner = config.dotfiles.user.name;
-        };
       })
     ];
 }
