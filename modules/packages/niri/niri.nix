@@ -90,6 +90,142 @@
             ++ lib.optionals osConfig.dotfiles.programs._1password.enable [ [ "1password" "--silent" ] ];
 
           allSpawnCommands = baseSpawnCommands ++ map (s: lib.splitString " " s) cfg.execOnce;
+
+          niri = "${osConfig.programs.niri.package}/bin/niri";
+
+          plezyAppId = ''^com\.edde746\.plezy$'';
+          defaultColumnProportion = "0.5";
+
+          # Niri window rules can't match "alone on workspace", so mirror Umbriel's
+          # is_alone rule over IPC: a tiled window that is (or becomes) the only
+          # tiled window on its workspace gets the full width, and goes back to the
+          # default width once another tiled window joins. Windows made full width
+          # by hand (or by the Plezy rule) are left alone.
+          niriFullWidthAlone = pkgs.writers.writePython3Bin "niri-full-width-alone" { flakeIgnore = [ "E501" "W503" ]; } ''
+            import json
+            import re
+            import subprocess
+
+            NIRI = "${niri}"
+            DEFAULT_WIDTH = f"{float('${defaultColumnProportion}') * 100:g}%"
+            ALWAYS_FULL = re.compile(${builtins.toJSON plezyAppId})
+
+            windows = {}
+            workspace_output = {}
+            # Windows this script made full width (reverted when no longer alone)
+            auto = set()
+            # Workspace id -> id of its sole tiled window
+            sole = {}
+
+
+            def set_width(wid, width):
+                subprocess.run([
+                    NIRI, "msg", "action", "set-window-width",
+                    "--id", str(wid), width,
+                ])
+
+
+            def tiled(ws):
+                return [w for w in windows.values()
+                        if w["workspace_id"] == ws and not w["is_floating"]]
+
+
+            def is_full_width(win):
+                output = workspace_output.get(win["workspace_id"])
+                layout = win.get("layout") or {}
+                if output is None or not layout.get("tile_size"):
+                    return False
+                res = subprocess.run([NIRI, "msg", "--json", "outputs"],
+                                     capture_output=True, text=True)
+                logical = json.loads(res.stdout).get(output, {}).get("logical")
+                return bool(logical) and layout["tile_size"][0] >= 0.9 * logical["width"]
+
+
+            def sync(ws, new_id=None):
+                if ws is None:
+                    return
+                ts = tiled(ws)
+                if len(ts) == 1:
+                    win = ts[0]
+                    if (sole.get(ws) != win["id"]
+                            and win["id"] not in auto
+                            and not ALWAYS_FULL.search(win.get("app_id") or "")
+                            and (win["id"] == new_id or not is_full_width(win))):
+                        set_width(win["id"], "100%")
+                        auto.add(win["id"])
+                    sole[ws] = win["id"]
+                else:
+                    for win in ts:
+                        if win["id"] in auto:
+                            set_width(win["id"], DEFAULT_WIDTH)
+                            auto.discard(win["id"])
+                    sole.pop(ws, None)
+
+
+            def reset_sole():
+                sole.clear()
+                for ws in {w["workspace_id"] for w in windows.values()}:
+                    ts = tiled(ws)
+                    if len(ts) == 1:
+                        sole[ws] = ts[0]["id"]
+
+
+            stream = subprocess.Popen(
+                [NIRI, "msg", "--json", "event-stream"],
+                stdout=subprocess.PIPE,
+                text=True,
+            )
+            for line in stream.stdout:
+                event = json.loads(line)
+                if "WorkspacesChanged" in event:
+                    workspace_output = {
+                        ws["id"]: ws["output"]
+                        for ws in event["WorkspacesChanged"]["workspaces"]
+                    }
+                elif "WindowsChanged" in event:
+                    ws = event["WindowsChanged"]["windows"]
+                    windows = {w["id"]: w for w in ws}
+                    auto &= windows.keys()
+                    reset_sole()
+                elif "WindowOpenedOrChanged" in event:
+                    win = event["WindowOpenedOrChanged"]["window"]
+                    old = windows.get(win["id"])
+                    windows[win["id"]] = win
+                    if old is None:
+                        sync(win["workspace_id"], new_id=win["id"])
+                    elif (old["workspace_id"] != win["workspace_id"]
+                            or old["is_floating"] != win["is_floating"]):
+                        sync(old["workspace_id"])
+                        sync(win["workspace_id"])
+                elif "WindowLayoutsChanged" in event:
+                    for wid, layout in event["WindowLayoutsChanged"]["changes"]:
+                        if wid in windows:
+                            windows[wid]["layout"] = layout
+                elif "WindowClosed" in event:
+                    win = windows.pop(event["WindowClosed"]["id"], None)
+                    if win is not None:
+                        auto.discard(win["id"])
+                        sync(win["workspace_id"])
+            raise SystemExit(stream.wait() or 1)
+          '';
+          # maximize-column is a no-op on a column already at 100% width (e.g. one
+          # made full width by niri-full-width-alone), so Mod+F toggles by width:
+          # full width -> default width, otherwise maximize
+          niriToggleFullWidth = pkgs.writeShellApplication {
+            name = "niri-toggle-full-width";
+            runtimeInputs = [ pkgs.jq ];
+            text = ''
+              win=$(${niri} msg --json focused-window)
+              out_width=$(${niri} msg --json focused-output | jq '.logical.width')
+              if jq -e --argjson ow "$out_width" \
+                  '.is_floating == false and .layout.tile_size[0] >= 0.9 * $ow' \
+                  <<<"$win" >/dev/null; then
+                ${niri} msg action set-column-width "$(jq -n '${defaultColumnProportion} * 100')%"
+              else
+                ${niri} msg action maximize-column
+              fi
+            '';
+          };
         in lib.mkIf isNiriPrimary {
           home.packages = with pkgs; [ grim slurp ];
 
@@ -119,6 +255,21 @@
             Service = {
               ExecStart = "${pkgs.xwayland-satellite}/bin/xwayland-satellite :0";
               Restart = "on-failure";
+            };
+            Install.WantedBy = [ "graphical-session.target" ];
+          };
+
+          systemd.user.services.niri-full-width-alone = {
+            Unit = {
+              Description = "Full-width windows when alone on a niri workspace";
+              BindsTo = [ "graphical-session.target" ];
+              PartOf = [ "graphical-session.target" ];
+              After = [ "graphical-session.target" ];
+            };
+            Service = {
+              ExecStart = "${niriFullWidthAlone}/bin/niri-full-width-alone";
+              Restart = "on-failure";
+              RestartSec = 1;
             };
             Install.WantedBy = [ "graphical-session.target" ];
           };
@@ -160,6 +311,7 @@
             layout {
               gaps 16
               center-focused-column "never"
+              always-center-single-column
 
               preset-column-widths {
                 proportion 0.33333
@@ -167,7 +319,7 @@
                 proportion 0.66667
               }
 
-              default-column-width { proportion 0.5; }
+              default-column-width { proportion ${defaultColumnProportion}; }
 
               focus-ring {
                 width 2
@@ -212,6 +364,12 @@
             window-rule {
               match app-id=r#"^steam_app_\d+$"#
               open-fullscreen true
+            }
+
+            // Plezy always takes the full width
+            window-rule {
+              match app-id=r#"${plezyAppId}"#
+              default-column-width { proportion 1.0; }
             }
 
             ${lib.optionalString (cfg.monitors != []) (let
@@ -304,7 +462,7 @@ ${lib.optionalString (osConfig.dotfiles.audio.routing == "pipewire-virtual") ''
               Mod+R { switch-preset-column-width; }
               Mod+Shift+R { switch-preset-window-height; }
               Mod+Ctrl+R { reset-window-height; }
-              Mod+F { maximize-column; }
+              Mod+F { spawn "${niriToggleFullWidth}/bin/niri-toggle-full-width"; }
               Mod+Shift+F { fullscreen-window; }
               Mod+T { consume-window-into-column; }
               Mod+Shift+T { expel-window-from-column; }
