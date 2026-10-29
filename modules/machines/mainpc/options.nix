@@ -6,7 +6,6 @@
   dotfiles.deploy.deployer.signingKeySecret = "mainpc-nix-signing-key";
   dotfiles.desktop.enable = true;
   dotfiles.programs.tmux.enable = false;
-  dotfiles.windowManager.type = "umbriel";
   dotfiles.programs.vr.enable = true;
   dotfiles.kernel = "gaming";
   dotfiles.programs.steam.enable = true;
