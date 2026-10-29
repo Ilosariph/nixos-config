@@ -160,6 +160,21 @@
                 default = null;
                 description = "snapshot mode only: number of most recent snapshots to retain. null = keep all.";
               };
+              excludes = lib.mkOption {
+                type = lib.types.listOf lib.types.str;
+                default = [];
+                description = "rsync --exclude patterns, relative to source (e.g. 'projects/').";
+              };
+              user = lib.mkOption {
+                type = lib.types.nullOr lib.types.str;
+                default = null;
+                description = "User the job runs as. null = dotfiles.user.name. Use 'root' for sources with files the user cannot read.";
+              };
+              sqlite = lib.mkOption {
+                type = lib.types.bool;
+                default = false;
+                description = "Copy SQLite DBs (*.db, *.sqlite, *.sqlite3) in source via sqlite3 .backup instead of rsync, so live DBs are consistent.";
+              };
             };
           });
           default = [];
@@ -688,6 +703,11 @@
             type = lib.types.int;
             default = 100;
             description = "GID for the mount owner.";
+          };
+          extraOptions = lib.mkOption {
+            type = lib.types.listOf lib.types.str;
+            default = [];
+            description = "Extra mount options (e.g. 'mfsymlinks' so rsync can store symlinks).";
           };
         };
       }));

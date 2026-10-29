@@ -17,7 +17,7 @@
               "uid=${toString share.uid}"
               "gid=${toString share.gid}"
               "vers=3.0"
-            ];
+            ] ++ share.extraOptions;
           };
         }) config.dotfiles.shares);
     };
