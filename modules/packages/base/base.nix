@@ -98,6 +98,7 @@
 
       age
       sops
+      openssl
 
       kitty.terminfo
 
