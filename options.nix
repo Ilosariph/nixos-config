@@ -200,6 +200,13 @@
           description = "Enable Seerr media request container (successor of Jellyseerr).";
         };
       };
+      photon = {
+        enable = lib.mkOption {
+          type = lib.types.bool;
+          default = false;
+          description = "Self-hosted Photon reverse geocoder container (Dawarich backend).";
+        };
+      };
       hermes = {
         enable = lib.mkOption {
           type = lib.types.bool;
