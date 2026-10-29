@@ -24,6 +24,8 @@
           Restart = "on-failure";
           RestartSec = "5s";
           DynamicUser = true;
+          StateDirectory = "pangolin-newt";
+          WorkingDirectory = "/var/lib/pangolin-newt";
         };
       };
     };
