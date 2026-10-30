@@ -180,7 +180,7 @@ Machine-specific settings are defined via custom `dotfiles.*` options in `option
 - **`dotfiles.programs.*`**: Per-program enable flags
   - Shell: `fish`, `bash`, `tmux` (default true)
   - Utilities: `udiskie`, `plezy` (default `desktop.enable`)
-  - Specialized: `vr`, `steam`, `thonny`, `blog`, `yeetmouse`, `gnirehtet` (default false)
+  - Specialized: `vr`, `steam`, `thonny`, `blog`, `yeetmouse`, `motorizedFaders`, `gnirehtet` (default false)
   - Desktop GUI programs (kitty, mpv, yazi, zed, swappy, orca-slicer) have no per-program flag — they install whenever `desktop.enable` is set (yazi installs everywhere, it's a TUI)
 - **`dotfiles.vpn`**: Enable/disable, WireGuard account list
 - **`dotfiles.bluetooth.enable`**

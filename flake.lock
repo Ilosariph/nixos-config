@@ -239,6 +239,26 @@
         "type": "github"
       }
     },
+    "motorized-faders": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1793394618,
+        "narHash": "sha256-wwhQI0aKW97sTc1iE6a7mEi4W/ha55gIukdvvvpIrKE=",
+        "owner": "Ilosariph",
+        "repo": "motorized-faders",
+        "rev": "e120b29c29019682a3c498dd600c2a93c26ece30",
+        "type": "github"
+      },
+      "original": {
+        "owner": "Ilosariph",
+        "repo": "motorized-faders",
+        "type": "github"
+      }
+    },
     "nix-flatpak": {
       "locked": {
         "lastModified": 1790428548,
@@ -455,6 +475,7 @@
         "home-manager": "home-manager",
         "import-tree": "import-tree",
         "linux-asahi-fairydust": "linux-asahi-fairydust",
+        "motorized-faders": "motorized-faders",
         "nix-flatpak": "nix-flatpak",
         "nix-index-database": "nix-index-database",
         "nix-secrets": "nix-secrets",
