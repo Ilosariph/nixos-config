@@ -62,6 +62,7 @@
 
         kdePackages.dolphin
         filezilla
+        remmina
         fsearch
 
         chromium
