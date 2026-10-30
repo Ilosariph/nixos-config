@@ -174,9 +174,12 @@ lib.mkIf cfg.enable {
     ];
   };
 
-  # Pre-create host dirs for the volume mounts.
+  # Pre-create host dirs for the volume mounts. Owned by the container's `hermes` user
+  # (uid/gid 10000): tmpfiles re-applies owner on every boot/switch, and the image's
+  # startup chown skips /opt/data itself -> with ${user} as owner Hermes couldn't create
+  # files in its data root (Discord thread state, kanban DB) and dropped messages.
   systemd.tmpfiles.rules = [
-    "d ${configDir}  0755 ${user} users - -"
+    "d ${configDir} 0755 10000 10000 - -"
   ];
 
   virtualisation.oci-containers.containers.hermes = {
