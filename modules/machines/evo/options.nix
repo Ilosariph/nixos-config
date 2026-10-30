@@ -21,6 +21,7 @@ in
   dotfiles.services.fail2ban.enable = true;
   dotfiles.services.hermes.enable = true;
   dotfiles.services.nixEval.enable = true;
+  dotfiles.services.pullSwitch.enable = true;
   dotfiles.services.backup.enable = true;
   dotfiles.services.backup.jobs = [
     {

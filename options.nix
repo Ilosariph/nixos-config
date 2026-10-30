@@ -241,6 +241,34 @@
           description = "Max seconds per eval/build.";
         };
       };
+      pullSwitch = {
+        enable = lib.mkOption {
+          type = lib.types.bool;
+          default = false;
+          description = "On-host pull/build/switch of a flake branch, triggered via `ssh <host> pull-switch [branch]`.";
+        };
+        repo = lib.mkOption {
+          type = lib.types.str;
+          default = "git+https://github.com/Ilosariph/nixos-config";
+          description = "Default flake repo (git+https/git+ssh URL, no ?ref). Overridable per run with -r.";
+        };
+        branch = lib.mkOption {
+          type = lib.types.str;
+          default = "main";
+          description = "Default branch. Overridable per run (positional arg).";
+        };
+        host = lib.mkOption {
+          type = lib.types.str;
+          default = config.networking.hostName;
+          defaultText = lib.literalExpression "config.networking.hostName";
+          description = "nixosConfigurations.<host> to build. Overridable per run with -H.";
+        };
+        deployKeySecret = lib.mkOption {
+          type = lib.types.nullOr lib.types.str;
+          default = "nix-secrets-deploy-key";
+          description = "sops secret with a read-only deploy key for git+ssh inputs (nix-secrets). null = root's own ssh config.";
+        };
+      };
     };
 
     vpn = {

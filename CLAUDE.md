@@ -42,6 +42,10 @@ To add a machine as a deploy target, set `dotfiles.deploy.enable = true` in its 
 
 The `deploy` binary is installed on mainpc via `dotfiles.deploy.installTool = true`.
 
+### On-host pull + switch (pull-switch)
+
+For testing a branch without deploy-rs (e.g. from the aarch64 MacBook or a phone): `ssh evo pull-switch [-a switch|test|boot] [-r repo] [branch]` (default `main`, `-s` = status/log). Builds `nixosConfigurations.<host>` on the host via `pull-switch.service`; refuses configs that drop pull-switch, rolls back if the unit or sshd is gone after switching. Enable with `dotfiles.services.pullSwitch.enable` (on for evo). Module: `modules/packages/pull-switch/pull-switch.nix`.
+
 #### Nix Store Signing Key Setup
 
 deploy-rs pushes store paths from mainpc to target machines. Target machines reject unsigned paths by default, so mainpc must sign them with a trusted key.
