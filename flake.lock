@@ -246,11 +246,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1793462236,
-        "narHash": "sha256-XdyqGKaMgswsyO4+Xb5WClTpZm11crwuQNR5QSxeRNs=",
+        "lastModified": 1793470559,
+        "narHash": "sha256-y2Hp8U62HHJtAoz/BfQ9VUh+6ljSnBNhrBKwmNVL0VE=",
         "owner": "Ilosariph",
         "repo": "motorized-faders",
-        "rev": "205227087f54d1dab5f2c5bec2ff9a8e69535fff",
+        "rev": "cb47f19f73a14492ab0fac8e5bc65e132e4cce3e",
         "type": "github"
       },
       "original": {
@@ -297,10 +297,10 @@
     "nix-secrets": {
       "flake": false,
       "locked": {
-        "lastModified": 1793462645,
-        "narHash": "sha256-WNzZ0n+NbelVXCBGuM0JudFn+7+ZrJozuNC+YVbpkl8=",
+        "lastModified": 1793470582,
+        "narHash": "sha256-rT/e9LV97s89o+hCML4kBaP8p4UV6NGCSJehdfBxRiI=",
         "ref": "main",
-        "rev": "0f279d4b37d633e59070a140706a88eb0bfc3019",
+        "rev": "5927492bdeb5c656ae27478eff638427d391e5d2",
         "shallow": true,
         "type": "git",
         "url": "ssh://git@github.com/Ilosariph/nix-secrets.git"
