@@ -17,13 +17,19 @@
           {
             name = "Audio";
             # Sinks come from dotfiles.audio.sinks (audio-routing names them
-            # sink-<name>); max > 100 lets a fader boost past unity.
-            extensions.pulse_sink = [
-              { fader = 0; sink = "sink-music"; min = 0; max = 150; label = "Music"; }
-              { fader = 1; sink = "sink-comms"; min = 0; max = 150; label = "Comms"; }
-              { fader = 2; sink = "sink-apps"; min = 0; max = 150; label = "Apps"; }
-              { fader = 3; sink = "sink-master"; min = 0; max = 100; label = "Master"; }
-            ];
+            # sink-<name>); max > 100 lets a fader boost past unity. Faders
+            # 4+ are page 2 (hold G2 + F1/F4); tap G2 + Fn for A/B.
+            extensions.pulse_sink = {
+              paging = "auto";
+              faders = [
+                { fader = 0; sink = "sink-music"; min = 0; max = 150; label = "Music"; }
+                { fader = 1; sink = "sink-comms"; min = 0; max = 150; label = "Comms"; }
+                { fader = 2; sink = "sink-apps"; min = 0; max = 150; label = "Apps"; }
+                { fader = 3; sink = "sink-master"; min = 0; max = 100; label = "Master"; }
+                # "Mic (effects)": the mic-effects chain's output source.
+                { fader = 4; source = "source-mic"; min = 0; max = 100; label = "Mic"; }
+              ];
+            };
           }
           {
             name = "Discord";
