@@ -13,13 +13,14 @@ Desktop systems use the Niri window manager by default; Umbriel is an alternativ
 ### Building NixOS System Configuration
 ```bash
 # Using the build script (recommended)
-./build.sh [flake-name] [nix|boot|test|home|vm] [optional-label]
+./build.sh [--local-secrets] [flake-name] [nix|boot|test|home|vm] [optional-label]
 
 # Examples:
 ./build.sh mainpc nix          # Build and switch NixOS config for mainpc
 ./build.sh mainpc boot         # Build, activate on next boot
 ./build.sh laptop home         # Build and switch home-manager config for laptop
 ./build.sh mainpc vm           # Build a VM for testing
+./build.sh --local-secrets mainpc test  # Use ~/nix-secrets as on disk (uncommitted edits), no lock bump
 
 # Manual commands (from project root, no sudo — nh elevates itself):
 nh os switch . -H mainpc
