@@ -76,6 +76,13 @@
 
     yeetmouse.url = "github:AndyFilter/YeetMouse?dir=nix";
 
+    # Motorized fader controller host: NixOS module running it as a user
+    # service. https://github.com/Ilosariph/motorized-faders
+    motorized-faders = {
+      url = "github:Ilosariph/motorized-faders";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     comfyui-nix = {
       url = "github:Ilosariph/comfyui-nix/backrefs-fix";
       inputs.nixpkgs.follows = "nixpkgs";

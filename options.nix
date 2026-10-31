@@ -523,6 +523,13 @@
           description = "Enable Hugo blog development environment (hugo + direnv shell in ~/blog).";
         };
       };
+      motorizedFaders = {
+        enable = lib.mkOption {
+          type = lib.types.bool;
+          default = false;
+          description = "Enable the motorized fader controller host (user service binding faders to PipeWire sinks).";
+        };
+      };
       yeetmouse = {
         enable = lib.mkOption {
           type = lib.types.bool;
