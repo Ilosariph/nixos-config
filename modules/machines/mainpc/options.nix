@@ -107,6 +107,10 @@
       dir = "Projects/vid-finder";
       shellFile = shellsDir + "/vid-finder.nix";
     }
+    {
+      dir = "Projects/vid-viewer";
+      shellFile = shellsDir + "/vid-viewer.nix";
+    }
   ];
 
   dotfiles.network = {
