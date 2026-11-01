@@ -196,7 +196,7 @@ Expected shape (all keys used by this repo):
   domains = {
     jellyfin = "jellyfin.example.com";
     pangolin = "pangolin.example.com";
-    vikunja = "tasks.example.com";   # evo read-only API proxy for Hermes
+    vikunja = "tasks.example.com";   # evo API proxy for Hermes (reads + Hermes-labelled task writes)
   };
   ssh.authorizedKeys = [ "ssh-ed25519 AAAA... simon@mainpc" ];  # servers
   nix.mainpcSigningPublicKey = "mainpc:base64=";               # evo trusts it

@@ -1,76 +1,71 @@
-{ config, lib, ... }:
-# Read-only Vikunja API proxy for Hermes.
+{ config, lib, pkgs, ... }:
+# Vikunja API proxy for Hermes: full reads, writes only on Hermes-labelled tasks.
 #
-# Vikunja runs on a VPS (https). Hermes must be able to read tasks without ever holding
-# the API token: everything in the hermes container (env, mounts) is readable by the
-# agent itself. So nginx on evo holds the token and injects it server-side; Hermes calls
+# Vikunja runs on a VPS (https). Hermes must never hold the API token: everything in the
+# hermes container (env, mounts) is readable by the agent itself. So a small service on
+# evo (./vikunja-proxy.py) holds the token and injects it server-side; Hermes calls
 # http://127.0.0.1:${port}/api/v1/... with no credentials.
 #
 #   - bound to 127.0.0.1, not opened in the firewall -> evo-local only (hermes is --network=host)
-#   - GET/HEAD only (limit_except) -> no writes, no login/token endpoints (all POST/PUT)
-#   - only /api/v1/ is proxied, everything else 404
+#   - GET/HEAD under /api/v1/ pass through
+#   - writes: an explicit allowlist (create/update/delete task, add/remove label), and every
+#     write to an existing task first re-reads it and requires the `${label}` label.
+#     Created tasks get the label automatically. Login/token/bulk/project/... endpoints: 403.
+#   - so Hermes can only touch tasks Simon labelled `${label}` (or that it created); removing
+#     the label in Vikunja revokes access at once. Hermes itself cannot remove that label.
 #
 # Host: config.dotfiles.private.domains.vikunja (private.nix, bare hostname of the
 # instance, e.g. tasks.example.com).
 # Secret (sops):
-#   vikunja-api-token : Vikunja API token (tk_...). Create it in Vikunja under
-#                       Settings -> API Tokens with read-only permissions only, so writes
-#                       fail upstream too even if this proxy were misconfigured.
+#   vikunja-api-token : Vikunja API token (tk_...), Settings -> API Tokens. Needs read on
+#                       projects/tasks/labels plus tasks create/update/delete, task labels
+#                       create/delete and labels create. Nothing else (no projects write,
+#                       no bulk) so the upstream token stays as narrow as Vikunja allows.
 let
   port = 9121;
+  label = "Hermes";
   vikunjaHost = config.dotfiles.private.domains.vikunja;
-  # nginx needs a resolver for a variable proxy_pass. Variable (not literal) upstream so
-  # nginx still starts when the VPS/DNS is unreachable at boot (the comfyui vhost shares it).
-  # IPv4 only: evo has no IPv6 default route (v6 resolvers/AAAA upstreams -> "Network is unreachable").
-  resolvers = lib.filter (ns: !lib.hasInfix ":" ns) config.networking.nameservers;
 in
 lib.mkIf config.dotfiles.services.hermes.enable {
-  sops.secrets."vikunja-api-token" = { };
+  sops.secrets."vikunja-api-token" = { restartUnits = [ "vikunja-proxy.service" ]; };
 
-  # Rendered nginx snippet holding the token; readable by nginx only.
-  sops.templates."vikunja-proxy.conf" = {
-    owner = "nginx";
-    group = "nginx";
-    mode = "0400";
-    restartUnits = [ "nginx.service" ];
-    content = ''
-      set $vikunja_host "${vikunjaHost}";
-      proxy_pass https://$vikunja_host;
-      proxy_set_header Host $vikunja_host;
-      proxy_set_header Authorization "Bearer ${config.sops.placeholder."vikunja-api-token"}";
-      proxy_ssl_server_name on;
-      proxy_ssl_name $vikunja_host;
-      proxy_ssl_verify on;
-      # default depth 1 rejects leaf -> intermediate -> root chains (error 20)
-      proxy_ssl_verify_depth 3;
-      proxy_ssl_trusted_certificate /etc/ssl/certs/ca-certificates.crt;
-    '';
-  };
-
-  services.nginx = {
-    enable = true;
-    virtualHosts."vikunja-ro" = {
-      listen = [
-        {
-          addr = "127.0.0.1";
-          inherit port;
-        }
-      ];
-      locations."/api/v1/".extraConfig = ''
-        resolver ${lib.concatStringsSep " " resolvers} valid=300s ipv6=off;
-        limit_except GET { deny all; }
-        proxy_set_header Cookie "";
-        include ${config.sops.templates."vikunja-proxy.conf".path};
-      '';
-      locations."/".return = "404";
+  systemd.services.vikunja-proxy = {
+    description = "Vikunja API proxy for Hermes on 127.0.0.1:${toString port}";
+    wantedBy = [ "multi-user.target" ];
+    wants = [ "network-online.target" ];
+    after = [ "network-online.target" "sops-nix.service" ];
+    environment = {
+      VIKUNJA_URL = "https://${vikunjaHost}";
+      VIKUNJA_PROXY_PORT = toString port;
+      VIKUNJA_LABEL = label;
+      SSL_CERT_FILE = "/etc/ssl/certs/ca-certificates.crt";
+    };
+    serviceConfig = {
+      ExecStart = "${pkgs.python3.interpreter} ${./vikunja-proxy.py}";
+      # Root-only sops secret handed to the unprivileged unit as $CREDENTIALS_DIRECTORY/token.
+      LoadCredential = "token:${config.sops.secrets."vikunja-api-token".path}";
+      Restart = "on-failure";
+      RestartSec = 5;
+      DynamicUser = true;
+      ProtectSystem = "strict";
+      ProtectHome = true;
+      PrivateTmp = true;
+      NoNewPrivileges = true;
     };
   };
 
   environment.etc."hermes/SOUL.md".text = ''
 
-    # Vikunja (tasks, read-only)
+    # Vikunja (tasks)
 
-    Simon's Vikunja task manager (v2.x) is readable at http://127.0.0.1:${toString port}/api/v1/ — no auth needed, auth is added upstream. GET only; writes are rejected. Use `curl -sS`.
+    Simon's Vikunja task manager (v2.x) is at http://127.0.0.1:${toString port}/api/v1/ — no auth needed, auth is added upstream. Use `curl -sS`. You can read everything, but only change tasks labelled `${label}`; any other write is rejected (403) by the proxy, don't try to work around it.
+
+    Writes (JSON body, `-H 'Content-Type: application/json'`):
+    - create: `PUT /api/v1/projects/<project_id>/tasks` `{"title": ..., "description": ..., "due_date": "2026-11-05T18:00:00Z", "priority": 0-5}` → gets the `${label}` label automatically
+    - update: `POST /api/v1/tasks/<id>` with only the fields to change, e.g. `{"done": true}` (others are kept)
+    - delete: `DELETE /api/v1/tasks/<id>`
+    - labels: `PUT /api/v1/tasks/<id>/labels` `{"label_id": n}`, `DELETE /api/v1/tasks/<id>/labels/<label_id>` (not the `${label}` label)
+    Settable fields: title, description, done, due_date, start_date, end_date, priority, percent_done, repeat_after, repeat_mode, reminders, hex_color, is_favorite, project_id (update only). Anything else → 400.
 
     Endpoints: `/api/v1/projects`, `/api/v1/tasks`, `/api/v1/tasks/<id>`, `/api/v1/projects/<id>/tasks`, `/api/v1/labels`. There is no `/tasks/all` (it is parsed as a task id → "Invalid model provided").
 
