@@ -59,6 +59,7 @@ lib.mkIf cfg.enable {
       HERMES_DASHBOARD_PORT=9119
       HERMES_DASHBOARD_BASIC_AUTH_USERNAME=${private.dashboardUsername}
       HERMES_DASHBOARD_BASIC_AUTH_PASSWORD=${config.sops.placeholder."hermes-dashboard-password"}
+      HERMES_TIMEZONE=Europe/Zurich
     '' + lib.optionalString nixEval.enable ''
       NIX_EVAL_TOKEN=${config.sops.placeholder."hermes-nix-eval-token"}
     '';
@@ -102,7 +103,7 @@ lib.mkIf cfg.enable {
       # so no docker_volumes needed.
       terminal:
         backend: local
-      # MCP servers — launched by Hermes as stdio subprocesses inside this
+      # MCP servers — stdio ones launched by Hermes as subprocesses inside this
       # container (uvx/uv/npx/python3 are all on PATH, Debian 13). Tools register
       # as mcp_<name>_<tool>. Edit + /reload-mcp in chat to pick up changes without
       # a container restart.
@@ -110,6 +111,8 @@ lib.mkIf cfg.enable {
         nixos:
           command: uvx
           args: ["mcp-nixos"]
+        galaxus:
+          url: https://mcp.galaxus.ch
       # Discord access control is configured via env vars in hermes-env
       # (DISCORD_ALLOWED_USERS / _CHANNELS / _HOME_CHANNEL / _REQUIRE_MENTION).
     '';
