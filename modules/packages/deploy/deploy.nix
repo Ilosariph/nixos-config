@@ -42,6 +42,12 @@ in {
       (lib.mkIf dep.installTool {
         environment.systemPackages = [ pkgs.deploy-rs ];
 
+        # deploy.sh roots each host's last deployed toplevel here, so nh clean
+        # (which only prunes gcroots/auto) can't force from-source rebuilds.
+        systemd.tmpfiles.rules = [
+          "d /nix/var/nix/gcroots/deploy 0755 ${config.dotfiles.user.name} users -"
+        ];
+
         sops = lib.mkIf (dep.signingKeySecret != null) {
           secrets.${dep.signingKeySecret} = {
             path = "/etc/nix/signing-key.sec";

@@ -37,6 +37,9 @@ TOPLEVEL=$(nix build "${FLAKE_URL}#nixosConfigurations.${FLAKE_PART}.config.syst
   "${BUILD_ARGS[@]}" \
   --no-link --print-out-paths)
 
+GCROOTS=/nix/var/nix/gcroots/deploy
+[[ -d "$GCROOTS" ]] && ln -sfn "$TOPLEVEL" "$GCROOTS/${FLAKE_PART}"
+
 echo "Signing store paths..."
 sudo nix store sign --key-file "$SIGNING_KEY" --recursive "$TOPLEVEL"
 
