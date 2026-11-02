@@ -77,23 +77,36 @@ lib.mkIf cfg.enable {
       # the default; select gemma4-26b via /model or the dashboard.
       model:
         provider: custom
-        model: qwen3.8-27b
+        # `default`, not `model`: Hermes migrates the old key on load.
+        default: qwen3.8-27b
         base_url: http://127.0.0.1:8081/v1
         api_key: "none"
         # Auto-detect fails behind llama-swap (/props 404) -> Hermes assumed 196608 and
         # compressed at ~98k. Match llama-server's --ctx-size (see ./ollama.nix).
         context_length: 262144
-      # Summarize with gemma4-26b (MoE, ~4B active -> much faster prefill than dense
-      # Qwen). llama-swap swaps Qwen out for it and back on the next chat request.
-      # base_url set -> provider ignored, skips the openrouter/nous auto-detect that
-      # failed (no credits / no auth). Long timeout: 100k+ token prompts on the iGPU
-      # take a while, the 5 min default kept timing out.
+      timezone: Europe/Zurich
+      # Summarize + web extraction with gemma4-26b (MoE, ~4B active -> much faster
+      # prefill than dense Qwen). llama-swap swaps Qwen out for it and back on the next
+      # chat request. provider: custom is required -> without it Hermes ignores
+      # base_url and falls back to openrouter/nous auto-detect (no credits / no auth).
+      # Long timeout: 100k+ token prompts on the iGPU take a while, the 5 min default
+      # kept timing out.
       auxiliary:
         compression:
+          provider: custom
           base_url: http://127.0.0.1:8081/v1
           api_key: "none"
           model: gemma4-26b
           timeout: 3600
+        web_extract:
+          provider: custom
+          base_url: http://127.0.0.1:8081/v1
+          api_key: "none"
+          model: gemma4-26b
+      display:
+        tool_progress: all
+      agent:
+        verify_on_stop: false
       # backend: local -> commands run directly inside this container (Debian 13,
       # has git/apt/python3/curl). The old `docker` backend spawned a sibling
       # container per command and needs a Docker daemon in-container -> we run under
