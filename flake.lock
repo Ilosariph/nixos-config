@@ -29,16 +29,16 @@
         ]
       },
       "locked": {
-        "lastModified": 1793043926,
-        "narHash": "sha256-RjG0J/b6iy8tAg3knOrv5hqr7XOzr3irmhBgC3V0kkU=",
-        "owner": "Ilosariph",
+        "lastModified": 1791121685,
+        "narHash": "sha256-oA2SG4tzhwjATYTrUu//3zqywBOtsBbj/kVrVZ6jido=",
+        "owner": "sjdevries",
         "repo": "comfyui-nix",
-        "rev": "d1428fb858e3f02f4ec693a2883dff1774ff81fc",
+        "rev": "647d751fb353d46fabe5fea3f506e8f4e3531d26",
         "type": "github"
       },
       "original": {
-        "owner": "Ilosariph",
-        "ref": "backrefs-fix",
+        "owner": "sjdevries",
+        "ref": "feat/rocm72-channel",
         "repo": "comfyui-nix",
         "type": "github"
       }
@@ -135,11 +135,11 @@
         "nixpkgs-lib": "nixpkgs-lib"
       },
       "locked": {
-        "lastModified": 1767609335,
-        "narHash": "sha256-feveD98mQpptwrAEggBQKJTYbvwwglSbOv53uCfH9PY=",
+        "lastModified": 1788450739,
+        "narHash": "sha256-glZLQlzIn1fXH6PazR2iUmTo7kzzyYSshrWhLS9TqCU=",
         "owner": "hercules-ci",
         "repo": "flake-parts",
-        "rev": "250481aafeb741edfe23d29195671c19b36b6dca",
+        "rev": "31729ca8cbdb4fa927b34e5f4353e6a83f39e993",
         "type": "github"
       },
       "original": {
@@ -330,11 +330,11 @@
     },
     "nixpkgs-lib": {
       "locked": {
-        "lastModified": 1765674936,
-        "narHash": "sha256-k00uTP4JNfmejrCLJOwdObYC9jHRrr/5M/a/8L2EIdo=",
+        "lastModified": 1788057806,
+        "narHash": "sha256-DTQSMxzDWmT0zhguthvegnVkn7CFqGCv4IHCzk5ZUpM=",
         "owner": "nix-community",
         "repo": "nixpkgs.lib",
-        "rev": "2075416fcb47225d9b68ac469a5c4801a9c4dd85",
+        "rev": "596e2e3940e09b2abbeb03f75fa1828c57fcd72c",
         "type": "github"
       },
       "original": {

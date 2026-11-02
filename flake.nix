@@ -84,7 +84,7 @@
     };
 
     comfyui-nix = {
-      url = "github:Ilosariph/comfyui-nix/backrefs-fix";
+      url = "github:sjdevries/comfyui-nix/feat/rocm72-channel";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };

@@ -1,19 +1,19 @@
 { config, pkgs, ... }:
 # ComfyUI on evo (GMKtec EVO-X2 — Ryzen AI Max+ 395 / Strix Halo, Radeon 8060S, gfx1151).
 #
-# Uses the comfyui-nix fork pinned to the gfx1151 branch. The stock ROCm wheels
-# target gfx1100 and SEGV on this iGPU, so rocmArch = "gfx1151" selects the
-# comfy-ui-rocm-gfx1151 package, which bakes HSA_OVERRIDE_GFX_VERSION plus the
-# GPU_MAX_HEAP_SIZE / GPU_MAX_ALLOC_PERCENT tuning into the launcher.
+# Uses comfyui-nix PR #112 (sjdevries/feat/rocm72-channel). The ROCm 7.1 HSA
+# runtime SEGVs on this iGPU at the first kernel launch; rocmChannel = "rocm72"
+# selects the stable ROCm 7.2 wheels, which run on gfx1151. The module also
+# passes --use-pytorch-cross-attention (xformers has no gfx1151 kernels).
 #
-# The upstream module (imported in modules/hosts/evo.nix, where `inputs` is in
-# scope) brings its own overlay, which provides comfy-ui-rocm-gfx1151.
+# The upstream module is imported in modules/hosts/evo.nix, where `inputs` is in
+# scope.
 #
 # VRAM note: llama-swap keeps Qwen3.6-27B resident on the same iGPU. Gemma4-26B
 # unloads after 30 min idle (ollama.nix) to free VRAM for image generation.
 #
 # nixpkgs ships its own services.comfyui module; disable it so the flake's
-# module (which has the rocmArch option) owns the option tree.
+# module (which has the rocmChannel option) owns the option tree.
 let
   # The `p` share is mounted at /mnt/projects (dotfiles.shares in options.nix) and
   # holds the model collection from the old stable-diffusion-webui install.
@@ -57,7 +57,7 @@ in
   services.comfyui = {
     enable = true;
     gpuSupport = "rocm";
-    rocmArch = "gfx1151";
+    rocmChannel = "rocm72";
     # Stays on loopback. ComfyUI has no authentication of its own, so the LAN
     # reaches it only through the authenticated nginx proxy below.
     listenAddress = "127.0.0.1";
@@ -114,4 +114,24 @@ in
 
   # Only the authenticated proxy port is exposed; 8188 stays loopback-only.
   networking.firewall.allowedTCPPorts = [ 8189 ];
+
+  # ComfyUI has no auth and the Manager can install custom nodes (= code exec),
+  # so loopback access is limited to nginx and newt (Pangolin tunnel) by UID.
+  # Everything else local is rejected — notably Hermes, which runs as root with
+  # --network=host. ComfyUI's own user stays allowed for self-requests.
+  networking.firewall.extraCommands = ''
+    iptables -N comfyui-local 2>/dev/null || true
+    iptables -F comfyui-local
+    iptables -A comfyui-local -m owner --uid-owner nginx -j RETURN
+    iptables -A comfyui-local -m owner --uid-owner pangolin-newt -j RETURN
+    iptables -A comfyui-local -m owner --uid-owner ${config.services.comfyui.user} -j RETURN
+    iptables -A comfyui-local -p tcp -j REJECT --reject-with tcp-reset
+    iptables -C OUTPUT -o lo -p tcp --dport ${toString config.services.comfyui.port} -j comfyui-local 2>/dev/null \
+      || iptables -I OUTPUT -o lo -p tcp --dport ${toString config.services.comfyui.port} -j comfyui-local
+  '';
+  networking.firewall.extraStopCommands = ''
+    iptables -D OUTPUT -o lo -p tcp --dport ${toString config.services.comfyui.port} -j comfyui-local 2>/dev/null || true
+    iptables -F comfyui-local 2>/dev/null || true
+    iptables -X comfyui-local 2>/dev/null || true
+  '';
 }
