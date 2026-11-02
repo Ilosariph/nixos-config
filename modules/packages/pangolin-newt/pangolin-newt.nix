@@ -13,6 +13,12 @@
         '';
       };
 
+      users.users.pangolin-newt = {
+        isSystemUser = true;
+        group = "pangolin-newt";
+      };
+      users.groups.pangolin-newt = { };
+
       systemd.services.pangolin-newt = {
         description = "Pangolin Newt tunnel client";
         after = [ "network-online.target" ];
@@ -23,8 +29,14 @@
           EnvironmentFile = config.sops.templates."newt-env".path;
           Restart = "on-failure";
           RestartSec = "5s";
-          DynamicUser = true;
+          # Static user (not DynamicUser) so per-host firewall rules can match
+          # newt's traffic by UID (e.g. evo's comfyui loopback allowlist).
+          User = "pangolin-newt";
+          Group = "pangolin-newt";
           StateDirectory = "pangolin-newt";
+          # newt keeps its config (WireGuard keys) under $HOME/.config/newt-client;
+          # the system user's home is /var/empty, so point it at the state dir.
+          Environment = "HOME=/var/lib/pangolin-newt";
           WorkingDirectory = "/var/lib/pangolin-newt";
         };
       };
