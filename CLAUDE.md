@@ -40,9 +40,9 @@ deploy .#vps          # Deploy vps (public IP from private.nix)
 deploy .              # Deploy all enabled nodes
 ```
 
-To add a machine as a deploy target, set `dotfiles.deploy.enable = true` in its options.nix. The hostname is auto-derived from `dotfiles.network.staticIP` or `dotfiles.network.hostname`; set `dotfiles.deploy.hostname` explicitly if neither is set.
+To add a machine as a deploy target, set `dotfiles.deploy.target.enable = true` in its options.nix. The hostname is auto-derived from `dotfiles.network.staticIP` or `dotfiles.network.hostname`; set `dotfiles.deploy.target.hostname` explicitly if neither is set.
 
-The `deploy` binary is installed on mainpc via `dotfiles.deploy.installTool = true`.
+The `deploy` binary is installed on mainpc via `dotfiles.deploy.deployer.installTool = true`.
 
 ### On-host pull + switch (pull-switch)
 
