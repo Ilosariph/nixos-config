@@ -85,6 +85,26 @@
         "type": "github"
       }
     },
+    "disko": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1792526520,
+        "narHash": "sha256-3hSJlv8mUVnZPMWK2+CM7a9O+nR6Z4mCh27NfLCmTPc=",
+        "owner": "nix-community",
+        "repo": "disko",
+        "rev": "cedd626e11b635470fa6f9fdb8ad79b0075dd7f9",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-community",
+        "repo": "disko",
+        "type": "github"
+      }
+    },
     "flake-compat": {
       "locked": {
         "lastModified": 1761640442,
@@ -297,10 +317,10 @@
     "nix-secrets": {
       "flake": false,
       "locked": {
-        "lastModified": 1793572998,
-        "narHash": "sha256-A3dUd3r+lHZlEQAxajD8qUQmPOO1qIMT9HAx+vRY5uI=",
+        "lastModified": 1793819767,
+        "narHash": "sha256-qMfFDAWhwI4fYIWwUohDouEWA+uTgMRN0C6qIFLIoS4=",
         "ref": "main",
-        "rev": "aeea18d8e502f5690be182f152aa7e04d78024aa",
+        "rev": "e776b777b2321ccdab29b4f1041bac47c36bd018",
         "shallow": true,
         "type": "git",
         "url": "ssh://git@github.com/Ilosariph/nix-secrets.git"
@@ -471,6 +491,7 @@
         "comfyui-nix": "comfyui-nix",
         "deploy-rs": "deploy-rs",
         "dfrd": "dfrd",
+        "disko": "disko",
         "flake-parts": "flake-parts_2",
         "home-manager": "home-manager",
         "import-tree": "import-tree",

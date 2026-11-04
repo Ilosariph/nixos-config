@@ -31,11 +31,12 @@ nh os switch . -H nucserver -a   # show diff, ask before activating
 
 ### Deploying Remote Machines (deploy-rs)
 
-Remote servers (evo, nucserver) are deployed from mainpc using deploy-rs:
+Remote servers (evo, nucserver, vps) are deployed from mainpc using deploy-rs:
 
 ```bash
 deploy .#evo          # Deploy evo
 deploy .#nucserver    # Deploy nucserver
+deploy .#vps          # Deploy vps (public IP from private.nix)
 deploy .              # Deploy all enabled nodes
 ```
 
@@ -75,7 +76,7 @@ Then rebuild mainpc (loads the signing key) and deploy evo (trusts the public ke
 
 ### Available Flake Configurations
 - **Desktop**: `mainpc`, `laptop`, `macbook` (aarch64)
-- **Servers**: `nucserver`, `laptopserver`, `evo`
+- **Servers**: `nucserver`, `laptopserver`, `evo`, `vps`
 
 ## Architecture
 
@@ -104,7 +105,8 @@ Each aspect in `modules/packages/<aspect>/<aspect>.nix` is a **flake-parts modul
 │   │   ├── macbook.nix
 │   │   ├── nucserver.nix
 │   │   ├── laptopserver.nix
-│   │   └── evo.nix
+│   │   ├── evo.nix
+│   │   └── vps.nix
 │   │
 │   ├── machines/                # Per-machine options + hardware (imported by each host file)
 │   │   ├── mainpc/
@@ -112,7 +114,8 @@ Each aspect in `modules/packages/<aspect>/<aspect>.nix` is a **flake-parts modul
 │   │   ├── macbook/
 │   │   ├── nucserver/
 │   │   ├── laptopserver/
-│   │   └── evo/
+│   │   ├── evo/
+│   │   └── vps/
 │   │
 │   └── packages/                # Auto-discovered aspect modules
 │       ├── base/base.nix            # Locale, users, nix settings, base packages
@@ -224,6 +227,10 @@ Keys: hosts decrypt with their SSH host key `/etc/ssh/ssh_host_ed25519_key` (`so
 - Uses `aarch64-linux` architecture
 - Hardware support via the `apple-silicon` flake input (`nixos-apple-silicon`, module `apple-silicon-support`); machine extras (kernel, touchbar, firmware) in `modules/machines/macbook/`
 - Requires manual WireGuard configuration files (`/etc/wireguard/<account>.conf`, imported into NetworkManager by `modules/packages/vpn/vpn.nix`)
+
+### VPS
+- Public server: Pangolin/Gerbil/Traefik as nix-declared containers (`modules/machines/vps/pangolin.nix`), other stacks via docker compose in `/docker`, CrowdSec, restic backup; installed with nixos-anywhere + disko
+- Operation, pre-switch checklist and the Ubuntu → NixOS switch: `docs/vps.md`
 
 ### Mainpc
 - Includes VR support via `nixpkgs-xr` (`dotfiles.programs.vr.enable = true`)
