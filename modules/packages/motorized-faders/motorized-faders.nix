@@ -32,6 +32,35 @@
             };
           }
           {
+            name = "FX";
+            # Live controls of the audio-routing LSP filter-chains
+            # (<filter name>:<LV2 port symbol>). Pages: 1 Apps comp, 2 Comms
+            # comp, 3 Mic gate + comp. Button bypasses that plugin; a detent
+            # marks the value from audio-routing.nix. Changes persist across
+            # PipeWire restarts; `motorized-faders-fx reset` restores the
+            # originals.
+            extensions.filter_param = {
+              faders =
+                let
+                  # LSP thresholds/gains are linear: scale "db" maps them in dB.
+                  comp = filter: name: [
+                    { param = "${filter}:al"; scale = "db"; min = -40; max = 0; label = "${name} thr"; }
+                    { param = "${filter}:cr"; scale = "log"; min = 1; max = 10; unit = ":1"; label = "${name} ratio"; }
+                    { param = "${filter}:mk"; scale = "db"; min = 0; max = 12; label = "${name} gain"; }
+                    { param = "${filter}:rt"; scale = "log"; min = 20; max = 1000; unit = " ms"; label = "${name} rel"; }
+                  ];
+                in
+                comp "fx-comp-apps" "Apps"
+                ++ comp "fx-comp-comms" "Comms"
+                ++ [
+                  { param = "mic-gate:gt"; scale = "db"; min = -80; max = -20; label = "Mic gate"; }
+                  { param = "mic-comp:al"; scale = "db"; min = -40; max = 0; label = "Mic thr"; }
+                  { param = "mic-comp:cr"; scale = "log"; min = 1; max = 10; unit = ":1"; label = "Mic ratio"; }
+                  { param = "mic-comp:mk"; scale = "db"; min = 0; max = 12; label = "Mic gain"; }
+                ];
+            };
+          }
+          {
             name = "Discord";
             # Client ID from private.nix; the client secret stays out of the
             # world-readable store, in a file only this user reads.

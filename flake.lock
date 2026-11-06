@@ -283,11 +283,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1793534315,
-        "narHash": "sha256-XLI5ve/y1UgFA3Om1YhsUvWQfGrpo2ydmcDJgz8E2o0=",
+        "lastModified": 1793996738,
+        "narHash": "sha256-j90Kf9B+ANPXMqgGX4sV9OWX9X9Rol94jWMYhOqVASA=",
         "owner": "Ilosariph",
         "repo": "motorized-faders",
-        "rev": "f9e597276b7c4560ac34c279e5ad2872811d9520",
+        "rev": "d01d675e303d3c785d23d6469d083b9c47330db6",
         "type": "github"
       },
       "original": {
