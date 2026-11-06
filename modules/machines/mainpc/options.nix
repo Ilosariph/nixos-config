@@ -111,6 +111,10 @@
       dir = "Projects/vid-viewer";
       shellFile = shellsDir + "/vid-viewer.nix";
     }
+    {
+      dir = "Projects/comfyui-img-finder";
+      shellFile = shellsDir + "/comfyui-img-finder.nix";
+    }
   ];
 
   dotfiles.network = {
