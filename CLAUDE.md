@@ -130,7 +130,7 @@ Each aspect in `modules/packages/<aspect>/<aspect>.nix` is a **flake-parts modul
 │       ├── desktop/desktop.nix      # Desktop system + home-manager config
 │       ├── git/git.nix
 │       ├── nh/nh.nix                # nh CLI helper + weekly GC
-│       ├── neovim/neovim.nix + nvim/
+│       ├── neovim/neovim.nix        # nixvim (LSP: pyright/ruff, nixd, lua_ls; theme: tokyonight-night)
 │       ├── 1password/1password.nix
 │       ├── home-base/home-base.nix  # Sets home.username/homeDirectory/stateVersion
 │       ├── kitty/kitty.nix

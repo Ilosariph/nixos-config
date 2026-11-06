@@ -75,6 +75,13 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # Declarative neovim config (modules/packages/neovim/neovim.nix).
+    nixvim = {
+      url = "github:nix-community/nixvim";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.flake-parts.follows = "flake-parts";
+    };
+
     nix-index-database = {
       url = "github:nix-community/nix-index-database";
       inputs.nixpkgs.follows = "nixpkgs";
