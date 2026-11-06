@@ -8,6 +8,8 @@
 { config, lib, pkgs, ... }:
 let
   stateDir = "/var/lib/crowdsec/state";
+  # Glob for a nix store hash (fixed length, hub items can't collide with it).
+  storeHash = lib.concatStrings (lib.replicate 32 "?");
   # Fixed so the traefik plugin config in /docker can hardcode the LAPI address.
   dockerHost = "172.17.0.1";
   lapiPort = 8080;
@@ -82,12 +84,43 @@ in
         "crowdsecurity/appsec-virtual-patching"
         "crowdsecurity/appsec-generic-rules"
       ];
-      appSecConfigs = [ "crowdsecurity/appsec-default" ];
+      appsec-configs = [ "crowdsecurity/appsec-default" ];
       # Never ban private ranges (docker bridges, WireGuard peers).
       parsers = [ "crowdsecurity/whitelists" ];
     };
 
-    localConfig = {
+    # Journal access for the journalctl datasource. No upstream default.
+    extraGroups = [ "systemd-journal" ];
+
+    settings = {
+      config = {
+        # Upstream's default is /var/lib/crowdsec/data; keep the existing state
+        # (DB with decisions, credentials, hub).
+        config_paths.data_dir = stateDir;
+        db_config.use_wal = true;
+        # Unset, cscli uses the hub branch of its own version once a newer
+        # crowdsec exists: that index lacks newer vpatch rules, which then get
+        # ignored even though they're installed.
+        cscli.hub_branch = "master";
+        api = {
+          client.credentials_path = "${stateDir}/local_api_credentials.yaml";
+          server = {
+            # Traefik reaches it via docker0; the firewall only lets docker bridges in.
+            listen_uri = "0.0.0.0:${toString lapiPort}";
+            # Registers with the central API on first start: shares signals,
+            # pulls the community blocklist.
+            online_client = {
+              credentials_path = "${stateDir}/online_api_credentials.yaml";
+              sharing = true;
+              pull = {
+                community = true;
+                blocklists = true;
+              };
+            };
+          };
+        };
+      };
+
       acquisitions = [
         {
           source = "journalctl";
@@ -170,8 +203,9 @@ in
           name = "default_ip_remediation";
           filters = [ "Alert.Remediation == true && Alert.GetScope() == 'Ip'" ];
           decisions = [{ type = "ban"; duration = "4h"; }];
-          # Repeat offenders: 4h, 8h, 12h, ...
-          duration_expr = "Sprintf('%dh', (GetDecisionsCount(Alert.GetValue()) + 1) * 4)";
+          # Repeat offenders: 4h, 8h, 12h, ... profiles.yaml is written via a
+          # tmpfiles argument, which expands specifiers: %% for a literal %.
+          duration_expr = "Sprintf('%%dh', (GetDecisionsCount(Alert.GetValue()) + 1) * 4)";
           on_success = "break";
         }
         {
@@ -182,52 +216,26 @@ in
         }
       ];
     };
-
-    settings = {
-      general.api.server = {
-        enable = true;
-        # Traefik reaches it via docker0; the firewall only lets docker bridges in.
-        listen_uri = "0.0.0.0:${toString lapiPort}";
-      };
-      lapi.credentialsFile = "${stateDir}/local_api_credentials.yaml";
-      # Registers with the central API on first start: shares signals, pulls
-      # the community blocklist.
-      capi.credentialsFile = "${stateDir}/online_api_credentials.yaml";
-    };
   };
 
-  # The module's setup runs `cscli machine add` before `cscli capi register`,
-  # and cscli fails on a missing CAPI credentials file: start with an empty one.
+  # cscli fails on a missing CAPI credentials file, even `cscli capi register`
+  # can't load its config: start with an empty one (setup registers if empty).
   systemd.tmpfiles.rules = [
     # Z: hand over files a former DynamicUser run left behind.
     "d /var/lib/crowdsec 0755 ${config.services.crowdsec.user} ${config.services.crowdsec.group} -"
     "Z /var/lib/crowdsec - ${config.services.crowdsec.user} ${config.services.crowdsec.group} -"
     "Z /var/lib/crowdsec-firewall-bouncer-register - ${config.services.crowdsec.user} ${config.services.crowdsec.group} -"
     "f ${stateDir}/online_api_credentials.yaml 0600 ${config.services.crowdsec.user} ${config.services.crowdsec.group} -"
+    # The former module linked localConfig items as <store hash>-<name>.yaml.
+    # Those stay in /etc/crowdsec next to the new N-nixos-generated.yaml and
+    # would load every parser/scenario twice, or dangle after a GC.
+    "r /etc/crowdsec/scenarios/${storeHash}-scenario.yaml"
+    "r /etc/crowdsec/parsers/s01-parse/${storeHash}-parsers-s01-parse.yaml"
+    "r /etc/crowdsec/parsers/s02-enrich/${storeHash}-parsers-s02-enrich.yaml"
   ];
-  # crowdsec-firewall-bouncer-register has StateDirectory=crowdsec with
-  # DynamicUser, so systemd moves /var/lib/crowdsec to the root-only
-  # /var/lib/private and crowdsec can't reach its state anymore. Both run as
-  # the static crowdsec user anyway: no DynamicUser, systemd moves it back.
-  # localConfig lands in /etc/crowdsec via tmpfiles, outside the unit: without
-  # this a changed parser/scenario/profile only takes effect on the next boot.
-  systemd.services.crowdsec.restartTriggers = [ (builtins.toJSON config.services.crowdsec.localConfig) ];
-  systemd.services.crowdsec.serviceConfig = {
-    DynamicUser = lib.mkForce false;
-    StateDirectory = "crowdsec";
-    # Its user namespace doesn't map systemd-journal: journalctl would only
-    # see crowdsec's own messages.
-    PrivateUsers = lib.mkForce false;
-  };
-  systemd.services.crowdsec-firewall-bouncer-register.serviceConfig.DynamicUser = lib.mkForce false;
-  # The bouncer's register unit runs the plain cscli, which reads the default
-  # /etc/crowdsec/config.yaml; the crowdsec module only passes its config via -c.
-  environment.etc."crowdsec/config.yaml".source =
-    lib.head (builtins.match ".* -c ([^ ]+) .*" (lib.last config.systemd.services.crowdsec.serviceConfig.ExecStart));
-
-  # The module forces an empty PATH, but the journalctl datasource execs
-  # `journalctl` from PATH.
-  systemd.services.crowdsec.path = lib.mkForce [ config.systemd.package ];
+  # settings land in /etc/crowdsec via tmpfiles, outside the unit: without this
+  # a changed parser/scenario/profile only takes effect on the next boot.
+  systemd.services.crowdsec.restartTriggers = [ (builtins.toJSON config.services.crowdsec.settings) ];
 
   networking.firewall.extraCommands = ''
     iptables -I nixos-fw -p tcp -s 172.16.0.0/12 -m multiport --dports ${toString lapiPort},${toString appsecPort} -j nixos-fw-accept
@@ -282,16 +290,20 @@ in
     wantedBy = [ "multi-user.target" ];
     after = [ "crowdsec.service" ];
     requires = [ "crowdsec.service" ];
-    environment.USER = "root";
+    path = [ config.services.crowdsec.package ];
     serviceConfig = {
       Type = "oneshot";
       RemainAfterExit = true;
+      # cscli is the plain binary now; as root it would leave root-owned sqlite
+      # WAL files the crowdsec user can't write.
+      User = config.services.crowdsec.user;
+      Group = config.services.crowdsec.group;
+      LoadCredential = "key:${secrets.crowdsec-traefik-bouncer-key.path}";
     };
     script = ''
-      cscli=/run/current-system/sw/bin/cscli
-      key=$(cat ${secrets.crowdsec-traefik-bouncer-key.path})
-      $cscli bouncers delete traefik >/dev/null 2>&1 || true
-      $cscli bouncers add traefik --key "$key" >/dev/null
+      key=$(cat "$CREDENTIALS_DIRECTORY/key")
+      cscli bouncers delete traefik >/dev/null 2>&1 || true
+      cscli bouncers add traefik --key "$key" >/dev/null
     '';
   };
 }
