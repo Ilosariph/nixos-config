@@ -11,6 +11,7 @@
       inputs.sops-nix.nixosModules.sops
       inputs.home-manager.nixosModules.home-manager
       inputs.nix-index-database.nixosModules.nix-index
+      inputs.nix-private.nixosModules.default
       (inputs.import-tree ../machines/macbook)
     ] ++ (builtins.attrValues config.flake.nixosModules);
   };

@@ -21,6 +21,7 @@
       inputs.nixpkgs-xr.nixosModules.nixpkgs-xr
       inputs.home-manager.nixosModules.home-manager
       inputs.nix-index-database.nixosModules.nix-index
+      inputs.nix-private.nixosModules.default
       (inputs.import-tree ../machines/mainpc)
     ] ++ (builtins.attrValues config.flake.nixosModules) ++ [
       ({ pkgs, ... }: {

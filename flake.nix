@@ -96,6 +96,14 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # Private (not secret) config: own tools, later work stuff. Also checked
+    # out as the ./nix-private submodule for editing; build against that
+    # checkout with ./build.sh --local-private. Imported on mainpc + macbook.
+    nix-private = {
+      url = "git+ssh://git@github.com/Ilosariph/nix-private.git?ref=main&shallow=1";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     comfyui-nix = {
       url = "github:sjdevries/comfyui-nix/feat/rocm72-channel";
       inputs.nixpkgs.follows = "nixpkgs";

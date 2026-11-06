@@ -250,3 +250,19 @@ Open:
 - laptop, nucserver, laptopserver have no recipient/host file yet (commented
   out in `.sops.yaml`). Before reactivating one: add its recipient + rule,
   add it to the `shared.yaml` rule, `./secrets.sh rekey`.
+
+## nix-private (private, not secret config)
+
+`Ilosariph/nix-private` is a second private repo, a flake this time, for config
+that shouldn't be public but isn't secret: own tools (comfyui-img-finder,
+vid-finder, vid-viewer, each with a kitty desktop entry) and later work stuff.
+Its `nixosModules.default` is imported only in `modules/hosts/mainpc.nix` and
+`modules/hosts/macbook.nix`. Everything in it lands in the world-readable store.
+
+- Fetched via `git+ssh` like nix-secrets (your SSH key; no deploy key on evo,
+  so never import it on hosts evaluated by evo's nix-eval).
+- Checked out as the `./nix-private` submodule for editing
+  (`git submodule update --init` after cloning the dotfiles).
+- Try uncommitted edits: `./build.sh --local-private mainpc test`.
+- Update tools: `nix flake update` in `nix-private`, commit + push, then
+  `nix flake update nix-private` here.

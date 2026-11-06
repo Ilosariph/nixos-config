@@ -21,6 +21,23 @@
         "type": "github"
       }
     },
+    "comfyui-img-finder": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1793995056,
+        "narHash": "sha256-V7aVximtZCvTjaHyagyHIlzqU3vuyFyqpKZSN9xleaI=",
+        "ref": "main",
+        "rev": "a45c140d8d9e68b1813adc6582967114f8e565b2",
+        "revCount": 4,
+        "type": "git",
+        "url": "ssh://git@github.com/Ilosariph/comfyui-img-finder.git"
+      },
+      "original": {
+        "ref": "main",
+        "type": "git",
+        "url": "ssh://git@github.com/Ilosariph/comfyui-img-finder.git"
+      }
+    },
     "comfyui-nix": {
       "inputs": {
         "flake-parts": "flake-parts",
@@ -314,6 +331,31 @@
         "type": "github"
       }
     },
+    "nix-private": {
+      "inputs": {
+        "comfyui-img-finder": "comfyui-img-finder",
+        "nixpkgs": [
+          "nixpkgs"
+        ],
+        "vid-finder": "vid-finder",
+        "vid-viewer": "vid-viewer"
+      },
+      "locked": {
+        "lastModified": 1793995151,
+        "narHash": "sha256-xxcclnflzC2C6dxKuR+NSz6VxvFWruo+IYrvLNykMFc=",
+        "ref": "main",
+        "rev": "b31385b7e3643c2402c92b5eba62de2f4d2f36fb",
+        "shallow": true,
+        "type": "git",
+        "url": "ssh://git@github.com/Ilosariph/nix-private.git"
+      },
+      "original": {
+        "ref": "main",
+        "shallow": true,
+        "type": "git",
+        "url": "ssh://git@github.com/Ilosariph/nix-private.git"
+      }
+    },
     "nix-secrets": {
       "flake": false,
       "locked": {
@@ -523,6 +565,7 @@
         "motorized-faders": "motorized-faders",
         "nix-flatpak": "nix-flatpak",
         "nix-index-database": "nix-index-database",
+        "nix-private": "nix-private",
         "nix-secrets": "nix-secrets",
         "nixpkgs": "nixpkgs",
         "nixpkgs-musescore": "nixpkgs-musescore",
@@ -636,6 +679,40 @@
         "owner": "numtide",
         "repo": "flake-utils",
         "type": "github"
+      }
+    },
+    "vid-finder": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1793995052,
+        "narHash": "sha256-lqL/fbb0N8aPFEM7vctswEluJjN6KFo6xThCpRyaExI=",
+        "ref": "main",
+        "rev": "f8d5d9f84db053b96be3c01c185b5abe34fa4ae4",
+        "revCount": 4,
+        "type": "git",
+        "url": "ssh://git@github.com/Ilosariph/vid-finder.git"
+      },
+      "original": {
+        "ref": "main",
+        "type": "git",
+        "url": "ssh://git@github.com/Ilosariph/vid-finder.git"
+      }
+    },
+    "vid-viewer": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1793995057,
+        "narHash": "sha256-+3Zz/onsRyaDfZ2peNyz0CVvK5VANxstT9L8f7TSM+I=",
+        "ref": "main",
+        "rev": "863e5b449c4d5ddaff74aa349f84b286d9403065",
+        "revCount": 3,
+        "type": "git",
+        "url": "ssh://git@github.com/Ilosariph/vid-viewer.git"
+      },
+      "original": {
+        "ref": "main",
+        "type": "git",
+        "url": "ssh://git@github.com/Ilosariph/vid-viewer.git"
       }
     },
     "yeetmouse": {

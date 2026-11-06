@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
-# Usage: ./build.sh [--local-secrets] [flake-name] [nix|boot|test|home|vm] [optional-label]
+# Usage: ./build.sh [--local-secrets] [--local-private] [flake-name] [nix|boot|test|home|vm] [optional-label]
 #   --local-secrets  Build against the nix-secrets clone ($NIX_SECRETS_DIR,
 #                    default ~/nix-secrets) as it is on disk, uncommitted edits
 #                    included, instead of the locked input. flake.lock untouched.
+#   --local-private  Same for the ./nix-private submodule checkout.
 # Wraps nh (https://github.com/nix-community/nh). nh elevates with sudo itself
 # only for the activation step, so do not run this script with sudo.
 set -euo pipefail
@@ -16,6 +17,8 @@ ARGS=()
 for arg in "$@"; do
   if [[ "$arg" == --local-secrets ]]; then
     NIX_ARGS+=(--override-input nix-secrets "path:${NIX_SECRETS_DIR:-$HOME/nix-secrets}")
+  elif [[ "$arg" == --local-private ]]; then
+    NIX_ARGS+=(--override-input nix-private "path:$(dirname "$(realpath "$0")")/nix-private")
   else
     ARGS+=("$arg")
   fi
