@@ -86,6 +86,13 @@
               ];
             };
           }
+          {
+            name = "Media";
+            # Whichever player is playing (Spotify, Plezy, a browser). Fader 1
+            # is its own stream volume, buttons F2/F3/F4 previous, play/pause,
+            # next. Last in the list: one G1 + F1 back from Audio.
+            extensions.media = { };
+          }
         ];
       };
     };
