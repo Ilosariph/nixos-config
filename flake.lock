@@ -46,16 +46,15 @@
         ]
       },
       "locked": {
-        "lastModified": 1791121685,
-        "narHash": "sha256-oA2SG4tzhwjATYTrUu//3zqywBOtsBbj/kVrVZ6jido=",
-        "owner": "sjdevries",
+        "lastModified": 1794155470,
+        "narHash": "sha256-MYnOvQMfdF1mLiD/WDQP351Q/mTE7xVV2iXMnKSyvOU=",
+        "owner": "utensils",
         "repo": "comfyui-nix",
-        "rev": "647d751fb353d46fabe5fea3f506e8f4e3531d26",
+        "rev": "e9c8a8de01fd5c88d27fb0f4759dbb418d9f4831",
         "type": "github"
       },
       "original": {
-        "owner": "sjdevries",
-        "ref": "feat/rocm72-channel",
+        "owner": "utensils",
         "repo": "comfyui-nix",
         "type": "github"
       }

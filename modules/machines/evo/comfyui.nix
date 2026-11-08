@@ -1,9 +1,8 @@
 { config, pkgs, ... }:
 # ComfyUI on evo (GMKtec EVO-X2 — Ryzen AI Max+ 395 / Strix Halo, Radeon 8060S, gfx1151).
 #
-# Uses comfyui-nix PR #112 (sjdevries/feat/rocm72-channel). The ROCm 7.1 HSA
-# runtime SEGVs on this iGPU at the first kernel launch; rocmChannel = "rocm72"
-# selects the stable ROCm 7.2 wheels, which run on gfx1151. The module also
+# The ROCm 7.1 HSA runtime SEGVs on this iGPU at the first kernel launch;
+# rocmChannel = "rocm72" selects the stable ROCm 7.2 wheels, which run on gfx1151. The module also
 # passes --use-pytorch-cross-attention (xformers has no gfx1151 kernels).
 #
 # The upstream module is imported in modules/hosts/evo.nix, where `inputs` is in

@@ -105,7 +105,7 @@
     };
 
     comfyui-nix = {
-      url = "github:sjdevries/comfyui-nix/feat/rocm72-channel";
+      url = "github:utensils/comfyui-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
