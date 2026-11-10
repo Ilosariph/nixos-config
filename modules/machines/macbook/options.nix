@@ -2,6 +2,9 @@
 {
   dotfiles.kernel = "none";
   dotfiles.asahiFairydust.enable = true;
+  # Aurora (Omarchy M) kernel + Touch ID, draft. Turn fairydust off first.
+  dotfiles.aurora.enable = false;
+  dotfiles.aurora.touchId.enable = false;
   dotfiles.sops.enable = true;
   dotfiles.sops.host = "macbook";
   dotfiles.desktop.enable = true;
