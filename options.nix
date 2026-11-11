@@ -175,6 +175,11 @@
                 default = false;
                 description = "Copy SQLite DBs (*.db, *.sqlite, *.sqlite3) in source via sqlite3 .backup instead of rsync, so live DBs are consistent.";
               };
+              preCommand = lib.mkOption {
+                type = lib.types.nullOr lib.types.lines;
+                default = null;
+                description = "Shell commands run before the backup as the job's user (e.g. a database dump); a failure aborts the job. PATH only has coreutils and friends, use absolute paths for the rest.";
+              };
             };
           });
           default = [];

@@ -9,6 +9,7 @@
       inputs.sops-nix.nixosModules.sops
       inputs.home-manager.nixosModules.home-manager
       inputs.nix-index-database.nixosModules.nix-index
+      inputs.disko.nixosModules.disko
       (inputs.import-tree ../machines/nucserver)
     ] ++ (builtins.attrValues config.flake.nixosModules) ++ [
       {

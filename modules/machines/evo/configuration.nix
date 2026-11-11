@@ -4,6 +4,12 @@
     ./ollama.nix
   ];
 
+  sops.secrets = {
+    smb-p = { };
+    smb-arr = { };
+    smb-docker-backup = { };
+  };
+
   environment.systemPackages = with pkgs; [
     nodejs_22
     rocmPackages.rocminfo

@@ -176,7 +176,7 @@ lib.mkIf cfg.enable {
     fsType = "cifs";
     options = [
       "x-systemd.automount,noauto,x-systemd.idle-timeout=60,x-systemd.device-timeout=5s,x-systemd.mount-timeout=5s"
-      "credentials=/etc/nixos/smb-p"
+      "credentials=${config.sops.secrets.smb-p.path}"
       "uid=1000"
       "gid=100"
       "file_mode=0777"

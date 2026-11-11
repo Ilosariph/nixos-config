@@ -110,6 +110,11 @@
               ++ lib.concatMap (e: [ "--exclude" (lib.escapeShellArg e) ]) job.excludes
               ++ lib.optional job.sqlite "--sqlite"
             );
+          } // lib.optionalAttrs (job.preCommand != null) {
+            ExecStartPre = pkgs.writeShellScript "backup-${job.name}-pre" ''
+              set -euo pipefail
+              ${job.preCommand}
+            '';
           };
         };
       };

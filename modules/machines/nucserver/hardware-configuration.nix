@@ -1,23 +1,13 @@
-# Stub hardware config — replace by running nixos-generate-config on the machine
+# Intel NUC, NVMe system disk. Filesystems come from disko.nix.
 { config, lib, modulesPath, ... }:
 {
   imports = [ (modulesPath + "/installer/scan/not-detected.nix") ];
 
-  boot.initrd.availableKernelModules = [ "nvme" "xhci_pci" "usbhid" "usb_storage" ];
+  # usbhid/hid_generic: keyboard for the LUKS prompt. tpm_*: unlock from the TPM.
+  boot.initrd.availableKernelModules = [ "nvme" "xhci_pci" "ahci" "usbhid" "hid_generic" "usb_storage" "sd_mod" "tpm_crb" "tpm_tis" ];
   boot.initrd.kernelModules = [ ];
   boot.kernelModules = [ "kvm-intel" ];
   boot.extraModulePackages = [ ];
-
-  fileSystems."/" = {
-    device = "/dev/disk/by-uuid/00000000-0000-0000-0000-000000000000";
-    fsType = "ext4";
-  };
-
-  fileSystems."/boot" = {
-    device = "/dev/disk/by-uuid/0000-0000";
-    fsType = "vfat";
-    options = [ "fmask=0077" "dmask=0077" ];
-  };
 
   swapDevices = [ ];
 

@@ -1,6 +1,7 @@
 { config, ... }:
 let
   home = config.users.users.${config.dotfiles.user.name}.home;
+  smb = name: config.sops.secrets."smb-${name}".path;
 in
 {
   dotfiles.sops.enable = true;
@@ -69,17 +70,17 @@ in
     {
       mountPoint = "/mnt/projects";
       share = "p";
-      credentials = "/etc/nixos/smb-p";
+      credentials = smb "p";
     }
     {
       mountPoint = "/mnt/arr";
       share = "arr";
-      credentials = "/etc/nixos/smb-arr";
+      credentials = smb "arr";
     }
     {
       mountPoint = "/mnt/docker-backup";
       share = "docker-backup";
-      credentials = "/etc/nixos/smb-docker-backup";
+      credentials = smb "docker-backup";
       # Server rejects native symlinks (rsync code 23); store them as MF symlink files.
       extraOptions = [ "mfsymlinks" ];
     }
