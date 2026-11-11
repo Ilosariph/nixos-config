@@ -549,6 +549,11 @@
           description = "Enable gnirehtet reverse USB tethering (share this machine's internet with an Android phone over adb).";
         };
       };
+      wol.enable = lib.mkOption {
+        type = lib.types.bool;
+        default = false;
+        description = "Install `wol <host>`: Wake-on-LAN for the hosts in dotfiles.private.macs.";
+      };
     };
     audio = {
       routing = lib.mkOption {
