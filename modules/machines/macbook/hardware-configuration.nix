@@ -28,7 +28,8 @@
 
   swapDevices = [
     {
-      device = "/dev/disk/by-partuuid/f56da4bf-3e68-4c8f-babd-dc32e794a7ca";
+      # nvme0n1p11. NOT p12 (f56da4bf…): that is Apple's RecoveryOSContainer.
+      device = "/dev/disk/by-partuuid/3e520931-628c-417e-8d8a-5844b8cd5b12";
       randomEncryption.enable = true;
     }
   ];
