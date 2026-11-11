@@ -810,6 +810,30 @@
       '';
     };
 
+    aurora = {
+      enable = lib.mkOption {
+        type = lib.types.bool;
+        default = false;
+        description = ''
+          Apple Silicon only, DRAFT: use the Aurora stack from Omarchy M
+          (aurora-silicon/nixos-aurora): the Aurora kernel, the aura stage 2
+          (m1n1 fork) and Aurora's runtime vendor-firmware handoff from the
+          ESP. Edge/testing quality. Mutually exclusive with asahiFairydust.
+        '';
+      };
+      touchId.enable = lib.mkOption {
+        type = lib.types.bool;
+        default = false;
+        description = ''
+          Touch ID through the Secure Enclave (apple_sep driver, /dev/sep-bio,
+          patched libfprint + fprintd, calibration built by
+          aurora-touchid-setup). Requires aurora.enable. Shares SEP state with
+          macOS: back up macOS first. Enclave state lives in /var/lib and must
+          survive reinstalls.
+        '';
+      };
+    };
+
     deploy = {
       target = {
         enable = lib.mkOption {

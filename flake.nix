@@ -56,6 +56,15 @@
       flake = false;
     };
 
+    # Aurora (Omarchy M) Apple Silicon stack: kernel, aura (m1n1 fork), Touch
+    # ID userspace. Used as plain files (overlay subset + two modules) by
+    # modules/machines/macbook/aurora.nix, so its own nixpkgs/apple-silicon
+    # pins and flake inputs are not pulled in.
+    nixos-aurora = {
+      url = "github:aurora-silicon/nixos-aurora/channel-testing";
+      flake = false;
+    };
+
     # Fork of tiny-dfr adding configurable multi-layer touch bar buttons
     # (Exec/SwitchLayer/CycleLayer actions, named layers).
     # https://github.com/Ilosariph/dfrd

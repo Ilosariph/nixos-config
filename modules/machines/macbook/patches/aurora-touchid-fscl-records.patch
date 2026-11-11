@@ -1,0 +1,43 @@
+--- a/aurora-touchid-setup
++++ b/aurora-touchid-setup
+@@ -805,7 +805,7 @@
+         if any(name.startswith('FSC2-') for name in records):
+             calibration.data, calibration.evidence = admit(records, identity, b'FSC2')
+             calibration.source = 'resealed from the factory records'
+-        else:
++        elif not fscl_from_records(calibration, records):
+             source = carve(device, extractor, work)
+             try:
+                 calibration.data = fscl_record(source)
+@@ -834,11 +834,30 @@
+     return wanted
+ 
+ 
++def fscl_from_records(calibration, records):
++    """Take the FSCl comb record from the Hardware volume when there is
++    exactly one and it reads as one. Read through APFS it is whole; carving
++    the raw container breaks a record whose extents are not contiguous (seen
++    on J293: the tail, secb included, comes from an unrelated block and the
++    enclave refuses it with LOAD_CALIBRATION status 0x1c)."""
++    named = [name for name in records if name.startswith('FSCl-')]
++    if len(named) != 1 or len(records[named[0]]) > SOURCE_LIMIT:
++        return False
++    try:
++        calibration.data = fscl_record(records[named[0]])
++    except Refused:
++        return False
++    calibration.source = 'read from the factory records'
++    calibration.evidence = {'source': named[0],
++                            'source_sha384': hashlib.sha384(calibration.data).hexdigest()}
++    return True
++
++
+ def self_check(item):
+     """Read a built record back the way the checks above read a source."""
+     if len(item.data) > RECORD_LIMIT:
+         raise Refused('oversized record')
+-    if item.source.startswith('carved'):
++    if item.source.startswith(('carved', 'read')):
+         fscl_record(item.data)
+     else:
+         fdrd, _ = combined(item.data)

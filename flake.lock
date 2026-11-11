@@ -373,6 +373,23 @@
         "url": "ssh://git@github.com/Ilosariph/nix-secrets.git"
       }
     },
+    "nixos-aurora": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1794241111,
+        "narHash": "sha256-Alz2KAW7mv5TF080bkL+37oKWHxyMB9lYYXd05tfpKw=",
+        "owner": "aurora-silicon",
+        "repo": "nixos-aurora",
+        "rev": "d04fff7c316649af58187e0214b27bb9e90fc795",
+        "type": "github"
+      },
+      "original": {
+        "owner": "aurora-silicon",
+        "ref": "channel-testing",
+        "repo": "nixos-aurora",
+        "type": "github"
+      }
+    },
     "nixpkgs": {
       "locked": {
         "lastModified": 1793726008,
@@ -566,6 +583,7 @@
         "nix-index-database": "nix-index-database",
         "nix-private": "nix-private",
         "nix-secrets": "nix-secrets",
+        "nixos-aurora": "nixos-aurora",
         "nixpkgs": "nixpkgs",
         "nixpkgs-musescore": "nixpkgs-musescore",
         "nixpkgs-xr": "nixpkgs-xr",

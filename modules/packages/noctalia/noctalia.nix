@@ -108,6 +108,11 @@
                 widget = lockWidgets;
               };
 
+              # Noctalia drives fprintd itself over D-Bus (keep pam_fprintd out
+              # of the `login` stack it authenticates against). Touch ID on the
+              # macbook: dotfiles.aurora.touchId.
+              lockscreen = lib.mkIf osConfig.dotfiles.aurora.touchId.enable { fingerprint = true; };
+
               notification.monitors = [ mainMon ];
               osd.monitors = [ mainMon ];
 
