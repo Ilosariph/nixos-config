@@ -12,7 +12,7 @@
   dotfiles.desktop.enable = true;
   dotfiles.programs.tmux.enable = false;
   dotfiles.programs.gnirehtet.enable = true;
-  dotfiles.windowManager.type = "umbriel";
+  dotfiles.windowManager.type = "niri";
   dotfiles.bluetooth.enable = true;
   dotfiles.security.yubikey.enable = true;
   dotfiles.windowManager.mainMonitor = "eDP-1";
