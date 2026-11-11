@@ -22,14 +22,21 @@
       # Desktops don't run sshd, so nothing generates a host key there. Create it
       # before sops-nix decrypts (also covers the very first activation on a fresh
       # install, before sshd's own keygen runs). sshd reuses it when enabled.
-      system.activationScripts.sopsHostKey = ''
-        if [ ! -s ${hostKey} ]; then
-          mkdir -p /etc/ssh
-          ${pkgs.openssh}/bin/ssh-keygen -q -t ed25519 -N "" -f ${hostKey}
-        fi
-      '';
-      # setupSecrets only exists when there are (non-neededForUsers) secrets.
-      system.activationScripts.setupSecrets.deps =
-        lib.mkIf (config.sops.secrets != { }) [ "sopsHostKey" ];
+      system.activationScripts = lib.mkMerge [
+        {
+          sopsHostKey = ''
+            if [ ! -s ${hostKey} ]; then
+              mkdir -p /etc/ssh
+              ${pkgs.openssh}/bin/ssh-keygen -q -t ed25519 -N "" -f ${hostKey}
+            fi
+          '';
+        }
+        # setupSecrets only exists when there are (non-neededForUsers) secrets.
+        # The mkIf must wrap the attr itself, or an empty setupSecrets (no text)
+        # is still defined.
+        (lib.mkIf (config.sops.secrets != { }) {
+          setupSecrets.deps = [ "sopsHostKey" ];
+        })
+      ];
     };
 }
