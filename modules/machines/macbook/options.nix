@@ -1,10 +1,12 @@
 { lib, pkgs, config, ... }:
 {
   dotfiles.kernel = "none";
-  dotfiles.asahiFairydust.enable = true;
-  # Aurora (Omarchy M) kernel + Touch ID, draft. Turn fairydust off first.
-  dotfiles.aurora.enable = false;
-  dotfiles.aurora.touchId.enable = false;
+  dotfiles.asahiFairydust.enable = false;
+  # Aurora (Omarchy M) kernel + Touch ID, draft (replaces fairydust).
+  dotfiles.aurora.enable = true;
+  # J293 calibration comes from the Hardware volume's FSCl record, not the raw
+  # iSC carve (local patch in aurora.nix).
+  dotfiles.aurora.touchId.enable = true;
   dotfiles.sops.enable = true;
   dotfiles.sops.host = "macbook";
   dotfiles.desktop.enable = true;
@@ -13,7 +15,6 @@
   dotfiles.windowManager.type = "umbriel";
   dotfiles.bluetooth.enable = true;
   dotfiles.security.yubikey.enable = true;
-  dotfiles.security.yubikey.sudo.enable = true;
   dotfiles.windowManager.mainMonitor = "eDP-1";
 	dotfiles.windowManager.statusbar = "noctalia";
   dotfiles.vpn = {
