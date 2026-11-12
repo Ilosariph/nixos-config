@@ -5,6 +5,7 @@
 #   Turnstile captcha per request, talks to this LAPI over docker0
 # - AppSec (WAF) on :7422, queried inline by the same plugin
 # Logs come from journald (docker's NixOS default log driver).
+# Also guards Immich on nucserver (behind newt): failed logins in traefik's log.
 { config, lib, pkgs, ... }:
 let
   stateDir = "/var/lib/crowdsec/state";
@@ -38,9 +39,40 @@ let
     "crowdsecurity/http-crawl-non_statics"
     "crowdsecurity/http-probing"
     "vps/pangolin-bf"
+    "vps/immich-bf"
   ];
+  # Second stage of the above: ban (escalating, see bf_ban profile).
+  bfBanScenarios = [ "vps/pangolin-bf-ban" "vps/immich-bf-ban" ];
+
+  # Immich behind newt: nuc only sees the tunnel, so detection and blocking
+  # happen here on traefik's access log. Failed logins answer 401.
+  immichDomain = config.dotfiles.private.domains.immich or null;
 
   secrets = config.sops.secrets;
+
+  immichBf = name: capacity: label: {
+    type = "leaky";
+    inherit name capacity;
+    description = "Brute force on Immich login";
+    filter = lib.concatStringsSep " && " ([
+      "evt.Meta.log_type == 'http_access-log'"
+      "evt.Meta.http_verb == 'POST'"
+      "evt.Meta.http_status == '401'"
+      "evt.Meta.http_path startsWith '/api/auth/login'"
+    ] ++ lib.optional (immichDomain != null) "evt.Meta.target_fqdn == '${immichDomain}'");
+    groupby = "evt.Meta.source_ip";
+    leakspeed = "1m";
+    blackhole = "5m";
+    labels = {
+      remediation = true;
+      service = "immich";
+      behavior = "http:bruteforce";
+      inherit label;
+      confidence = 3;
+      spoofable = 0;
+      classification = [ "attack.T1110" ];
+    };
+  };
 
   pangolinBf = name: capacity: label: {
     type = "leaky";
@@ -158,11 +190,13 @@ in
         ];
       }];
 
-      # Two stages on the same failed attempts (leak 1/min): captcha after 5,
+      # Pangolin + Immich, two stages on the same failed attempts (leak 1/min): captcha after 5,
       # ban after 10 (someone who solved the captcha and kept going).
       scenarios = [
         (pangolinBf "vps/pangolin-bf" 5 "Pangolin brute force")
         (pangolinBf "vps/pangolin-bf-ban" 10 "Pangolin brute force (past captcha)")
+        (immichBf "vps/immich-bf" 5 "Immich brute force")
+        (immichBf "vps/immich-bf-ban" 10 "Immich brute force (past captcha)")
       ];
 
       # Includes the VPS itself: its image pulls from the own registry go out
@@ -191,8 +225,8 @@ in
           # 2h, doubling for every earlier ban within 48h (like fail2ban's
           # bantime.increment), up to 32h. The count includes decisions of any
           # kind; each round is a captcha + a ban, so it goes in pairs.
-          name = "pangolin_ban";
-          filters = [ "Alert.Remediation == true && Alert.GetScope() == 'Ip' && Alert.GetScenario() == 'vps/pangolin-bf-ban'" ];
+          name = "bf_ban";
+          filters = [ "Alert.Remediation == true && Alert.GetScope() == 'Ip' && Alert.GetScenario() in ${builtins.toJSON bfBanScenarios}" ];
           decisions = [{ type = "ban"; duration = "2h"; }];
           duration_expr =
             let n = "GetDecisionsSinceCount(Alert.GetValue(), '48h')"; in

@@ -11,7 +11,7 @@ live in `private.nix` (`dotfiles.private.vps`), not in this repo.
 | `disko.nix` | disk layout (BIOS boot + 1G ESP + ext4 root, boots BIOS or UEFI), used by nixos-anywhere |
 | `hardware-configuration.nix` | virtio kernel modules |
 | `pangolin.nix` | Pangolin, Gerbil, Traefik as nix-declared containers + generated config |
-| `crowdsec.nix` | CrowdSec, firewall bouncer, Traefik bouncer key, AppSec, Pangolin login scenario |
+| `crowdsec.nix` | CrowdSec, firewall bouncer, Traefik bouncer key, AppSec, Pangolin + Immich login scenarios |
 | `backup.nix` | nightly restic backup to the storagebox (`restic-backup.timer`) |
 | `migration.nix`, `migration/` | one-off Ubuntu → NixOS migration helpers (off: `dotfiles.vps.migration.enable`) |
 | `modules/hosts/vps-test.nix` | throwaway rehearsal host, only defined while `private.nix` has `vps.test` |

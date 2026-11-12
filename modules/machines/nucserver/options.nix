@@ -15,7 +15,8 @@ in
   dotfiles.programs._1password.sshAgent = false;
   dotfiles.services.ssh.enable = true;
   dotfiles.services.ssh.authorizedKeys = config.dotfiles.private.ssh.authorizedKeys;
-  dotfiles.services.fail2ban.enable = true;
+  # sshd is covered by CrowdSec (crowdsec.nix).
+  dotfiles.services.fail2ban.enable = false;
   dotfiles.services.pullSwitch.enable = true;
   dotfiles.services.pangolinNewt = {
     enable = true;
