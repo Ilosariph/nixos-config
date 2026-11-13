@@ -340,10 +340,10 @@
         "vid-viewer": "vid-viewer"
       },
       "locked": {
-        "lastModified": 1793995151,
-        "narHash": "sha256-xxcclnflzC2C6dxKuR+NSz6VxvFWruo+IYrvLNykMFc=",
+        "lastModified": 1794605646,
+        "narHash": "sha256-Py6xY+BWzErPRbvBcVBy0aZcVrREb7djl2mGQkt53Gs=",
         "ref": "main",
-        "rev": "b31385b7e3643c2402c92b5eba62de2f4d2f36fb",
+        "rev": "f2d64acceda0b2b11469be4d3dcf25e83b198c73",
         "shallow": true,
         "type": "git",
         "url": "ssh://git@github.com/Ilosariph/nix-private.git"
@@ -358,10 +358,10 @@
     "nix-secrets": {
       "flake": false,
       "locked": {
-        "lastModified": 1794432534,
-        "narHash": "sha256-6G5nYBK7CPGvbVrjyZOLztCJECzdowuYWV5FcWAivig=",
+        "lastModified": 1794605578,
+        "narHash": "sha256-y8FITqkiWB6xmFrDdzlxf9G0HsHF8GtDMJCbvsVK5PY=",
         "ref": "main",
-        "rev": "f5fd49c60cdd2dc538e66fee8f9808db2b4b1b63",
+        "rev": "e0432589cfeaa8364a685a7800a4be1f37432dff",
         "shallow": true,
         "type": "git",
         "url": "ssh://git@github.com/Ilosariph/nix-secrets.git"
@@ -701,11 +701,11 @@
     "vid-finder": {
       "flake": false,
       "locked": {
-        "lastModified": 1793995052,
-        "narHash": "sha256-lqL/fbb0N8aPFEM7vctswEluJjN6KFo6xThCpRyaExI=",
+        "lastModified": 1794605621,
+        "narHash": "sha256-Rv4NOWa7Q5YFVymaMgGJ6mPQG3hSXsT+Y/JuSZuQ7xo=",
         "ref": "main",
-        "rev": "f8d5d9f84db053b96be3c01c185b5abe34fa4ae4",
-        "revCount": 4,
+        "rev": "c49c5c63c5b0ac717385b6db35b5c3b4aa5eb54a",
+        "revCount": 5,
         "type": "git",
         "url": "ssh://git@github.com/Ilosariph/vid-finder.git"
       },
