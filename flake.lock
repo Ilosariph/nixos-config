@@ -341,10 +341,10 @@
         "vid-viewer": "vid-viewer"
       },
       "locked": {
-        "lastModified": 1794664986,
-        "narHash": "sha256-UNCSccKSSssgLZhlb3auE7CAgwTXYl1djyuvHDssT2w=",
+        "lastModified": 1794666500,
+        "narHash": "sha256-JzNrFBSsTSBEoKEVWxQX8vE6/6gccN0J+8Kx/q1fhKI=",
         "ref": "main",
-        "rev": "b7f4ab0fc831c7322518929be7a33388277e60c9",
+        "rev": "1ca5ccb5a8b455d8db3458742e232eb844a508b8",
         "shallow": true,
         "type": "git",
         "url": "ssh://git@github.com/Ilosariph/nix-private.git"
