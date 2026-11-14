@@ -930,6 +930,12 @@
         defaultText = lib.literalExpression "[ private.lan.nas private.lan.nasV6 <cloudflare v4/v6> ]";
         description = "DNS nameservers.";
       };
+      lanHosts = lib.mkOption {
+        type = lib.types.listOf lib.types.str;
+        default = [ ];
+        example = [ "nucserver" "evo" ];
+        description = "Hosts from dotfiles.private.hosts to add to /etc/hosts, so e.g. http://nucserver:8080 resolves to its LAN IP.";
+      };
     };
   };
 }

@@ -10,6 +10,8 @@
   dotfiles.sops.enable = true;
   dotfiles.sops.host = "macbook";
   dotfiles.desktop.enable = true;
+  # Static /etc/hosts entries: off the home LAN these just fail to connect.
+  dotfiles.network.lanHosts = [ "nucserver" "evo" ];
   dotfiles.programs.tmux.enable = false;
   dotfiles.programs.gnirehtet.enable = true;
   dotfiles.windowManager.type = "niri";
