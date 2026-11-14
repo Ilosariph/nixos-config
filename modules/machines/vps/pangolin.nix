@@ -76,6 +76,11 @@ let
           };
         };
       };
+      # Internal-only raw TCP resources (Pangolin names their entrypoints tcp-<port>).
+      # Not published on gerbil: only containers on the pangolin/proxy networks reach
+      # them as gerbil:<port>, tunnelled via newt to the site's target.
+      tcp-8007.address = ":8007/tcp";
+      tcp-8095.address = ":8095/tcp";
     };
     serversTransport.insecureSkipVerify = true;
     ping.entryPoint = "web";
