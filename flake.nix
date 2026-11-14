@@ -108,7 +108,7 @@
     # Private (not secret) config: own tools, later work stuff. Also checked
     # out as the ./nix-private submodule for editing; build against that
     # checkout with ./build.sh --local-private. Imported on mainpc + macbook (tools),
-    # evo (nixosModules.evo: vid-finder search service).
+    # evo (nixosModules.evo: vid-finder search service), nucserver (nixosModules.nucserver).
     nix-private = {
       url = "git+ssh://git@github.com/Ilosariph/nix-private.git?ref=main&shallow=1";
       inputs.nixpkgs.follows = "nixpkgs";
