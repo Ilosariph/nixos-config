@@ -11,6 +11,7 @@
         networkmanager.enable = true;
         networkmanager.dns = "none";
         nameservers = cfg.nameservers;
+        hosts = lib.listToAttrs (map (h: lib.nameValuePair config.dotfiles.private.hosts.${h} [ h ]) cfg.lanHosts);
         useDHCP = lib.mkDefault (!hasStaticIP);
         defaultGateway = lib.mkIf hasStaticIP cfg.gateway;
         interfaces = lib.mkIf hasInterface {
