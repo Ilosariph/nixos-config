@@ -10,6 +10,7 @@
       inputs.home-manager.nixosModules.home-manager
       inputs.nix-index-database.nixosModules.nix-index
       inputs.disko.nixosModules.disko
+      inputs.nix-private.nixosModules.vps
       (inputs.import-tree ../machines/vps)
     ] ++ (builtins.attrValues config.flake.nixosModules) ++ [
       {
