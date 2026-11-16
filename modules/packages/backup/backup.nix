@@ -43,6 +43,7 @@
         # a local staging dir, exclude the live files from rsync, then copy the staged
         # ones over. Anchored excludes (/foo/) are pruned so excluded dirs stay out.
         STAGE=""
+        STAGED=()
         if [[ -n "$SQLITE" ]]; then
           STAGE=$(mktemp -d)
           trap 'rm -rf "$STAGE"' EXIT
@@ -57,6 +58,7 @@
             echo "SQLite backup: $rel"
             mkdir -p "$STAGE/$(dirname "$rel")"
             ${pkgs.sqlite}/bin/sqlite3 -cmd ".timeout 30000" "$db" ".backup '$STAGE/$rel'"
+            STAGED+=("$rel")
             for suffix in "" -wal -shm -journal; do EXCLUDES+=("--exclude=/$rel$suffix"); done
           done < <(find "$SRC_DIR" \( "''${PRUNE[@]}" -false \) -prune -o -type f \( -name '*.db' -o -name '*.sqlite' -o -name '*.sqlite3' \) -print0)
         fi
@@ -66,6 +68,11 @@
           mkdir -p "$DEST"
           ${pkgs.rsync}/bin/rsync -avh --no-owner --no-group --delete "''${EXCLUDES[@]}" "$SOURCE" "$DEST"
           [[ -n "$STAGE" ]] && ${pkgs.rsync}/bin/rsync -avh --no-owner --no-group "$STAGE/" "$DEST"
+          # --delete skips excluded paths, so -wal/-shm from older mirrors (live copies) would stay
+          # next to the clean .backup copy; on restore SQLite replays that stale WAL onto it.
+          for rel in "''${STAGED[@]}"; do
+            for suffix in -wal -shm -journal; do rm -f "$DEST/$rel$suffix"; done
+          done
           echo "Sync complete."
 
         elif [[ "$MODE" == "snapshot" ]]; then

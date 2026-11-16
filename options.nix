@@ -515,6 +515,13 @@
           description = "Enable Thonny Python IDE (includes dialout group for MicroPython board access).";
         };
       };
+      orcaSlicer = {
+        extraPrinterCerts = lib.mkOption {
+          type = lib.types.listOf lib.types.path;
+          default = [ ];
+          description = "Extra CA certificates appended to OrcaSlicer's bundled printer.cer, so LAN printers with self-signed TLS (e.g. virtual printers) are trusted.";
+        };
+      };
       steam = {
         enable = lib.mkOption {
           type = lib.types.bool;
