@@ -781,9 +781,9 @@
         description = "Enable sops-nix secret decryption.";
       };
       ageKeyFile = lib.mkOption {
-        type = lib.types.nullOr lib.types.str;
-        default = null;
-        description = "Optional extra age private key file for host decryption. Hosts normally decrypt with their SSH host key (/etc/ssh/ssh_host_ed25519_key); only set this as a fallback, never to a file holding YubiKey identity stubs.";
+        type = lib.types.str;
+        default = "/var/lib/sops-nix/key.txt";
+        description = "Host's post-quantum age identity (ML-KEM-768 + X25519, `age-keygen -pq`), generated at activation if missing; its recipient is written next to it as key.pub. Never point this at a file holding YubiKey identity stubs.";
       };
       host = lib.mkOption {
         type = lib.types.str;

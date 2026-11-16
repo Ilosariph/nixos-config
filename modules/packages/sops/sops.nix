@@ -1,41 +1,52 @@
 { inputs, ... }: {
-  # Hosts decrypt with their SSH host key (converted to age by sops-nix), so no
-  # age key file has to be copied onto machines. You edit with a YubiKey
-  # (age-plugin-yubikey). Recipients live in nix-secrets/.sops.yaml; see
+  # Hosts decrypt with their own post-quantum age identity (age-keygen -pq,
+  # ML-KEM-768 + X25519), generated at activation, so no key has to be copied
+  # onto machines. Recipients live in nix-secrets/.sops.yaml; see
   # docs/secrets.md.
   flake.nixosModules.sops = { config, lib, pkgs, ... }:
     let
-      hostKey = "/etc/ssh/ssh_host_ed25519_key";
+      cfg = config.dotfiles.sops;
+      keyFile = lib.escapeShellArg cfg.ageKeyFile;
+      pubFile = lib.escapeShellArg "${dirOf cfg.ageKeyFile}/key.pub";
+      hasUserSecrets = lib.any (s: s.neededForUsers) (lib.attrValues config.sops.secrets);
     in
-    lib.mkIf config.dotfiles.sops.enable {
+    lib.mkIf cfg.enable {
       # Per-host file: each host can only decrypt its own secrets (+ shared.yaml).
-      dotfiles.sops.defaultSecretsFile = lib.mkDefault "${inputs.nix-secrets}/hosts/${config.dotfiles.sops.host}.yaml";
+      dotfiles.sops.defaultSecretsFile = lib.mkDefault "${inputs.nix-secrets}/hosts/${cfg.host}.yaml";
       dotfiles.sops.sharedSecretsFile = lib.mkDefault "${inputs.nix-secrets}/shared.yaml";
-      sops.defaultSopsFile = config.dotfiles.sops.defaultSecretsFile;
-      sops.age.sshKeyPaths = [ hostKey ];
-      sops.age.keyFile = config.dotfiles.sops.ageKeyFile;
-      # Only the ed25519 host key is a recipient; skip the RSA/GPG import.
+      sops.defaultSopsFile = cfg.defaultSecretsFile;
+      sops.age.keyFile = cfg.ageKeyFile;
+      # No SSH host key import (classical X25519 / RSA).
+      sops.age.sshKeyPaths = [ ];
       sops.gnupg.sshKeyPaths = [ ];
 
-      environment.systemPackages = [ pkgs.ssh-to-age ];
+      environment.systemPackages = [ pkgs.age ];
 
-      # Desktops don't run sshd, so nothing generates a host key there. Create it
-      # before sops-nix decrypts (also covers the very first activation on a fresh
-      # install, before sshd's own keygen runs). sshd reuses it when enabled.
+      # Generate the key before sops-nix decrypts (also covers the very first
+      # activation on a fresh install).
       system.activationScripts = lib.mkMerge [
         {
-          sopsHostKey = ''
-            if [ ! -s ${hostKey} ]; then
-              mkdir -p /etc/ssh
-              ${pkgs.openssh}/bin/ssh-keygen -q -t ed25519 -N "" -f ${hostKey}
+          sopsAgeKey = ''
+            if [ ! -s ${keyFile} ]; then
+              mkdir -p "$(dirname ${keyFile})"
+              rm -f ${keyFile}
+              (umask 077; ${pkgs.age}/bin/age-keygen -pq -o ${keyFile} 2>/dev/null)
             fi
+            chmod 600 ${keyFile}
+            # Public recipient for ./secrets.sh recipient (not secret).
+            ${pkgs.age}/bin/age-keygen -y ${keyFile} > ${pubFile}.tmp
+            chmod 644 ${pubFile}.tmp
+            mv ${pubFile}.tmp ${pubFile}
           '';
         }
-        # setupSecrets only exists when there are (non-neededForUsers) secrets.
-        # The mkIf must wrap the attr itself, or an empty setupSecrets (no text)
-        # is still defined.
+        # setupSecrets / setupSecretsForUsers only exist when there are
+        # matching secrets. The mkIf must wrap the attr itself, or an empty one
+        # (no text) is still defined.
         (lib.mkIf (config.sops.secrets != { }) {
-          setupSecrets.deps = [ "sopsHostKey" ];
+          setupSecrets.deps = [ "sopsAgeKey" ];
+        })
+        (lib.mkIf hasUserSecrets {
+          setupSecretsForUsers.deps = [ "sopsAgeKey" ];
         })
       ];
     };

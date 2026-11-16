@@ -8,8 +8,9 @@
 #                via sops).
 #   update       Only bump the nix-secrets input (secrets changed elsewhere).
 #   recipient <host>
-#                Print a host's age recipient (its SSH ed25519 host key via
-#                ssh-to-age), for nix-secrets/.sops.yaml. "local" = this machine.
+#                Print a host's post-quantum age recipient (age1pq1…, from
+#                /var/lib/sops-nix/key.pub, written at activation), for
+#                nix-secrets/.sops.yaml. "local" = this machine.
 #   rekey        After editing .sops.yaml: re-encrypt every sops file to the
 #                current recipients (sops updatekeys), commit + push, bump lock.
 # Clone location: $NIX_SECRETS_DIR (default ~/nix-secrets). See docs/secrets.md.
@@ -61,11 +62,12 @@ case "$MODE" in
     update_lock
     ;;
   recipient)
+    PUB=/var/lib/sops-nix/key.pub
     HOST="${2:?usage: $0 recipient <host|local>}"
     if [[ "$HOST" == local ]]; then
-      ssh-to-age < /etc/ssh/ssh_host_ed25519_key.pub
+      cat "$PUB"
     else
-      ssh-keyscan -t ed25519 "$HOST" 2>/dev/null | cut -d" " -f2- | ssh-to-age
+      ssh -o LogLevel=error "$HOST" cat "$PUB"
     fi
     ;;
   rekey)

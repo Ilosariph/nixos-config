@@ -209,8 +209,8 @@ Machine-specific settings are defined via custom `dotfiles.*` options in `option
 
 ### Secrets Management
 
-Uses `sops-nix` with age encryption. Secrets live in the private repo `Ilosariph/nix-secrets`, consumed as the non-flake input `nix-secrets` (fetched via `git+ssh`, so the user's SSH key/agent authenticates — no PAT). Secrets are split per host so each host can only decrypt its own: `modules/packages/sops/sops.nix` defaults `dotfiles.sops.defaultSecretsFile` to `${inputs.nix-secrets}/hosts/${dotfiles.sops.host}.yaml` (each machine's options.nix sets `dotfiles.sops.host`). Secrets every host needs set `sopsFile = config.dotfiles.sops.sharedSecretsFile` (`shared.yaml`, currently empty). Repo layout:
-- `.sops.yaml` — sops config (recipients: YubiKeys, backup key, host keys; one creation rule per host file)
+Uses `sops-nix` with age encryption. Secrets live in the private repo `Ilosariph/nix-secrets`, consumed as the non-flake input `nix-secrets` (fetched via `git+ssh`, so the user's SSH key/agent authenticates — no PAT). Secrets are split per host so each host can only decrypt its own: `modules/packages/sops/sops.nix` defaults `dotfiles.sops.defaultSecretsFile` to `${inputs.nix-secrets}/hosts/${dotfiles.sops.host}.yaml` (each machine's options.nix sets `dotfiles.sops.host`). Secrets every host needs set `sopsFile = config.dotfiles.sops.sharedSecretsFile` (`shared.yaml`). Repo layout:
+- `.sops.yaml` — sops config (recipients: editor/YubiKey, backup and host keys; one creation rule per host file)
 - `hosts/<host>.yaml` — that host's secrets (encrypted to that host + you)
 - `shared.yaml` — secrets all hosts need
 
@@ -220,7 +220,7 @@ New secret: declare it in the host's module (default file) and add it with `./se
 
 Edit secrets with `./secrets.sh edit <host|shared|private.nix>` (pulls clone at `~/nix-secrets`, runs sops, commits + pushes, bumps `flake.lock`). Secrets changed elsewhere → `./secrets.sh update`. See `docs/secrets.md`.
 
-Keys: hosts decrypt with their SSH host key `/etc/ssh/ssh_host_ed25519_key` (`sops.age.sshKeyPaths`; generated at activation if missing, e.g. desktops without sshd). Editing uses YubiKeys via `age-plugin-yubikey` (identity stubs in `~/.config/sops/age/keys.txt`), plus an offline backup age key. Recipients are in `nix-secrets/.sops.yaml`; `./secrets.sh recipient <host>` prints a host's recipient, `./secrets.sh rekey` re-encrypts after changing them. A reinstalled host has a new host key → re-key (see `docs/secrets.md`).
+Keys: hosts decrypt with a post-quantum age key (`age-keygen -pq`) at `/var/lib/sops-nix/key.txt`, generated at activation (`dotfiles.sops.ageKeyFile`). Editing uses a PQ age key stored encrypted to the YubiKeys (`~/.config/sops/age/editor-pq.age`, fed to sops via `SOPS_AGE_KEY_CMD=sops-age-pq-key`), plus an offline PQ backup key. Recipients are in `nix-secrets/.sops.yaml`; `./secrets.sh recipient <host>` prints a host's recipient, `./secrets.sh rekey` re-encrypts after changing them. A reinstalled host has a new host key → re-key (see `docs/secrets.md`).
 
 ## Special Machines
 

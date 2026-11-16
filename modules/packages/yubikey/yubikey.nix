@@ -3,8 +3,21 @@
     let
       cfg = config.dotfiles.security.yubikey;
     in
+    let
+      # YubiKeys can't do ML-KEM, so the post-quantum editing identity
+      # (age-keygen -pq) lives encrypted to the YubiKeys; sops gets it through
+      # SOPS_AGE_KEY_CMD (PIN + touch per sops run). No file → no output, sops
+      # falls back to keys.txt. See docs/secrets.md.
+      sopsPqKey = pkgs.writeShellScriptBin "sops-age-pq-key" ''
+        dir="''${XDG_CONFIG_HOME:-$HOME/.config}/sops/age"
+        [ -f "$dir/editor-pq.age" ] || exit 0
+        exec ${pkgs.age}/bin/age -d -i "$dir/keys.txt" "$dir/editor-pq.age"
+      '';
+    in
     lib.mkIf cfg.enable {
+      environment.sessionVariables.SOPS_AGE_KEY_CMD = "${sopsPqKey}/bin/sops-age-pq-key";
       environment.systemPackages = with pkgs; [
+        sopsPqKey
         yubikey-manager        # ykman - general management CLI
         yubico-pam             # pamu2fcfg - register U2F keys for sudo
 				yubioath-flutter

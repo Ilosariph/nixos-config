@@ -65,59 +65,67 @@ decrypted only at activation (see Keys below).
 ## Keys
 
 sops encrypts one data key per recipient; **any one** recipient can decrypt.
+So a file is only post-quantum (PQ) safe once **every** recipient on it is PQ:
+the data is AES-256-GCM (fine), but X25519 / P-256 key wrapping falls to Shor,
+and a copy of the repo taken today could be decrypted later.
 
 | Recipient | Used for | Where the private key lives |
 |---|---|---|
-| Host SSH key (`ssh-to-age` of `/etc/ssh/ssh_host_ed25519_key.pub`) | Decrypt at activation | `/etc/ssh/ssh_host_ed25519_key` on that host |
-| YubiKey A / B (`age1yubikey1…`) | You editing (PIN + touch) | PIV slot, never leaves the key |
-| Backup age key (`age1…`) | Recovery if all YubiKeys are lost | Offline (paper / safe), **not** on disk |
+| Host PQ key (`age1pq1…`, `age-keygen -pq`) | Decrypt at activation | `/var/lib/sops-nix/key.txt` on that host (recipient in `key.pub`) |
+| Editor PQ key (`age1pq1…`) | You editing | `~/.config/sops/age/editor-pq.age`, encrypted to both YubiKeys |
+| Backup PQ key (`age1pq1…`) | Recovery if all YubiKeys are lost | Offline (paper / safe), **not** on disk |
 
-- `modules/packages/sops/sops.nix` sets `sops.age.sshKeyPaths` to the ed25519
-  host key and creates it at activation if missing (desktops don't run sshd).
+- `modules/packages/sops/sops.nix` generates the host PQ key at activation if
+  missing (`dotfiles.sops.ageKeyFile`, default `/var/lib/sops-nix/key.txt`,
+  0600) and writes its recipient to `key.pub` (0644). The SSH host key is
+  not a sops identity (classical X25519).
+- YubiKeys (`age-plugin-yubikey`, P-256 PIV) can't do ML-KEM, so the PQ
+  editing identity is an age file encrypted to the YubiKeys. The yubikey
+  module sets `SOPS_AGE_KEY_CMD=sops-age-pq-key`, which decrypts
+  `editor-pq.age` with the stubs in `keys.txt` (PIN + touch) and hands the
+  identity to sops in memory; without that file it prints nothing.
 - `~/.config/sops/age/keys.txt` on editing machines holds only YubiKey
-  identity **stubs** (`AGE-PLUGIN-YUBIKEY-…`, not secret); sops finds them
-  there and calls `age-plugin-yubikey` (installed by the yubikey module, needs
-  `pcscd`). Enable `dotfiles.security.yubikey` on any machine you edit from.
+  identity **stubs** (`AGE-PLUGIN-YUBIKEY-…`, not secret). Enable
+  `dotfiles.security.yubikey` on any machine you edit from (needs `pcscd`).
 - Don't point `dotfiles.sops.ageKeyFile` at that file: activation can't touch
-  a YubiKey. It's an optional fallback for a real age key only (default null).
+  a YubiKey.
 
 ### `.sops.yaml` (in nix-secrets)
+
+Target state (after the PQ switch):
 
 ```yaml
 keys:
   # you (editing)
-  - &yubikey_a age1yubikey1q...
-  - &yubikey_b age1yubikey1q...
-  - &backup    age1...
-  # hosts (./secrets.sh recipient <host>)
-  - &mainpc       age1...
-  - &laptop       age1...
-  - &macbook      age1...
-  - &evo          age1...
-  - &nucserver    age1...
-  - &laptopserver age1...
+  - &editor    age1pq1...   # editor-pq.age, encrypted to YubiKey A + B
+  - &backup    age1pq1...   # backup-pq.txt, stored offline
+  # hosts (./secrets.sh recipient <host|local>)
+  - &mainpc       age1pq1...
+  - &macbook      age1pq1...
+  - &evo          age1pq1...
+  - &vps          age1pq1...
+  - &nucserver    age1pq1...
+  # - &laptop       TODO_LAPTOP
+  # - &laptopserver TODO_LAPTOPSERVER
 creation_rules:
   # One file per host: only that host + you can decrypt it.
   - path_regex: hosts/mainpc\.yaml$
-    key_groups: [{ age: [*yubikey_a, *yubikey_b, *backup, *mainpc] }]
-  - path_regex: hosts/laptop\.yaml$
-    key_groups: [{ age: [*yubikey_a, *yubikey_b, *backup, *laptop] }]
+    key_groups: [{ age: [*editor, *backup, *mainpc] }]
   - path_regex: hosts/macbook\.yaml$
-    key_groups: [{ age: [*yubikey_a, *yubikey_b, *backup, *macbook] }]
+    key_groups: [{ age: [*editor, *backup, *macbook] }]
   - path_regex: hosts/evo\.yaml$
-    key_groups: [{ age: [*yubikey_a, *yubikey_b, *backup, *evo] }]
+    key_groups: [{ age: [*editor, *backup, *evo] }]
+  - path_regex: hosts/vps\.yaml$
+    key_groups: [{ age: [*editor, *backup, *vps] }]
   - path_regex: hosts/nucserver\.yaml$
-    key_groups: [{ age: [*yubikey_a, *yubikey_b, *backup, *nucserver] }]
-  - path_regex: hosts/laptopserver\.yaml$
-    key_groups: [{ age: [*yubikey_a, *yubikey_b, *backup, *laptopserver] }]
-  # Only secrets every host really needs (currently none).
+    key_groups: [{ age: [*editor, *backup, *nucserver] }]
+  # Only secrets every host really needs (docker-registry).
   - path_regex: shared\.yaml$
     key_groups:
-      - age: [*yubikey_a, *yubikey_b, *backup,
-              *mainpc, *laptop, *macbook, *evo, *nucserver, *laptopserver]
+      - age: [*editor, *backup, *mainpc, *macbook, *evo, *vps, *nucserver]
   # Parked secrets no host declares: you only.
   - path_regex: unused\.yaml$
-    key_groups: [{ age: [*yubikey_a, *yubikey_b, *backup] }]
+    key_groups: [{ age: [*editor, *backup] }]
 ```
 
 sops can't scope single keys inside one file, so isolation = one file per
@@ -136,16 +144,56 @@ declared secrets use).
 After any change: `./secrets.sh rekey` (runs `sops updatekeys` on every file,
 needs one of your keys), then rebuild/deploy.
 
+### Switch to post-quantum recipients (done 2026-11-16)
+
+Kept as reference for the order of operations.
+
+Order matters: a host must hold its PQ identity before its classical
+recipient is dropped, or activation can't decrypt.
+
+1. Build/deploy every sops host with this config (mainpc, macbook, evo, vps,
+   nucserver). Activation creates `/var/lib/sops-nix/key.{txt,pub}`; the
+   classical recipients keep working meanwhile.
+2. Editor key (on mainpc, YubiKeys A + B plugged in / at hand):
+   ```bash
+   cd ~/.config/sops/age
+   age-keygen -pq 2>editor-pq.pub | age -e \
+     -r "$(age-plugin-yubikey --list | grep -v '^#' | sed -n 1p)" \
+     -r "$(age-plugin-yubikey --list | grep -v '^#' | sed -n 2p)" \
+     -o editor-pq.age
+   # editor-pq.pub: "Public key: age1pq1…" → &editor
+   sops-age-pq-key | head -c 30   # test: PIN + touch, prints "# created: …"
+   ```
+   (`age-plugin-yubikey --list` only lists plugged-in keys: with one at a
+   time, take each key's `age1yubikey1…` from `.sops.yaml` instead.) Copy
+   `editor-pq.age` (encrypted, safe to sync) to the other editing machines.
+3. Backup key: `age-keygen -pq -o backup-pq.txt` on an offline machine,
+   store like the old backup, note its `age1pq1…` → `&backup`.
+4. Add the PQ recipients **next to** the old ones in `.sops.yaml`
+   (`./secrets.sh recipient <host>` per host), `./secrets.sh rekey`, commit
+   the lock, rebuild/deploy all hosts. Check each decrypts:
+   `systemctl status` of its secret consumers / `ls /run/secrets`.
+5. Remove the classical recipients (`age1yubikey1…`, old `&backup`, host
+   `age1…`), `./secrets.sh rekey`; check every file has only `age1pq1…`:
+   `grep -h 'recipient:' ~/nix-secrets/{hosts/*,shared,unused}.yaml | grep -vc age1pq1`
+   → `0`.
+6. Stop decrypting with the SSH host key (`sops.age.sshKeyPaths = [ ]`),
+   rebuild/deploy all hosts.
+7. Old classically wrapped copies stay in nix-secrets' git history (and in
+   every `/nix/store` that fetched it). Rekeying doesn't fix exposure that
+   already happened: rotate the actual values you care about.
+
 ### YubiKey setup (per key)
 
 ```bash
 age-plugin-yubikey            # interactive: pick slot, PIN policy, touch=always
-age-plugin-yubikey --list     # → recipient age1yubikey1… for .sops.yaml
+age-plugin-yubikey --list     # → recipient age1yubikey1… (encrypt editor-pq.age to it)
 age-plugin-yubikey --identity >> ~/.config/sops/age/keys.txt   # stub
 ```
 
-Repeat with the spare key. Copy `keys.txt` (stubs only) to other machines you
-edit from.
+Repeat with the spare key. Copy `keys.txt` (stubs only) and `editor-pq.age`
+to other machines you edit from. A new YubiKey: decrypt `editor-pq.age` with
+an old one and re-encrypt it to the new set; `.sops.yaml` doesn't change.
 
 ### Reinstalled host / new machine
 
@@ -159,10 +207,10 @@ decrypt until re-keyed (it boots; services needing secrets fail).
 deploy .#evo                     # or ./build.sh <host>
 ```
 
-To skip re-keying, back up the host key and restore it before the first
-rebuild (e.g. `nixos-anywhere --extra-files`). New machine: generate the key
-first (`ssh-keygen -t ed25519 -N "" -f /etc/ssh/ssh_host_ed25519_key`), add
-its recipient, rekey, then install.
+To skip re-keying, back up `/var/lib/sops-nix/key.txt` and restore it before
+the first activation (e.g. `nixos-anywhere --extra-files`). New machine:
+generate the key first (`age-keygen -pq -o <extra-files>/var/lib/sops-nix/key.txt`,
+mode 0600), add its recipient (`age-keygen -y`), rekey, then install.
 
 ## Repo layout (nix-secrets)
 
@@ -247,9 +295,12 @@ this repo's history. If you consider it exposed (on evo its `keys.txt` was mode 
 actual values.
 
 Open:
-- laptop, nucserver, laptopserver have no recipient/host file yet (commented
-  out in `.sops.yaml`). Before reactivating one: add its recipient + rule,
-  add it to the `shared.yaml` rule, `./secrets.sh rekey`.
+- laptop, laptopserver have no recipient/host file yet (commented out in
+  `.sops.yaml`). Before reactivating one: add its recipient + rule, add it to
+  the `shared.yaml` rule, `./secrets.sh rekey`.
+- Post-quantum switch done 2026-11-16 (steps 1–6). Step 7: values not
+  rotated yet; the classical YubiKey / backup / host recipients can still
+  decrypt nix-secrets commits before the PQ-only rekey.
 
 ## nix-private (private, not secret config)
 

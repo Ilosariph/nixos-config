@@ -78,6 +78,7 @@ Everything here is done while Ubuntu keeps running. Take your time.
    ```
    In `nix-secrets/.sops.yaml` add `- &vps age1...` under hosts and a rule
    `- path_regex: hosts/vps\.yaml$` / `key_groups: [{ age: [*yubikey_a, *yubikey_b, *backup, *vps] }]`.
+   *Since 2026-11-16 hosts decrypt with a post-quantum age key, not the SSH host key: for a new install pre-generate `/var/lib/sops-nix/key.txt` (`age-keygen -pq`) in the `--extra-files` dir and add its recipient; see `docs/secrets.md` → Reinstalled host / new machine.*
 
 3. **Secrets** (`./secrets.sh edit vps`):
 
@@ -147,6 +148,7 @@ as prod: its nightly `forget` would prune prod's snapshots).
    ```
    In `nix-secrets/.sops.yaml` add `- &vps_test age1...` and `*vps_test` to the
    `hosts/vps\.yaml` rule, then `./secrets.sh rekey`.
+   *Since 2026-11-16 hosts decrypt with a post-quantum age key, not the SSH host key: for a new install pre-generate `/var/lib/sops-nix/key.txt` (`age-keygen -pq`) in the `--extra-files` dir and add its recipient; see `docs/secrets.md` → Reinstalled host / new machine.*
 
 4. **Snapshot prod without stopping it:**
    ```bash

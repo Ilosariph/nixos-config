@@ -41,6 +41,7 @@ run `bash --norc` first.
 2. **sops recipient**: `ssh simon@$NUC cat /etc/ssh/ssh_host_ed25519_key.pub | nix run nixpkgs#ssh-to-age`,
    in `nix-secrets/.sops.yaml` uncomment `&nucserver` and its `hosts/nucserver\.yaml` rule
    (the install keeps the host key). No `shared.yaml` entry needed.
+   *Since 2026-11-16 hosts decrypt with a post-quantum age key, not the SSH host key: for a new install pre-generate `/var/lib/sops-nix/key.txt` (`age-keygen -pq`) in the `--extra-files` dir and add its recipient; see `docs/secrets.md` → Reinstalled host / new machine.*
 3. **Secrets** (`./secrets.sh edit nucserver`):
 
    | Key | Value |
