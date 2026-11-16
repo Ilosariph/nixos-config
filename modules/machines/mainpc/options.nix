@@ -121,7 +121,7 @@
   dotfiles.network = {
     hostname = "simon-mainpc";
     interface = "eno1";
-    lanHosts = [ "nucserver" "evo" ];
+    lanHosts = [ "nucserver" "evo" "vps" ];
   };
 
   dotfiles.shares = [

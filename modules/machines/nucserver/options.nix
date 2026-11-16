@@ -89,6 +89,6 @@ in
     staticIP = "${config.dotfiles.private.hosts.nucserver}/24";
     gateway = config.dotfiles.private.lan.gateway;
     wakeOnLan = true;
-    lanHosts = [ "evo" ];
+    lanHosts = [ "evo" "vps" ];
   };
 }
