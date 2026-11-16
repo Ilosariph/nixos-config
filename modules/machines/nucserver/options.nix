@@ -1,7 +1,7 @@
 { config, pkgs, ... }:
 let
   smb = name: config.sops.secrets."smb-${name}".path;
-  immich = "/home/docker-data/immich";
+  immich = "/home/simon/docker/immich";
   immichNas = "/mnt/immich-backup";
 in
 {
@@ -36,6 +36,9 @@ in
       mode = "sync";
       user = "root";
       sqlite = true;
+      # Immich has its own job (library sync + DB dump); live postgres files
+      # would be torn copies.
+      excludes = [ "/immich/library/" "/immich/db/" ];
     }
     {
       # Same NAS layout as the old backup-immich.sh cron job. thumbs and

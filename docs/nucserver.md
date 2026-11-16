@@ -13,8 +13,8 @@ Home server: Immich and other docker compose stacks, media and backups on the NA
 
 ## Day to day
 
-- Deploy: `deploy .#nucserver`. Stacks: `docker compose` in `/home/simon/docker/<stack>`
-  and `/home/docker-data/immich`.
+- Deploy: `deploy .#nucserver`. Stacks (Immich included): `docker compose` in
+  `/home/simon/docker/<stack>`.
 - Backups: `sudo systemctl start backup-immich` / `backup-docker-configs`.
 - CrowdSec: `sudo cscli metrics` (immich_server lines parsed?), `sudo cscli decisions list`.
   Bans here don't stop internet traffic (it arrives via newt); that's blocked on the VPS
