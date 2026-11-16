@@ -336,14 +336,15 @@
         "nixpkgs": [
           "nixpkgs"
         ],
+        "sortvids": "sortvids",
         "vid-finder": "vid-finder",
         "vid-viewer": "vid-viewer"
       },
       "locked": {
-        "lastModified": 1794605646,
-        "narHash": "sha256-Py6xY+BWzErPRbvBcVBy0aZcVrREb7djl2mGQkt53Gs=",
+        "lastModified": 1794610215,
+        "narHash": "sha256-GTM+4ey++7k05TKinrfP1VjmR/dC5Sut24j+4ViwJBA=",
         "ref": "main",
-        "rev": "f2d64acceda0b2b11469be4d3dcf25e83b198c73",
+        "rev": "f906d9c1b80d2a623f77c677305b8cfdbd0497ef",
         "shallow": true,
         "type": "git",
         "url": "ssh://git@github.com/Ilosariph/nix-private.git"
@@ -358,10 +359,10 @@
     "nix-secrets": {
       "flake": false,
       "locked": {
-        "lastModified": 1794605578,
-        "narHash": "sha256-y8FITqkiWB6xmFrDdzlxf9G0HsHF8GtDMJCbvsVK5PY=",
+        "lastModified": 1794607669,
+        "narHash": "sha256-/XPOrtISt+Ib87mp+Nh09baBtk45e+17wQZwnRRxzms=",
         "ref": "main",
-        "rev": "e0432589cfeaa8364a685a7800a4be1f37432dff",
+        "rev": "1e958bbc8331e0914d527470e2c0a3d465aa99d7",
         "shallow": true,
         "type": "git",
         "url": "ssh://git@github.com/Ilosariph/nix-secrets.git"
@@ -611,6 +612,23 @@
         "owner": "Mic92",
         "repo": "sops-nix",
         "type": "github"
+      }
+    },
+    "sortvids": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1794608438,
+        "narHash": "sha256-d/WywnliVNX10Ndyok2DijRS+D7Vql2KtJddd8KiXyA=",
+        "ref": "master",
+        "rev": "4e36986330ef94a2d06ddb9cc4ddfe31015b498c",
+        "revCount": 21,
+        "type": "git",
+        "url": "ssh://git@github.com/Ilosariph/sortvids.git"
+      },
+      "original": {
+        "ref": "master",
+        "type": "git",
+        "url": "ssh://git@github.com/Ilosariph/sortvids.git"
       }
     },
     "systems": {
