@@ -218,6 +218,7 @@
           default = false;
           description = "Nous Research Hermes agent (Discord input + local llama.cpp backend).";
         };
+        githubProxy.enable = lib.mkEnableOption "fetch-only GitHub proxy for Hermes (token held by the proxy, push refused)";
       };
       nixEval = {
         enable = lib.mkOption {
