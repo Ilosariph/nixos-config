@@ -52,7 +52,7 @@ ssh-keygen -t ed25519 -N "" -C "evo nix-eval (read-only)" -f /tmp/nix-secrets-de
 #   nix-secrets-deploy-key: |
 #     <contents of /tmp/nix-secrets-deploy, indented>
 rm /tmp/nix-secrets-deploy /tmp/nix-secrets-deploy.pub
-deploy .#evo
+./deploy.sh .#evo
 ```
 
 Scope: the key can read nix-secrets only (sops files, still encrypted, +
@@ -204,7 +204,7 @@ decrypt until re-keyed (it boots; services needing secrets fail).
 ./secrets.sh recipient evo       # or `local` on the machine itself
 # replace evo's entry in ~/nix-secrets/.sops.yaml
 ./secrets.sh rekey
-deploy .#evo                     # or ./build.sh <host>
+./deploy.sh .#evo                # or ./build.sh <host>
 ```
 
 To skip re-keying, back up `/var/lib/sops-nix/key.txt` and restore it before

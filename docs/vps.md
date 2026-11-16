@@ -18,7 +18,7 @@ live in `private.nix` (`dotfiles.private.vps`), not in this repo.
 
 ## Day to day
 
-- Deploy: `deploy .#vps` (from mainpc; SSH as `simon`, root login is off).
+- Deploy: `./deploy.sh .#vps` (from mainpc; SSH as `simon`, root login is off).
 - Docker stacks: still `docker compose` in `/docker/compose/<stack>`. `simon` is in the `docker` group.
 - Pangolin/Gerbil/Traefik: managed by nix, not compose. Update = bump the tag in
   `images` (or `badgerVersion`) at the top of `pangolin.nix`, deploy. Logs:
@@ -179,7 +179,7 @@ as prod: its nightly `forget` would prune prod's snapshots).
 7. **Check** the same list as in "Switching" step 5. Sites: DNS still points
    at prod, so add the domains to `/etc/hosts` on mainpc pointing at `$TEST`
    (or `curl --resolve <host>:443:$TEST https://<host>`). Newt sites keep
-   talking to prod. Also try `deploy .#vps-test` once.
+   talking to prod. Also try `./deploy.sh .#vps-test` once.
 
 8. **Clean up:** `sudo restic-vps forget --prune <id>` (id from `sudo restic-vps snapshots --tag nixos-migration-test`; `forget` needs ids or a policy, a tag alone removes nothing)
    (on the test server or later on prod), remove `vps.test` from `private.nix`,
@@ -255,7 +255,7 @@ Set `dotfiles.vps.migration.enable = true;` in `options.nix` first (step 4 needs
      `sudo systemctl start restic-backup && journalctl -u restic-backup -f`
      (first run on the new hostname has no parent snapshot: reads all of `/docker`
      again, uploads little). Discord only hears about failures.
-   - from mainpc: `deploy .#vps` works (deploy-rs, no-op change is fine)
+   - from mainpc: `./deploy.sh .#vps` works (deploy-rs, no-op change is fine)
    - one `sudo reboot`: all containers come back on their own (`docker ps -a --filter status=exited`)
 
 ## After switching

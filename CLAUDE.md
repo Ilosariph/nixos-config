@@ -32,18 +32,19 @@ nh os switch . -H nucserver -a   # show diff, ask before activating
 
 ### Deploying Remote Machines (deploy-rs)
 
-Remote servers (evo, nucserver, vps) are deployed from mainpc using deploy-rs:
+Remote servers (evo, nucserver, vps) are deployed from mainpc with `./deploy.sh`, which builds the closure, signs it with mainpc's nix signing key (`sudo nix store sign`), then runs deploy-rs. Don't call bare `deploy`: it skips signing, so targets can reject the paths.
 
 ```bash
-deploy .#evo          # Deploy evo
-deploy .#nucserver    # Deploy nucserver
-deploy .#vps          # Deploy vps (public IP from private.nix)
-deploy .              # Deploy all enabled nodes
+./deploy.sh .#evo          # Deploy evo
+./deploy.sh .#nucserver    # Deploy nucserver
+./deploy.sh .#vps          # Deploy vps (public IP from private.nix)
+./deploy.sh --safe .#evo   # Cap build parallelism for RAM-heavy from-source builds
+./deploy.sh all            # All deploy nodes: build together, sign, deploy one by one, stop at first failure
 ```
 
 To add a machine as a deploy target, set `dotfiles.deploy.target.enable = true` in its options.nix. The hostname is auto-derived from `dotfiles.network.staticIP` or `dotfiles.network.hostname`; set `dotfiles.deploy.target.hostname` explicitly if neither is set.
 
-The `deploy` binary is installed on mainpc via `dotfiles.deploy.deployer.installTool = true`.
+The `deploy` binary (called by `deploy.sh`) is installed on mainpc via `dotfiles.deploy.deployer.installTool = true`.
 
 ### On-host pull + switch (pull-switch)
 

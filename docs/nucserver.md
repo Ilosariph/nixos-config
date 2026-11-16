@@ -13,7 +13,7 @@ Home server: Immich and other docker compose stacks, media and backups on the NA
 
 ## Day to day
 
-- Deploy: `deploy .#nucserver`. Stacks (Immich included): `docker compose` in
+- Deploy: `./deploy.sh .#nucserver`. Stacks (Immich included): `docker compose` in
   `/home/simon/docker/<stack>`.
 - Backups: `sudo systemctl start backup-immich` / `backup-docker-configs`.
 - CrowdSec: `sudo cscli metrics` (immich_server lines parsed?), `sudo cscli decisions list`.
@@ -128,7 +128,7 @@ step 6 above refines it). Avoid 03:00, the backup jobs run then.
    - Immich: old photo opens, new upload from the phone works, `docker logs immich_server 2>&1 | grep -iE 'EACCES|permission'` is empty
    - host-networked containers reach their LAN devices and are reachable (firewall)
    - first backups by hand: `sudo systemctl start backup-docker-configs backup-immich`
-   - `deploy .#nucserver`, then one more `sudo reboot`: everything back on its own
+   - `./deploy.sh .#nucserver`, then one more `sudo reboot`: everything back on its own
 
 6. **Cut over public access**: point the DNS name of each old tunnel route at Pangolin
    (replace the record, DNS only), delete the old tunnel.
