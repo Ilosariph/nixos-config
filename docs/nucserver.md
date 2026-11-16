@@ -7,6 +7,7 @@ Home server: Immich and other docker compose stacks, media and backups on the NA
 |---|---|
 | `options.nix` | dotfiles options: network, shares, newt, backup jobs (stacks, Immich), deploy |
 | `configuration.nix` | firewall, sshd hardening, docker, user password, secrets |
+| `crowdsec.nix` | CrowdSec + firewall bouncer: sshd (no fail2ban here), Immich failed logins |
 | `disko.nix` | GPT: BIOS boot + ESP + LUKS/ext4 root, boots BIOS or UEFI |
 | `migration.nix`, `migration/` | one-off Ubuntu → NixOS helpers (`dotfiles.nucserver.migration.enable`) |
 
@@ -15,6 +16,9 @@ Home server: Immich and other docker compose stacks, media and backups on the NA
 - Deploy: `deploy .#nucserver`. Stacks: `docker compose` in `/home/simon/docker/<stack>`
   and `/home/docker-data/immich`.
 - Backups: `sudo systemctl start backup-immich` / `backup-docker-configs`.
+- CrowdSec: `sudo cscli metrics` (immich_server lines parsed?), `sudo cscli decisions list`.
+  Bans here don't stop internet traffic (it arrives via newt); that's blocked on the VPS
+  (`vps/immich-bf`, needs `domains.immich` in private.nix to scope it to Immich).
 - Reboots are unattended: the TPM unlocks LUKS. If it stops doing that (TPM cleared,
   board replaced) a keyboard + monitor on the box is needed for the passphrase;
   afterwards re-enroll: `sudo systemd-cryptenroll --tpm2-device=auto --tpm2-pcrs= /dev/disk/by-partlabel/disk-main-root`.
