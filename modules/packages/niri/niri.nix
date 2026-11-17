@@ -386,7 +386,7 @@
 
               // Core bindings
               Mod+Q hotkey-overlay-title="Open a Terminal: kitty" { spawn "kitty"; }
-              Mod+E hotkey-overlay-title="Yazi file manager" { spawn "kitty" "-e" "yazi"; }
+              Mod+E hotkey-overlay-title="File manager: ${osConfig.dotfiles.desktop.fileManager}" { spawn ${lib.concatMapStringsSep " " builtins.toJSON osConfig.dotfiles.desktop.fileManagerCommand}; }
               Mod+SPACE hotkey-overlay-title="Menu" {
                 ${if osConfig.dotfiles.windowManager.statusbar == "noctalia"
                   then ''spawn-sh "noctalia msg panel-toggle launcher"''

@@ -7,6 +7,38 @@
         default = false;
         description = "Enable desktop environment (audio, printing, flatpak, GUI programs, window manager).";
       };
+      fileManager = lib.mkOption {
+        type = lib.types.enum [ "luciole" "dolphin" "yazi" ];
+        default = "yazi";
+        description = "Default file manager (inode/directory handler, Mod+E, udiskie).";
+      };
+      greeter = lib.mkOption {
+        type = lib.types.enum [ "noctalia" "tuigreet" ];
+        default = "noctalia";
+        description = "greetd login greeter: noctalia-greeter (graphical) or tuigreet.";
+      };
+      fileManagerCommand = lib.mkOption {
+        type = lib.types.listOf lib.types.str;
+        internal = true;
+        readOnly = true;
+        default = {
+          luciole = [ "luciole" ];
+          dolphin = [ "dolphin" ];
+          yazi = [ "kitty" "-e" "yazi" ];
+        }.${config.dotfiles.desktop.fileManager};
+        description = "Command (argv) launching the selected file manager.";
+      };
+      fileManagerDesktopFile = lib.mkOption {
+        type = lib.types.str;
+        internal = true;
+        readOnly = true;
+        default = {
+          luciole = "dev.noctalia.luciole.desktop";
+          dolphin = "org.kde.dolphin.desktop";
+          yazi = "yazi.desktop";
+        }.${config.dotfiles.desktop.fileManager};
+        description = "Desktop entry of the selected file manager.";
+      };
     };
 
     user = {
@@ -304,6 +336,11 @@
           Directory containing wallpaper image files. Imported into the nix store
           so all consumers (noctalia, etc.) read from the same store path.
         '';
+      };
+      greeter = lib.mkOption {
+        type = lib.types.path;
+        default = config.dotfiles.wallpapers.directory + "/nice-blue-background.png";
+        description = "Wallpaper shown on the noctalia login greeter.";
       };
     };
     security = {

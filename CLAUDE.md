@@ -179,6 +179,8 @@ Every file in `modules/packages/` is a **flake-parts module**:
 Machine-specific settings are defined via custom `dotfiles.*` options in `options.nix`:
 
 - **`dotfiles.desktop.enable`**: Enable desktop environment (audio, printing, flatpak, GUI programs, WM)
+- **`dotfiles.desktop.fileManager`**: `"yazi"` (default), `"luciole"` or `"dolphin"` — mime default, `Mod+E`, udiskie
+- **`dotfiles.desktop.greeter`**: `"noctalia"` (default, nixpkgs `services.displayManager.noctalia-greeter`) or `"tuigreet"` — `modules/packages/greetd/greetd.nix`; noctalia greeter uses `dotfiles.wallpapers.greeter`, pinned to `windowManager.mainMonitor`
 - **`dotfiles.windowManager.type`**: `"niri"` (default) or `"umbriel"`
 - **`dotfiles.windowManager.*`**: Monitor layouts, statusbar, keybindings (QWERTY/Colemak), mouse settings
 - **`dotfiles.services.ssh.enable`**: Enable OpenSSH (server machines)

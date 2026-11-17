@@ -121,7 +121,7 @@
         inputs.nix-flatpak.homeManagerModules.nix-flatpak
       ];
 
-      home-manager.users.${config.dotfiles.user.name} = { lib, pkgs, config, ... }: {
+      home-manager.users.${config.dotfiles.user.name} = { lib, pkgs, config, osConfig, ... }: {
         # jellyfin-mpv-shim: mpv.conf sets the screenshot filename template,
         # input.conf binds `e` to screenshot (matching the standalone mpv bind).
         # The screenshot *directory* can't be set here — the shim overrides
@@ -151,7 +151,7 @@
               browser = [ "firefox.desktop" ];
               imgViewer = [ "com.interversehq.qView.desktop" ];
               vidViewer = [ "mpv.desktop" ];
-              fileManager = [ "org.kde.dolphin.desktop" ];
+              fileManager = [ osConfig.dotfiles.desktop.fileManagerDesktopFile ];
               audioPlayer = [ "mpv.desktop" ];
               textEditor = [ "zed.desktop" ];
               archiveManager = [ "org.kde.dolphin.desktop" ];

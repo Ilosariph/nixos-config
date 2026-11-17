@@ -39,7 +39,7 @@ Generated from the `dotfiles.windowManager` options in
 | Shortcut | Action |
 |----------|--------|
 | `Mod + Q` | Open terminal (kitty) |
-| `Mod + E` | Open file manager (yazi) |
+| `Mod + E` | Open file manager (`dotfiles.desktop.fileManager`, default yazi) |
 | `Mod + Space` | Open app launcher (wofi / noctalia launcher) |
 | `Mod + Shift + /` | Show hotkey overlay (all bindings) |
 | `Mod + /` | Keybind cheatsheet *(noctalia statusbar only)* |

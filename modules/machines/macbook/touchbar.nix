@@ -1,4 +1,4 @@
-{ pkgs, inputs, config, ... }:
+{ pkgs, lib, inputs, config, ... }:
 let
   dfrdPkg = inputs.dfrd.packages.${pkgs.stdenv.hostPlatform.system}.default;
 
@@ -78,7 +78,7 @@ in
           Keys = [
             { Text = "Firefox"; Action = { Exec = "firefox"; }; }
             { Text = "Term";    Action = { Exec = "kitty"; }; }
-            { Text = "Yazi";    Action = { Exec = "kitty -e yazi"; }; }
+            { Text = "Files";   Action = { Exec = lib.concatStringsSep " " config.dotfiles.desktop.fileManagerCommand; }; }
           ];
         }
       ];

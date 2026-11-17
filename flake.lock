@@ -275,6 +275,26 @@
         "type": "github"
       }
     },
+    "luciole": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1794889510,
+        "narHash": "sha256-k7qcGqJnMBDmd4Ww8iPmRscD04tF76ZauU1z3s3xfsg=",
+        "owner": "noctalia-dev",
+        "repo": "luciole",
+        "rev": "b40c96336d97a15a3874bc93cb7b61627aeb3563",
+        "type": "github"
+      },
+      "original": {
+        "owner": "noctalia-dev",
+        "repo": "luciole",
+        "type": "github"
+      }
+    },
     "motorized-faders": {
       "inputs": {
         "nixpkgs": [
@@ -579,6 +599,7 @@
         "home-manager": "home-manager",
         "import-tree": "import-tree",
         "linux-asahi-fairydust": "linux-asahi-fairydust",
+        "luciole": "luciole",
         "motorized-faders": "motorized-faders",
         "nix-flatpak": "nix-flatpak",
         "nix-index-database": "nix-index-database",

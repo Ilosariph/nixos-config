@@ -198,7 +198,7 @@
 
               # Core bindings
               "Mod+Q" = once "spawn:kitty";
-              "Mod+E" = once "spawn:kitty -e yazi";
+              "Mod+E" = once "spawn:${lib.concatStringsSep " " osConfig.dotfiles.desktop.fileManagerCommand}";
               "Mod+Space" = once launcherAction;
               "Mod+Escape" = once lockAction;
 
