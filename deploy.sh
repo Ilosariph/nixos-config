@@ -9,16 +9,21 @@ usage() {
   echo "  e.g. $0 .#evo"
   echo "  all     every deploy-rs node (flake .#deploy.nodes): build all closures"
   echo "          at once, sign, then deploy one host at a time, stop at the first failure"
-  echo "  --safe  cap build parallelism (--max-jobs 2 --cores 8), for large from-source"
+  echo "  --safe  cap build parallelism (--max-jobs 4 --cores 8), for large from-source"
   echo "          builds (onnxruntime, duckdb, ...) that exhaust RAM with the defaults"
   exit 1
 }
 
 BUILD_ARGS=()
-if [[ "${1:-}" == "--safe" ]]; then
-  BUILD_ARGS=(--max-jobs 2 --cores 8)
-  shift
-fi
+ARGS=()
+for a in "$@"; do
+  if [[ "$a" == "--safe" ]]; then
+    BUILD_ARGS=(--max-jobs 4 --cores 8)
+  else
+    ARGS+=("$a")
+  fi
+done
+set -- "${ARGS[@]+"${ARGS[@]}"}"
 
 [[ $# -eq 0 ]] && usage
 
