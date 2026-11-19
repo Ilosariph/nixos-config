@@ -11,6 +11,8 @@
 
       services.motorized-faders = {
         enable = true;
+        # Fader 3 on the Media layer sets web page playback speed.
+        firefoxExtension = true;
         # Explicit layers fix the G1 + F1/F4 order (Audio first, active on
         # start); without them plugins would sort alphabetically.
         layers = [
@@ -90,8 +92,12 @@
             name = "Media";
             # Whichever player is playing (Spotify, Plezy, a browser). Fader 1
             # is its own stream volume, buttons F2/F3/F4 previous, play/pause,
-            # next. Last in the list: one G1 + F1 back from Audio.
-            extensions.media = { };
+            # next. Last in the list: one G1 + F1 back from Audio. Fader 3
+            # sets playback speed (button still plays / pauses).
+            extensions.media = {
+              speed_min = 0.25;
+              speed_max = 3.5;
+            };
           }
         ];
       };
