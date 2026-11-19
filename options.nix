@@ -849,7 +849,7 @@
       description = ''
         Kernel variant to use.
         default: linuxPackages_latest (upstream latest)
-        stable: linuxPackages_6_6 (6.6 LTS, for servers)
+        stable: linuxPackages_6_18 (6.18 LTS, for servers)
         gaming: linuxPackages_xanmod_latest (XanMod gaming kernel)
         none: do not set boot.kernelPackages (for machines with special kernels, e.g. macbook)
       '';

@@ -53,7 +53,7 @@
       (
         {
           default = pkgs.linuxPackages_latest;
-          stable = pkgs.linuxPackages_6_6;
+          stable = pkgs.linuxPackages_6_18;
           gaming = pkgs.linuxPackages_xanmod_latest;
         }.${config.dotfiles.kernel}
       ).extend (_: kprev: {
