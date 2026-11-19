@@ -97,6 +97,8 @@
             extensions.media = {
               speed_min = 0.25;
               speed_max = 3.5;
+              # Pulled to every 0.25x when let go near one.
+              speed_increment = 0.25;
             };
           }
         ];
