@@ -39,7 +39,9 @@
   dotfiles.programs.yeetmouse.enable = true;
   dotfiles.programs.motorizedFaders.enable = true;
   dotfiles.programs.wol.enable = true;
-  dotfiles.programs.agentsDeck.enable = true;
+  # The Waveshare board runs AgentDeck now; agents deck holds the same serial port.
+  dotfiles.programs.agentsDeck.enable = false;
+  dotfiles.programs.agentDeck.enable = true;
   dotfiles.bluetooth.enable = true;
   dotfiles.security.yubikey.enable = true;
   dotfiles.security.yubikey.sudo.enable = true;

@@ -118,6 +118,14 @@
       flake = false;
     };
 
+    # AgentDeck (Claude Code controller daemon + ESP32 firmware): own fork with
+    # the Waveshare 3.49 port, voice drafts and Linux/tmux fixes. Source only;
+    # built in modules/packages/agentdeck. https://github.com/Ilosariph/AgentDeck
+    agentdeck = {
+      url = "github:Ilosariph/AgentDeck/waveshare-349";
+      flake = false;
+    };
+
     # Private (not secret) config: own tools, later work stuff. Also checked
     # out as the ./nix-private submodule for editing; build against that
     # checkout with ./build.sh --local-private. Imported on mainpc + macbook (tools),

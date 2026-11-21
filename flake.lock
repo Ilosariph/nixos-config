@@ -1,5 +1,22 @@
 {
   "nodes": {
+    "agentdeck": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1795302944,
+        "narHash": "sha256-+G7qxGVrLYO16pSHN4+3VG1LwNv1D5dO66kgsNnrj7g=",
+        "owner": "Ilosariph",
+        "repo": "AgentDeck",
+        "rev": "f1e15f63feb6c5c26b85675c0a42f0a7b006e42e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "Ilosariph",
+        "ref": "waveshare-349",
+        "repo": "AgentDeck",
+        "type": "github"
+      }
+    },
     "agents-deck": {
       "flake": false,
       "locked": {
@@ -607,6 +624,7 @@
     },
     "root": {
       "inputs": {
+        "agentdeck": "agentdeck",
         "agents-deck": "agents-deck",
         "apple-silicon": "apple-silicon",
         "comfyui-nix": "comfyui-nix",
