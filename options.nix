@@ -580,6 +580,13 @@
           description = "Enable the motorized fader controller host (user service binding faders to PipeWire sinks).";
         };
       };
+      agentsDeck = {
+        enable = lib.mkOption {
+          type = lib.types.bool;
+          default = false;
+          description = "Enable agents deck host (agentctl + user service, udev rules for ESP32 boards).";
+        };
+      };
       yeetmouse = {
         enable = lib.mkOption {
           type = lib.types.bool;

@@ -39,6 +39,7 @@
   dotfiles.programs.yeetmouse.enable = true;
   dotfiles.programs.motorizedFaders.enable = true;
   dotfiles.programs.wol.enable = true;
+  dotfiles.programs.agentsDeck.enable = true;
   dotfiles.bluetooth.enable = true;
   dotfiles.security.yubikey.enable = true;
   dotfiles.security.yubikey.sudo.enable = true;

@@ -110,6 +110,14 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # agents deck (status board for Claude Code agents): own fork with the
+    # Waveshare 3.49 board fixes and push-to-talk. Source only; built in
+    # modules/packages/agents-deck. https://github.com/Ilosariph/agents-deck
+    agents-deck = {
+      url = "github:Ilosariph/agents-deck/waveshare-349-voice";
+      flake = false;
+    };
+
     # Private (not secret) config: own tools, later work stuff. Also checked
     # out as the ./nix-private submodule for editing; build against that
     # checkout with ./build.sh --local-private. Imported on mainpc + macbook (tools),
