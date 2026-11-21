@@ -54,7 +54,7 @@ in
       set -euo pipefail
       HC=${lib.escapeShellArg (config.dotfiles.private.vps.backupHealthcheckUrl or "")}   # healthchecks.io ping URL (empty = disabled)
       DISCORD_WEBHOOK=$(cat ${secrets.backup-discord-webhook.path})
-      DISCORD_NOTIFY="fail"    # comma-separated events to send: fail,start,success
+      DISCORD_NOTIFY="fail,partial"    # comma-separated events to send: fail,partial,start,success
 
       DUMPS=/root/db-dumps
 
@@ -84,6 +84,15 @@ in
       }
       trap 'on_fail $LINENO "$BASH_COMMAND"' ERR
 
+      # Stopped DB containers are skipped (rest still backed up), reported as partial at the end.
+      SKIPPED=()
+      running() {
+          [ "$(docker inspect -f '{{.State.Running}}' "$1" 2>/dev/null)" = true ] && return 0
+          echo "WARN: container $1 not running, skipping its dump"
+          SKIPPED+=("$1")
+          return 1
+      }
+
       ping_hc /start
       notify start 3447003 "▶️ Backup started on $(hostname)" ""
 
@@ -93,16 +102,20 @@ in
 
       # Postgres (superuser = POSTGRES_USER of the container)
       for c in dawarich_db umami-db-1; do
+          running "$c" || continue
           docker exec "$c" sh -c 'pg_dumpall -U "$POSTGRES_USER"' > "$DUMPS/$c.sql"
       done
 
       # MariaDB
       for c in shlink_db FileDrop-DB; do
+          running "$c" || continue
           docker exec "$c" sh -c 'MYSQL_PWD="$MARIADB_ROOT_PASSWORD" mariadb-dump -uroot --all-databases --single-transaction --routines --events' > "$DUMPS/$c.sql"
       done
 
       # MongoDB (no auth)
-      docker exec monkeytype-mongodb mongodump --archive --quiet > "$DUMPS/monkeytype-mongodb.archive"
+      if running monkeytype-mongodb; then
+          docker exec monkeytype-mongodb mongodump --archive --quiet > "$DUMPS/monkeytype-mongodb.archive"
+      fi
 
       # SQLite: consistent online copy of every live DB under /docker/data and
       # /docker/important (Pangolin's db.sqlite), skipping app-made backup dirs
@@ -130,9 +143,15 @@ in
       fi
 
       ping_hc ""
-      notify success 3066993 "✅ Backup finished on $(hostname)" \
-          "$(printf 'Took %dm %ds\n%s' $((SECONDS / 60)) $((SECONDS % 60)) \
-              "$(grep -E '^(Files:|Added to the repository:|snapshot [0-9a-f]+ saved)' "$LOG" || true)")"
+      STATS=$(grep -E '^(Files:|Added to the repository:|snapshot [0-9a-f]+ saved)' "$LOG" || true)
+      if [ ''${#SKIPPED[@]} -gt 0 ]; then
+          notify partial 15105570 "⚠️ Backup partial on $(hostname)" \
+              "$(printf 'DB dumps skipped (container not running): %s\nTook %dm %ds\n%s' \
+                  "''${SKIPPED[*]}" $((SECONDS / 60)) $((SECONDS % 60)) "$STATS")"
+      else
+          notify success 3066993 "✅ Backup finished on $(hostname)" \
+              "$(printf 'Took %dm %ds\n%s' $((SECONDS / 60)) $((SECONDS % 60)) "$STATS")"
+      fi
     '';
   };
 
