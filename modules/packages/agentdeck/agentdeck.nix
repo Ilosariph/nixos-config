@@ -93,7 +93,7 @@
     in
     lib.mkIf config.dotfiles.programs.agentDeck.enable {
       home-manager.users.${config.dotfiles.user.name} = { ... }: {
-        home.packages = [ agentdeck pkgs.tmux ];
+        home.packages = [ agentdeck pkgs.tmux pkgs.playerctl ];
 
         systemd.user.services.agentdeck = {
           Unit = {
@@ -104,9 +104,10 @@
             ExecStartPre = "${syncSettings}";
             ExecStart = "${lib.getExe agentdeck} daemon start --foreground";
             Restart = "on-failure";
-            # tmux (voice + permission answers), ps (session discovery), user tools.
+            # tmux (voice + permission answers), ps (session discovery),
+            # playerctl + busctl (MEDIA page: MPRIS players, speed), user tools.
             Environment = [
-              "PATH=${lib.makeBinPath [ pkgs.tmux pkgs.procps pkgs.coreutils ]}:/etc/profiles/per-user/${config.dotfiles.user.name}/bin:/run/current-system/sw/bin"
+              "PATH=${lib.makeBinPath [ pkgs.tmux pkgs.procps pkgs.coreutils pkgs.playerctl pkgs.systemd ]}:/etc/profiles/per-user/${config.dotfiles.user.name}/bin:/run/current-system/sw/bin"
             ];
           };
           Install.WantedBy = [ "default.target" ];

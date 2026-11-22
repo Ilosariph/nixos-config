@@ -3,11 +3,11 @@
     "agentdeck": {
       "flake": false,
       "locked": {
-        "lastModified": 1795302944,
-        "narHash": "sha256-+G7qxGVrLYO16pSHN4+3VG1LwNv1D5dO66kgsNnrj7g=",
+        "lastModified": 1795341852,
+        "narHash": "sha256-kzv6M5wsxttqjnyBHe+ao29wWG+IBTlNMsu/9MaGJFU=",
         "owner": "Ilosariph",
         "repo": "AgentDeck",
-        "rev": "f1e15f63feb6c5c26b85675c0a42f0a7b006e42e",
+        "rev": "e5e2a7d2b9000f0a11b90bb918442dcd5578d3d2",
         "type": "github"
       },
       "original": {
