@@ -217,6 +217,9 @@
               "application/vnd.rar" = archiveManager;
               "application/x-xz" = archiveManager;
 
+              # Firefox extensions; would fall back to application/zip (Dolphin) otherwise.
+              "application/x-xpinstall" = browser;
+
               "text/html" = browser;
               "x-scheme-handler/http" = browser;
               "x-scheme-handler/https" = browser;
