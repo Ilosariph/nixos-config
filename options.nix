@@ -580,6 +580,13 @@
           description = "Enable the motorized fader controller host (user service binding faders to PipeWire sinks).";
         };
       };
+      agentDeck = {
+        enable = lib.mkOption {
+          type = lib.types.bool;
+          default = false;
+          description = "Enable AgentDeck daemon (user service, whisper.cpp voice, udev rules for ESP32 boards).";
+        };
+      };
       yeetmouse = {
         enable = lib.mkOption {
           type = lib.types.bool;

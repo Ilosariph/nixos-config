@@ -1,5 +1,22 @@
 {
   "nodes": {
+    "agentdeck": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1795372658,
+        "narHash": "sha256-+BIc02DPjfuxc7My72W4kkp891mRlocUb5ZH17tV6gE=",
+        "owner": "Ilosariph",
+        "repo": "AgentDeck",
+        "rev": "cb827d1b841a2b33d4112f8f4ffd40134e06abef",
+        "type": "github"
+      },
+      "original": {
+        "owner": "Ilosariph",
+        "ref": "master",
+        "repo": "AgentDeck",
+        "type": "github"
+      }
+    },
     "apple-silicon": {
       "inputs": {
         "flake-compat": "flake-compat",
@@ -302,11 +319,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1795126215,
-        "narHash": "sha256-C3Ehx6fkVv1cfS5xLdBLUFeBwVzr+8XcoonV5py1dB8=",
+        "lastModified": 1795359730,
+        "narHash": "sha256-SYegTjmS9Ml+RnjqvCPRu+K9AiHqhtgt0//KC+e2Mi0=",
         "owner": "Ilosariph",
         "repo": "motorized-faders",
-        "rev": "126bf48a6ed251d9f335589fa7bc7076a004ea78",
+        "rev": "120ebd874fc6204592ef7cdf434a53cb0817d4b2",
         "type": "github"
       },
       "original": {
@@ -590,6 +607,7 @@
     },
     "root": {
       "inputs": {
+        "agentdeck": "agentdeck",
         "apple-silicon": "apple-silicon",
         "comfyui-nix": "comfyui-nix",
         "deploy-rs": "deploy-rs",
