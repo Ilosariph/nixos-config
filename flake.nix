@@ -122,7 +122,7 @@
     # the Waveshare 3.49 port, voice drafts and Linux/tmux fixes. Source only;
     # built in modules/packages/agentdeck. https://github.com/Ilosariph/AgentDeck
     agentdeck = {
-      url = "github:Ilosariph/AgentDeck/waveshare-349";
+      url = "github:Ilosariph/AgentDeck/master";
       flake = false;
     };
 
