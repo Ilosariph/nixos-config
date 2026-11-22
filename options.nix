@@ -580,6 +580,13 @@
           description = "Enable the motorized fader controller host (user service binding faders to PipeWire sinks).";
         };
       };
+      digikeyMcp = {
+        enable = lib.mkOption {
+          type = lib.types.bool;
+          default = false;
+          description = "Enable DigiKey MCP server for Claude Code (needs sops secret digikey-mcp-env).";
+        };
+      };
       agentDeck = {
         enable = lib.mkOption {
           type = lib.types.bool;
