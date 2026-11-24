@@ -14,6 +14,7 @@
   dotfiles.network.lanHosts = [ "nucserver" "evo" "vps" ];
   dotfiles.programs.tmux.enable = false;
   dotfiles.programs.gnirehtet.enable = true;
+  dotfiles.programs.cad.kicad.enable = true;
   dotfiles.windowManager.type = "niri";
   dotfiles.bluetooth.enable = true;
   dotfiles.security.yubikey.enable = true;
