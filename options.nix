@@ -587,6 +587,13 @@
           description = "Enable DigiKey MCP server for Claude Code (needs sops secret digikey-mcp-env).";
         };
       };
+      projectsBoardMcp = {
+        enable = lib.mkOption {
+          type = lib.types.bool;
+          default = false;
+          description = "Register the projects board MCP server in Claude Code (needs domains.projectsBoard in private.nix and sops secret projects-board-mcp-token in shared.yaml).";
+        };
+      };
       agentDeck = {
         enable = lib.mkOption {
           type = lib.types.bool;

@@ -42,6 +42,7 @@
   dotfiles.programs.wol.enable = true;
   dotfiles.programs.agentDeck.enable = true;
   dotfiles.programs.digikeyMcp.enable = true;
+  dotfiles.programs.projectsBoardMcp.enable = true;
   dotfiles.bluetooth.enable = true;
   dotfiles.security.yubikey.enable = true;
   dotfiles.security.yubikey.sudo.enable = true;
