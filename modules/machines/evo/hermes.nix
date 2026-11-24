@@ -126,6 +126,9 @@ lib.mkIf cfg.enable {
           args: ["mcp-nixos"]
         galaxus:
           url: https://mcp.galaxus.ch
+        # Projects board via the token-injecting local proxy (./board-proxy.nix, port must match).
+        board:
+          url: http://127.0.0.1:9123/mcp
       # Discord access control is configured via env vars in hermes-env
       # (DISCORD_ALLOWED_USERS / _CHANNELS / _HOME_CHANNEL / _REQUIRE_MENTION).
     '';
