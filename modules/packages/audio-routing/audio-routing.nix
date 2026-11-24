@@ -473,6 +473,15 @@
         dotfiles.audio.micEffects.enable = lib.mkDefault true;
       })
 
+      # Fixed graph quantum: default = max, so large client requests (Firefox asks for 3600
+      # frames) can't raise output latency. Smaller requests still go through.
+      (lib.mkIf (cfg.quantum != null) {
+        services.pipewire.extraConfig.pipewire."05-quantum"."context.properties" = {
+          "default.clock.quantum" = cfg.quantum;
+          "default.clock.max-quantum" = cfg.quantum;
+        };
+      })
+
       # ── pulsemeeter mode ──────────────────────────────────────────────────────
       (lib.mkIf (cfg.routing == "pulsemeeter") {
         environment.systemPackages = with pkgs; [

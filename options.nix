@@ -714,6 +714,17 @@
         # set to 1.5 for 150% — raises the ceiling exposed through the PulseAudio compat layer
         description = "Maximum volume scalar exposed through the PulseAudio compat layer. 1.0 = 100%, 1.5 = 150%.";
       };
+      quantum = lib.mkOption {
+        type = lib.types.nullOr lib.types.ints.positive;
+        default = null;
+        example = 256;
+        description = ''
+          PipeWire graph quantum (frames at 48 kHz). Sets both the default and the max quantum:
+          pulse clients like Firefox request large latencies (3600 frames) that would otherwise
+          raise the graph to max-quantum (2048 ≈ 43 ms). Clients can still request smaller.
+          null keeps PipeWire's defaults (1024, max 2048).
+        '';
+      };
     };
 
     locale = {
