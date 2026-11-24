@@ -76,12 +76,19 @@
           echo "Sync complete."
 
         elif [[ "$MODE" == "snapshot" ]]; then
+          # Written as snap_*.partial and renamed when done, so a NAS-side backup
+          # running at the same time (excluding *.partial) never reads a half-written
+          # snapshot. Leftovers from aborted runs are removed first.
           STAMP="snap_$(date +%Y-%m-%d_%H-%M-%S)"
           SNAP_DIR="$DEST/$STAMP"
+          WORK_DIR="$SNAP_DIR.partial"
+          mkdir -p "$DEST"
+          find "$DEST" -mindepth 1 -maxdepth 1 -type d -name 'snap_*.partial' -exec rm -rf {} +
           echo "Starting snapshot: $SOURCE -> $SNAP_DIR"
-          mkdir -p "$SNAP_DIR"
-          ${pkgs.rsync}/bin/rsync -avh --no-owner --no-group "''${EXCLUDES[@]}" "$SOURCE" "$SNAP_DIR"
-          [[ -n "$STAGE" ]] && ${pkgs.rsync}/bin/rsync -avh --no-owner --no-group "$STAGE/" "$SNAP_DIR"
+          mkdir -p "$WORK_DIR"
+          ${pkgs.rsync}/bin/rsync -avh --no-owner --no-group "''${EXCLUDES[@]}" "$SOURCE" "$WORK_DIR"
+          [[ -n "$STAGE" ]] && ${pkgs.rsync}/bin/rsync -avh --no-owner --no-group "$STAGE/" "$WORK_DIR"
+          mv "$WORK_DIR" "$SNAP_DIR"
           echo "Snapshot complete: $SNAP_DIR"
 
           if [[ -n "$KEEP" ]]; then
@@ -93,7 +100,10 @@
               for i in $(seq 0 $(( DELETE_COUNT - 1 ))); do
                 TARGET="$DEST/''${ALL_SNAPS[$i]}"
                 echo "Removing old snapshot: $TARGET"
-                rm -rf "$TARGET"
+                # Rename first (instant) so a concurrent NAS backup skips it instead of
+                # hitting files vanishing during the slow rm.
+                mv "$TARGET" "$TARGET.partial"
+                rm -rf "$TARGET.partial"
               done
             fi
             echo "Pruning done. Kept $KEEP snapshots."
@@ -108,6 +118,7 @@
         name = "backup-${job.name}";
         value = {
           description = "Backup job: ${job.name}";
+          onFailure = [ "backup-failure-notify@%n.service" ];
           serviceConfig = {
             Type = "oneshot";
             User = if job.user != null then job.user else config.dotfiles.user.name;
@@ -126,6 +137,22 @@
         };
       };
 
+      # Discord message with the job's log tail when a backup unit fails (NAS down,
+      # rsync error, disk full, ...). Separate root unit so job users never need the
+      # webhook secret. Best effort: a failed post only logs.
+      notifyScript = pkgs.writeShellScript "backup-failure-notify" ''
+        set -uo pipefail
+        UNIT="$1"
+        WEBHOOK=$(cat ${config.sops.secrets.backup-discord-webhook.path})
+        INV=$(${pkgs.systemd}/bin/systemctl show -p InvocationID --value "$UNIT")
+        LOG=$(${pkgs.systemd}/bin/journalctl --no-pager -o cat _SYSTEMD_INVOCATION_ID="$INV" | tail -n 20 | tail -c 1500 | sed 's/```/`\\`\\`/g')
+        DESC=$(printf '`%s` failed\n```\n%s\n```' "$UNIT" "$LOG")
+        ${pkgs.jq}/bin/jq -n --arg t "❌ Backup failed on $(${pkgs.hostname}/bin/hostname)" --arg d "$DESC" \
+          '{embeds: [{title: $t, description: $d, color: 15158332, timestamp: (now | todate)}]}' |
+          ${pkgs.curl}/bin/curl -fsS -m 10 --retry 3 -H 'Content-Type: application/json' -d @- "$WEBHOOK" >/dev/null \
+          || echo "Discord notification failed"
+      '';
+
       makeTimer = job: {
         name = "backup-${job.name}";
         value = {
@@ -140,7 +167,17 @@
 
     in
     lib.mkIf (cfg.enable && cfg.jobs != []) {
-      systemd.services = lib.listToAttrs (map makeService cfg.jobs);
+      systemd.services = lib.listToAttrs (map makeService cfg.jobs) // {
+        "backup-failure-notify@" = {
+          description = "Discord notification for failed %i";
+          serviceConfig = {
+            Type = "oneshot";
+            ExecStart = "${notifyScript} %i";
+          };
+        };
+      };
       systemd.timers   = lib.listToAttrs (map makeTimer  cfg.jobs);
+
+      sops.secrets.backup-discord-webhook.sopsFile = config.dotfiles.sops.sharedSecretsFile;
     };
 }

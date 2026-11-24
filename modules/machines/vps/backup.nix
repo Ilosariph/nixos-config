@@ -20,7 +20,7 @@ in
 {
   sops.secrets.restic-password = { };
   sops.secrets.storagebox-ssh-key = { };
-  sops.secrets.backup-discord-webhook = { };
+  sops.secrets.backup-discord-webhook.sopsFile = config.dotfiles.sops.sharedSecretsFile;
 
   # restic's sftp backend runs `ssh storagebox -s sftp`.
   programs.ssh.extraConfig = ''
