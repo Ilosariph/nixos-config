@@ -14,6 +14,11 @@ in
   dotfiles.bootloader.grubDevice = "/dev/nvme0n1";
   dotfiles.programs._1password.sshAgent = false;
   dotfiles.services.ssh.enable = true;
+  dotfiles.services.heartbeat = {
+    enable = true;
+    priority = 10;
+    peers = { evo.wol = true; vps = { }; };
+  };
   dotfiles.services.ssh.authorizedKeys = config.dotfiles.private.ssh.authorizedKeys;
   # sshd is covered by CrowdSec (crowdsec.nix).
   dotfiles.services.fail2ban.enable = false;

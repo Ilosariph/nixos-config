@@ -76,6 +76,10 @@ rm /tmp/signing-key.sec /tmp/signing-key.pub
 
 Then rebuild mainpc (loads the signing key) and deploy evo (trusts the public key).
 
+### Server heartbeats (heartbeat)
+
+nucserver, evo and vps watch each other with signed UDP heartbeats (`modules/packages/heartbeat/`, `dotfiles.services.heartbeat`). vps is a hub (`reply = true`): it answers heartbeats, so nuc/evo see it although it can't reach them. Down/back/reboot messages go to Discord (lowest `priority` live watcher posts); nuc and evo WoL each other (`peers.<name>.wol`). `sudo reboot`/`poweroff` announce themselves (reboot: quiet for `rebootWindow`; poweroff: no alerts/WoL until back). `heartbeat status`, `heartbeat maint 2h`, `heartbeat done`. Secrets in shared.yaml: `heartbeat-key` (`openssl rand -hex 32`), `heartbeat-discord-webhook`.
+
 ### Available Flake Configurations
 - **Desktop**: `mainpc`, `laptop`, `macbook` (aarch64)
 - **Servers**: `nucserver`, `laptopserver`, `evo`, `vps`

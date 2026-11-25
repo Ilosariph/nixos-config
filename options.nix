@@ -279,6 +279,88 @@
           description = "Max seconds per eval/build.";
         };
       };
+      heartbeat = {
+        enable = lib.mkEnableOption "heartbeats between servers with Discord alerts and Wake-on-LAN";
+        port = lib.mkOption {
+          type = lib.types.port;
+          default = 47913;
+          description = "UDP port (opened in the firewall; packets are HMAC-signed).";
+        };
+        interval = lib.mkOption {
+          type = lib.types.int;
+          default = 30;
+          description = "Seconds between heartbeats (keep below NAT UDP timeouts).";
+        };
+        timeout = lib.mkOption {
+          type = lib.types.int;
+          default = 150;
+          description = "Seconds without a heartbeat before a peer counts as down.";
+        };
+        rebootWindow = lib.mkOption {
+          type = lib.types.int;
+          default = 900;
+          description = "Seconds peers stay quiet after this host announced a reboot.";
+        };
+        priority = lib.mkOption {
+          type = lib.types.int;
+          default = 50;
+          description = "Of all live hosts watching a down host, the lowest priority posts to Discord.";
+        };
+        reply = lib.mkOption {
+          type = lib.types.bool;
+          default = false;
+          description = "Hub mode: answer heartbeats, so peers behind NAT can watch this host.";
+        };
+        wolAttempts = lib.mkOption {
+          type = lib.types.int;
+          default = 3;
+          description = "Wake-on-LAN tries per outage.";
+        };
+        wolInterval = lib.mkOption {
+          type = lib.types.int;
+          default = 300;
+          description = "Seconds between Wake-on-LAN tries.";
+        };
+        keySecret = lib.mkOption {
+          type = lib.types.str;
+          default = "heartbeat-key";
+          description = "sops secret (shared.yaml) with the HMAC key, same on all hosts.";
+        };
+        webhookSecret = lib.mkOption {
+          type = lib.types.str;
+          default = "heartbeat-discord-webhook";
+          description = "sops secret (shared.yaml) with the Discord webhook URL.";
+        };
+        peers = lib.mkOption {
+          default = { };
+          description = "Other hosts, by hostname.";
+          type = lib.types.attrsOf (lib.types.submodule ({ name, ... }: {
+            options = {
+              address = lib.mkOption {
+                type = lib.types.nullOr lib.types.str;
+                default = config.dotfiles.private.hosts.${name} or null;
+                defaultText = lib.literalExpression "config.dotfiles.private.hosts.<name> or null";
+                description = "IPv4 address to send heartbeats to.";
+              };
+              send = lib.mkOption {
+                type = lib.types.bool;
+                default = true;
+                description = "Send heartbeats to it. false for hosts that can't be reached (a hub learns them from their heartbeats).";
+              };
+              watch = lib.mkOption {
+                type = lib.types.bool;
+                default = true;
+                description = "Alert when it goes down.";
+              };
+              wol = lib.mkOption {
+                type = lib.types.bool;
+                default = false;
+                description = "Wake it (MAC from dotfiles.private.macs) when down and not pingable. Same LAN only.";
+              };
+            };
+          }));
+        };
+      };
       pullSwitch = {
         enable = lib.mkOption {
           type = lib.types.bool;

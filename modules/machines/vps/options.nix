@@ -12,6 +12,12 @@ in
   dotfiles.bootloader.grubDevice = "/dev/sda";
   dotfiles.programs._1password.sshAgent = false;
   dotfiles.services.ssh.enable = true;
+  dotfiles.services.heartbeat = {
+    enable = true;
+    priority = 30;
+    reply = true;
+    peers = { nucserver.send = false; evo.send = false; };
+  };
   dotfiles.services.ssh.authorizedKeys = vps.authorizedKeys;
   # CrowdSec (crowdsec.nix) covers sshd.
   dotfiles.services.fail2ban.enable = false;

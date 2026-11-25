@@ -12,6 +12,11 @@ in
   dotfiles.bootloader.type = "systemd";
   dotfiles.programs._1password.sshAgent = false;
   dotfiles.services.ssh.enable = true;
+  dotfiles.services.heartbeat = {
+    enable = true;
+    priority = 20;
+    peers = { nucserver.wol = true; vps = { }; };
+  };
   dotfiles.services.ssh.authorizedKeys = config.dotfiles.private.ssh.authorizedKeys;
   dotfiles.services.jellyfin = {
 		enable = true;
