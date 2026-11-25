@@ -9,14 +9,13 @@
 #   - delete tools are hidden + refused: Hermes closes items with state=dropped instead
 #
 # Host: config.dotfiles.private.domains.projectsBoard (private.nix).
-# Secret (sops, shared.yaml): projects-board-mcp-token (the board's MCP_TOKEN).
+# Secret (sops, hosts/evo.yaml): projects-board-mcp-token (the board's MCP_TOKEN).
 let
   port = 9123;
   deny = [ "delete_project" "delete_item" ];
 in
 lib.mkIf config.dotfiles.services.hermes.enable {
   sops.secrets."projects-board-mcp-token" = {
-    sopsFile = config.dotfiles.sops.sharedSecretsFile;
     restartUnits = [ "board-proxy.service" ];
   };
 
