@@ -218,25 +218,6 @@
           description = "List of backup jobs to run.";
         };
       };
-      jellyfin = {
-        enable = lib.mkOption {
-          type = lib.types.bool;
-          default = false;
-          description = "Enable Jellyfin media server container.";
-        };
-        publishedServerUrl = lib.mkOption {
-          type = lib.types.str;
-          default = "";
-          description = "Published server URL for Jellyfin autodiscovery (JELLYFIN_PublishedServerUrl).";
-        };
-      };
-      seerr = {
-        enable = lib.mkOption {
-          type = lib.types.bool;
-          default = false;
-          description = "Enable Seerr media request container (successor of Jellyseerr).";
-        };
-      };
       photon = {
         enable = lib.mkOption {
           type = lib.types.bool;

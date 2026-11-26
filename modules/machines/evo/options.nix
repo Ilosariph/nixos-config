@@ -13,11 +13,6 @@ in
   dotfiles.programs._1password.sshAgent = false;
   dotfiles.services.ssh.enable = true;
   dotfiles.services.ssh.authorizedKeys = config.dotfiles.private.ssh.authorizedKeys;
-  dotfiles.services.jellyfin = {
-		enable = true;
-		publishedServerUrl = "https://${config.dotfiles.private.domains.jellyfin}";
-	};
-  dotfiles.services.seerr.enable = true;
   dotfiles.services.photon.enable = true;
   dotfiles.services.fail2ban.enable = true;
   dotfiles.services.hermes.enable = true;
@@ -77,6 +72,8 @@ in
       mountPoint = "/mnt/arr";
       share = "arr";
       credentials = smb "arr";
+      # Bind-mounted into long-running containers: never expire the mount under them.
+      extraOptions = [ "x-systemd.idle-timeout=0" ];
     }
     {
       mountPoint = "/mnt/docker-backup";
