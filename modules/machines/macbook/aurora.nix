@@ -66,6 +66,9 @@ in
           # a separate apple-drm card); stock Asahi mesa doesn't bind to it,
           # so compositors get no GPU.
           (pick [ "linux-asahi" "aurora-bindgen" "m1n1" "uboot-asahi" "mesa" "aurora-rusticl" ])
+          # mesa's asahi test agx3_gen1_scs_sweep hits meson's 30s timeout
+          # when built next to the kernel; 18 min of mesa lost each time.
+          (final: prev: { mesa = prev.mesa.overrideAttrs { doCheck = false; }; })
         ];
 
         nix.settings = {
@@ -113,6 +116,11 @@ in
             aurora-sep = prev.aurora-sep.overrideAttrs (old: {
               patches = (old.patches or [ ]) ++ [ ./patches/aurora-touchid-fscl-records.patch ];
             });
+            # The meson suite's umockdev pcap replays of other drivers
+            # (egis_etu905, mafpmoc, aes2550, vfs7552) time out when the
+            # MacBook is busy with a kernel/mesa build. Aurora's own interface
+            # checks run in postPatch and still apply.
+            libfprint = prev.libfprint.overrideAttrs { doInstallCheck = false; };
           })
         ];
       }
