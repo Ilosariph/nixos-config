@@ -378,10 +378,10 @@
         "vid-viewer": "vid-viewer"
       },
       "locked": {
-        "lastModified": 1795876057,
-        "narHash": "sha256-5v5WYfQ2GvFJvM4cQAmQ/NWZ0imO4ymtrkkrHn+sYZw=",
+        "lastModified": 1795888638,
+        "narHash": "sha256-77jqkdsPmvzS+y3PMLaJ6uiJv6C08Iozn6WxZn/8tE0=",
         "ref": "main",
-        "rev": "f3da4501c9f4b3917af86b7ce728e484b8cd6ecc",
+        "rev": "8f4546f14dcea836288845e29e370d7d6107eaa7",
         "shallow": true,
         "type": "git",
         "url": "ssh://git@github.com/Ilosariph/nix-private.git"
@@ -656,11 +656,11 @@
     "sortvids": {
       "flake": false,
       "locked": {
-        "lastModified": 1794608438,
-        "narHash": "sha256-d/WywnliVNX10Ndyok2DijRS+D7Vql2KtJddd8KiXyA=",
+        "lastModified": 1795888566,
+        "narHash": "sha256-ObGjTfPXHmBTIdU8rIk4vcQBVSWs55FHKR1rEF23JJA=",
         "ref": "master",
-        "rev": "4e36986330ef94a2d06ddb9cc4ddfe31015b498c",
-        "revCount": 21,
+        "rev": "03cd6321fb3ae1b6602e65f1c7eadac229d18807",
+        "revCount": 23,
         "type": "git",
         "url": "ssh://git@github.com/Ilosariph/sortvids.git"
       },
